@@ -24,7 +24,9 @@ Suggests:
     knitr,
     rmarkdown,
     grid,
-    AnnotationDbi
+    AnnotationDbi, 
+    org.Mm.eg.db, 
+    org.Hs.eg.db
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
 biocViews: 
