@@ -9,7 +9,10 @@
 ##' @return Nothing, but invisibly sets \code{options(mc.cores)} if currently \code{NULL}. 
 ##' @author Russell Bainer, Pete Haverty
 ct.numcores <- function()  {
-    if(is.null(getOption('mc.cores'))){
+   if( .Platform$OS.type == "windows" ){
+    options(mc.cores = 1)
+   }
+   if(is.null(getOption('mc.cores'))){
        numcores = parallel::detectCores()
        options(mc.cores = numcores)
    }
