@@ -23,7 +23,6 @@
 ##' @return A dataframe of enriched pathways.
 ##' @author Russell Bainer, Steve Lianoglou
 ##' @examples data('resultsDF')
-##' library('org.Mm.eg.db')
 ##' ct.PantherPathwayEnrichment(resultsDF, organism = 'mouse')
 ##' @export
 
