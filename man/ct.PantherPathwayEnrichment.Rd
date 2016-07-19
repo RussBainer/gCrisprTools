@@ -40,7 +40,6 @@ to histone modification within a screen employing a crispr library targeting epi
 }
 \examples{
 data('resultsDF')
-library('org.Mm.eg.db')
 ct.PantherPathwayEnrichment(resultsDF, organism = 'mouse')
 }
 \author{
