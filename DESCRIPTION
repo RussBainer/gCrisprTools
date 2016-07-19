@@ -20,8 +20,6 @@ Imports:
     PANTHER.db,
     BiocParallel
 Suggests:
-    ExpressionPlot,
-    ExpressionCore,
     edgeR,
     knitr,
     rmarkdown,
