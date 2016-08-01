@@ -43,8 +43,9 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
       omit <- length(setdiff(row.names(ann), row.names(object)))
       if(omit > 0){
         message(paste(omit, "elements defined in the annotation file are not present in row names of the specified object. Omitting."))
-        ann <- ann[row.names(object),]
         }
+
+      ann <- ann[row.names(object),]
 
       } else {
           warning('The supplied object has no row.names! Ignorning.')

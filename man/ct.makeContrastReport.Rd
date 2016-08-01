@@ -13,7 +13,7 @@ abundances extractable with the \code{exprs()} function and some named
 phenodata extractable with \code{pData()}.}
 
 \item{fit}{A fit object for the contrast of interest, usually generated with
-\code{limma::lmFit}.}
+\code{lmFit}.}
 
 \item{sampleKey}{A sample key, supplied as an ordered factor linking the 
 samples to experimental variables. The \code{names} attribute should 

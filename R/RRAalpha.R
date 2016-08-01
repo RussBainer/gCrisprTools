@@ -7,14 +7,15 @@
 ##' processing should do so by invoking \code{options()} from the command line prior to analysis. 
 ##' 
 ##' @return Nothing, but invisibly sets \code{options(mc.cores)} if currently \code{NULL}. 
+##' @keywords internal
 ##' @author Russell Bainer, Pete Haverty
 ct.numcores <- function()  {
-   if( .Platform$OS.type == "windows" ){
+  if( .Platform$OS.type == "windows" ){
     options(mc.cores = 1)
-   }
-   if(is.null(getOption('mc.cores'))){
-       numcores = parallel::detectCores()
-       options(mc.cores = numcores)
+  }
+  if(is.null(getOption('mc.cores'))){
+     numcores = detectCores()
+     options(mc.cores = numcores)
    }
     invisible()
   }
@@ -30,10 +31,12 @@ ct.numcores <- function()  {
 ##' Citation: 
 ##' Kolde, R. et al, Bioinformatics. 2012 Feb 15;28(4):573-80. doi: 10.1093/bioinformatics/btr709.
 ##' @import RobustRankAggreg
+##' @keywords internal
 ##' @examples
+##' library(RobustRankAggreg)
 ##' testp <- runif(20)
 ##'
-##' RobustRankAggreg::betaScores((testp))
+##' betaScores((testp))
 ##' ct.alphaBeta(testp)  
 ##' @export
 
@@ -63,6 +66,7 @@ ct.alphaBeta <- function(p.in){
 ##' variable in the specified \code{environment}. 
 ##' @return Nothing, or a named list of target-level P-values, which are treated as a rho statistic in the permutation step. 
 ##' @author Russell Bainer
+##' @keywords internal
 ##' @examples 
 ##' data('fit')
 ##' data('ann')
@@ -124,6 +128,7 @@ ct.RRAalpha <- function(p, g.key, alpha, shuffle = FALSE, return.obj = TRUE){
 ##'   Default: \code{NULL} means to not set any seed.
 ##' @return A named list of target-level empirical P-values. 
 ##' @author Russell Bainer
+##' @keywords internal
 ##' @examples 
 ##' data('fit')
 ##' data('ann')
@@ -231,6 +236,7 @@ ct.RRAaPvals <- function(p,
 ##' @param batch.size Number of iterations to deploy to each daughter process. 
 ##' @param permutation.seed numeric seed for permutation reproducibility. Default is \code{NULL}, in which case no seed is set.
 ##' @return An integer vector indicating the number of iterations in which each gene's score was better than those indicated in \code{result.environment$obs}. 
+##' @keywords internal
 ##' @author Russell Bainer
 ##' @examples 
 ##' data('fit')

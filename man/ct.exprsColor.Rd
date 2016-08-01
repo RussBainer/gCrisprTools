@@ -17,9 +17,11 @@ ct.exprsColor(exprs, rankedexprs, colors)
 A value contained in cols.
 }
 \description{
-This is a function to generate colors for plot elements on the basis of the position of a value within a distribution. Called internally by ct.viewGuides.
+This is a function to generate colors for plot elements on the basis of the position of a value within a distribution. 
+Called internally by ct.viewGuides.
 }
 \author{
 Russell Bainer
 }
+\keyword{internal}
 

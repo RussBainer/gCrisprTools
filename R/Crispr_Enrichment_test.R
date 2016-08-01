@@ -53,10 +53,7 @@ ct.PantherPathwayEnrichment <- function(summaryDF, pvalue.cutoff = 0.01, enrich 
       stop("db.cut must be a numeric value.")
     }
     
-    if(!(organism %in% c('human', 'mouse'))){
-      stop("organism must be either 'human' or 'mouse'.")
-    }
-    
+
     message("WARNING: The interpretation of gene set enrichment analyses in Crispr screens is tricky. See the man page for further details.")
     
     #Condense the summary frame to gene-level estimates and isolate the ones that we are testing
@@ -109,14 +106,14 @@ ct.PantherPathwayEnrichment <- function(summaryDF, pvalue.cutoff = 0.01, enrich 
     }
 
 ##' @title  Extract a Named List of Entrez IDs Annotated to Each Pathway in \code{PANTHER.db}
-##' @description This is a function that invokes the \code{PANTHER.db} Bioconductor library to extract a list of pathway mappings
+##' @description This is a function that invokes the \link[PANTHER.db]{PANTHER.db} Bioconductor library to extract a list of pathway mappings
 ##' to be used in gene set enrichment tests. Specifically, the function returns a named list of pathways, where each element contains
 ##' Entrez IDs. Users should not generally call this function directly as it is invoked internally by the higher-level 
 ##' \code{ct.PantherPathwayEnrichment()} function. 
 ##' @param species The species of the cells used in the screen. Currently only 'human' or 'mouse' are supported. 
 ##' @return A named list of pathways from \code{PANTHER.db}.
 ##' @author Russell Bainer, Steve Lianoglou. 
-##' @export
+##' @keywords internal
 
 ct.getPanther <- function (species = c("human", "mouse")){
   species <- match.arg(species, c("human", "mouse"))
@@ -139,19 +136,19 @@ ct.getPanther <- function (species = c("human", "mouse")){
     stop(org.pkg, " bioconductor package required for this species query")
   }
 
-  p.db <- PANTHER.db::PANTHER.db
+  p.db <- PANTHER.db
 
   #This is a prefiltering step that appears to be unnecessary now 
   #but potentially breaks if the user doesn't have proper database permissions. 
-  #PANTHER.db::pthOrganisms(p.db) <- toupper(species)  
+  #pthOrganisms(p.db) <- toupper(species)  
 
   org.db <- getFromNamespace(org.pkg, org.pkg)
 
-  p.all <- AnnotationDbi::select(p.db, AnnotationDbi::keys(p.db, keytype="PATHWAY_ID"),
+  p.all <- select(p.db, keys(p.db, keytype="PATHWAY_ID"),
                     columns=c("PATHWAY_ID", "PATHWAY_TERM", "UNIPROT"),
                     'PATHWAY_ID')
   # Map uniprot to entrez
-  umap <- suppressMessages(AnnotationDbi::select(org.db, p.all$UNIPROT, c('UNIPROT', 'ENTREZID'), 'UNIPROT'))
+  umap <- suppressMessages(select(org.db, p.all$UNIPROT, c('UNIPROT', 'ENTREZID'), 'UNIPROT'))
   m <- merge(p.all, umap, by='UNIPROT')
   m <- subset(m, !is.na(m$ENTREZID))
   
@@ -280,6 +277,8 @@ ct.targetSetEnrichment <- function(summaryDF, targets, enrich = c(TRUE, FALSE), 
 ## numB: size of universe
 ## numDrawn: number of differentially expressed genes
 ## numWdrawn: the number of genes differentially expressed in category
+##' @keywords internal
+
 .doHyperGInternal <- function(numW, numB, numDrawn, numWdrawn, over) {
   n21 <- numW - numWdrawn
   n12 <- numDrawn - numWdrawn

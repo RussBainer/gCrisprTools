@@ -109,7 +109,7 @@ ct.stackGuides <- function(eset, sampleKey = NULL, nguides = 20, plotType = "gRN
     }
   
   d <- apply(d, 2, function(x){x/sum(x, na.rm = TRUE)})
-  d <- d[order(apply(d, 1, function(x){base::range(x, na.rm = TRUE)[2] - base::range(x, na.rm = TRUE)[1]}), 
+  d <- d[order(apply(d, 1, function(x){range(x, na.rm = TRUE)[2] - range(x, na.rm = TRUE)[1]}), 
                decreasing = TRUE),
          names(sampleKey)[order(sampleKey)]]
   d <- d[seq_len(nguides),]
@@ -132,22 +132,22 @@ ct.stackGuides <- function(eset, sampleKey = NULL, nguides = 20, plotType = "gRN
     if(!is.numeric(ylimit) | (length(ylimit) != 2)){
       stop("The ylimit variable must be NULL, or a numeric vector of length 2.")
     }
-    ggplot2::ggplot(plotframe, aes_string(x = 'Condition', y = 'ReadProportion', fill = 'gRNA')) + 
+    ggplot(plotframe, aes_string(x = 'Condition', y = 'ReadProportion', fill = 'gRNA')) + 
       geom_bar(stat = "identity", position = 'stack') + 
       theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
       scale_fill_manual(values=colorScale) + ggtitle(plottitle) + 
       coord_cartesian(ylim = c(ylimit[1], ylimit[2])) + 
       ylab("Proportion of Total Reads") + 
-      theme(legend.key.size = grid::unit(legend.scale.factor, "cm"), legend.title=element_blank()) 
+      theme(legend.key.size = unit(legend.scale.factor, "cm"), legend.title=element_blank()) 
     
   } else{
-    ggplot2::ggplot(plotframe, aes_string(x = 'Condition', y = 'ReadProportion', fill = 'gRNA')) + 
+    ggplot(plotframe, aes_string(x = 'Condition', y = 'ReadProportion', fill = 'gRNA')) + 
       geom_bar(stat = "identity", position = 'stack') + 
       theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
       scale_fill_manual(values=colorScale) + 
       ggtitle(plottitle) + 
       ylab("Proportion of Total Reads") + 
-      theme(legend.key.size = grid::unit(legend.scale.factor, "cm"), legend.title=element_blank())
+      theme(legend.key.size = unit(legend.scale.factor, "cm"), legend.title=element_blank())
   }
 }
 

@@ -20,4 +20,5 @@ This is a function called internally by ct.viewGuides to generate the color lege
 \author{
 Russell Bainer
 }
+\keyword{internal}
 

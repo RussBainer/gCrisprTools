@@ -18,9 +18,10 @@ Specifically, the ranks are ordered and p-values calculated at each position in 
 returned is the smallest p-value identified in this way across all scores. Should not be used by end users.
 }
 \examples{
+library(RobustRankAggreg)
 testp <- runif(20)
 
-RobustRankAggreg::betaScores((testp))
+betaScores((testp))
 ct.alphaBeta(testp)  
 }
 \author{
@@ -29,4 +30,5 @@ Russell Bainer, modified from code from the \code{RobustRankAggreg} package.
 Citation: 
 Kolde, R. et al, Bioinformatics. 2012 Feb 15;28(4):573-80. doi: 10.1093/bioinformatics/btr709.
 }
+\keyword{internal}
 

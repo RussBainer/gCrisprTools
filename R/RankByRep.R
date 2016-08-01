@@ -10,7 +10,7 @@
 ##' @param annotation An annotation dataframe indicating the nontargeting controls in the geneID column. 
 ##' @param geneSymb The \code{geneSymbol} identifier(s) in \code{annotation} that corresponds to gRNAs to be plotted on the curves. 
 ##' If the provided value is not present in the \code{geneSymbol}, nontargeting controls will be plotted instead.
-##' @param lib.size An optional vector of voom-appropriate library size adjustment factor, usually calculated with \code{edgeR::calcNormFactors}.
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factor, usually calculated with \code{calcNormFactors}.
 ##' @return A waterfall plot as specified, on the default device.
 ##' @author Russell Bainer
 ##' @examples 

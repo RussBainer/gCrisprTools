@@ -10,6 +10,7 @@
 #' @param name character
 #' @param ext character - extension including a ".".
 #'
+#' @keywords internal
 #' @return character
 #'
 appendDateAndExt <- function(name, ext) {
@@ -29,6 +30,7 @@ appendDateAndExt <- function(name, ext) {
 #' @param outdir An optional character string indicating the directory in which to 
 #' generate the report. If \code{NULL}, a temporary directory will be automatically generated. 
 #'
+#' @keywords internal
 #' @return  character with a path to html report in the temporary directory.
 renderReport <- function(reportNameBase,
                          templateName,
@@ -43,11 +45,11 @@ renderReport <- function(reportNameBase,
           stop("`outdir` must be path to a directory used ot save results")
         }
         outdir.created <- initOutDir(outdir)   #True/false indicating whether the directory was created
-        outdir <- base::normalizePath(outdir)
+        outdir <- normalizePath(outdir)
       }
 
-  rmarkdown::render(
-    rmarkdown::draft(
+  render(
+    draft(
       file = file.path(outdir, reportNameBase),
       create_dir = TRUE,
       template = templateName,
@@ -166,7 +168,7 @@ outname <- file.path(noutdir, namebase, paste0(namebase, '.html'))
 
 print(names(rmdParamList))
 
-rmarkdown::render(rmarkdown::draft(rmdname, template = 'CRISPR_report', package = "gCrisprTools", edit = FALSE), params = rmdParamList)
+render(draft(rmdname, template = 'CRISPR_report', package = "gCrisprTools", edit = FALSE), params = rmdParamList)
 
 return(outname)
 
@@ -299,7 +301,7 @@ ct.makeQCReport <-
 ##'   abundances extractable with the \code{exprs()} function and some named 
 ##'   phenodata extractable with \code{pData()}.
 ##' @param fit A fit object for the contrast of interest, usually generated with
-##'   \code{limma::lmFit}.
+##'   \code{lmFit}.
 ##' @param sampleKey A sample key, supplied as an ordered factor linking the 
 ##'   samples to experimental variables. The \code{names} attribute should 
 ##'   exactly match those present in \code{eset}, and the control set is assumed

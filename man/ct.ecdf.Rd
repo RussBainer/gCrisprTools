@@ -23,4 +23,5 @@ ct.ecdf(v)
 \author{
 Russell Bainer
 }
+\keyword{internal}
 

@@ -4,6 +4,7 @@
 ##' @param vector An input numeric vector to be aggregated. 
 ##' @return A CDF plot displaying the appropriate CDF curves on the default device. 
 ##' @author Russell Bainer
+##' @keywords internal
 ##' @examples v <- sort(sample(1:100, 30, replace = TRUE, 100:1))
 ##' ct.ecdf(v)
 ##' @export

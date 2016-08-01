@@ -18,4 +18,5 @@ processing should do so by invoking \code{options()} from the command line prior
 \author{
 Russell Bainer, Pete Haverty
 }
+\keyword{internal}
 
