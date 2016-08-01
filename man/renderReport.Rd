@@ -25,4 +25,5 @@ character with a path to html report in the temporary directory.
 \description{
 Internal wrapper to generate html markdown reports from existing templates
 }
+\keyword{internal}
 

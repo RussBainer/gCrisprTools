@@ -31,11 +31,11 @@ of the specified \code{lib.size} values.
 }
 \description{
 This function normalizes Crispr gRNA abundance estimates contained in an \code{ExpressionSet} object.
-Currently four normalization methods are implemented: median scaling (via \code{limma::normalizeMedianValues()}), slope-based
+Currently four normalization methods are implemented: median scaling (via \code{normalizeMedianValues}), slope-based
 normalization (via \code{ct.normalizeBySlope()}), scaling to the median of the nontargeting control values (via 
 \code{ct.normalizeNTC()}), and spline fitting to the distribution of the nontargeting gRNAs (via \code{ct.normalizeSpline()}). 
 Because of the peculiarities of pooled Crispr screening data, these implementations may be more stable than the endogenous methods 
-used downstream by \code{voom}. See the respective man pages for further details about specific normalization approaches.
+used downstream by \link[limma]{voom}. See the respective man pages for further details about specific normalization approaches.
 }
 \examples{
 data('es')

@@ -1,9 +1,11 @@
 ##' @title Assign Colors Based on the Position of a Value in a Distribution
-##' @description This is a function to generate colors for plot elements on the basis of the position of a value within a distribution. Called internally by ct.viewGuides. 
+##' @description This is a function to generate colors for plot elements on the basis of the position of a value within a distribution. 
+##' Called internally by ct.viewGuides. 
 ##' @param exprs The value whose color is to be returned. 
 ##' @param rankedexprs A vector of values the length of cols that corresponds to the values in the distribution.
 ##' @param colors The vector of colors to be used as a reference. 
 ##' @return A value contained in cols. 
+##' @keywords internal
 ##' @author Russell Bainer
 ct.exprsColor <- function(exprs, rankedexprs, colors){
     colors[which(abs(rankedexprs-exprs) == min(abs(rankedexprs-exprs)))]
@@ -15,6 +17,7 @@ ct.exprsColor <- function(exprs, rankedexprs, colors){
 ##' @param color Guess!
 ##' @param width Line width. 
 ##' @return A line on an open device. 
+##' @keywords internal
 ##' @author Russell Bainer
 ct.drawFlat <- function(x, y, color, width = 1){
     lines(c(0, x), c(y, y), col = color, lwd = width);
@@ -25,6 +28,7 @@ ct.drawFlat <- function(x, y, color, width = 1){
 ##' @param dens A density object. 
 ##' @param colorscale A vector of colors to draw behind the density. 
 ##' @return A color legend on the current graphics device. 
+##' @keywords internal
 ##' @author Russell Bainer
 ct.drawColorLegend <- function(dens, colorscale){
     yrange <- (rep(max(abs(range(dens$x))), 2) * c(-1, 1))

@@ -17,4 +17,5 @@ character
 \description{
 Add formatted timestamp and extension to a file name
 }
+\keyword{internal}
 

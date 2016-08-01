@@ -36,4 +36,5 @@ geneScores <- ct.RRAalpha(fit$p.value, ann, alpha = 0.1, shuffle = FALSE, return
 \author{
 Russell Bainer
 }
+\keyword{internal}
 

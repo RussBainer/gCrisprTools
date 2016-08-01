@@ -9,7 +9,7 @@ ct.normalizeMedians(eset, lib.size = NULL)
 \arguments{
 \item{eset}{An \code{ExpressionSet} containing, at minimum, count data accessible by \code{exprs}.}
 
-\item{lib.size}{An optional vector of voom-appropriate library size adjustment factor, usually calculated with \code{edgeR::calcNormFactors}.}
+\item{lib.size}{An optional vector of voom-appropriate library size adjustment factor, usually calculated with \link[edgeR]{calcNormFactors}.}
 }
 \value{
 A renormalized ExpressionSet object of the same type as the provided object.

@@ -8,7 +8,7 @@
 ##' @param annotation An annotation dataframe indicating the nontargeting controls in the geneID column. 
 ##' @param geneSymb The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.gRNARankByReplicate} will
 ##' attempt to infer nontargeting guides by searching for \code{"no_gid"} or \code{NA} in the appropriate columns.  
-##' @param lib.size An optional voom-appropriate library size adjustment factor, usually calculated with \code{edgeR::calcNormFactors}.
+##' @param lib.size An optional voom-appropriate library size adjustment factor, usually calculated with \link[edgeR]{calcNormFactors}.
 ##' @return A normalized \code{eset}.
 ##' @author Russell Bainer
 ##' @examples data('es')
@@ -87,7 +87,7 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
 ##' relatively few nontargeting gRNAs. 
 ##' @param eset An ExpressionSet object containing, at minimum, count data accessible by \code{exprs}. 
 ##' @param annotation An annotation dataframe indicating the nontargeting controls in the geneID column. 
-##' @param lib.size An optional voom-appropriate library size adjustment factor, usually calculated with \code{edgeR::calcNormFactors}.
+##' @param lib.size An optional voom-appropriate library size adjustment factor, usually calculated with \link[edgeR]{calcNormFactors}.
 ##' @param geneSymb The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.gRNARankByReplicate} will
 ##' attempt to infer nontargeting guides by searching for \code{"no_gid"} or \code{NA} in the appropriate columns via \code{ct.prepareAnnotation()}.  
 ##' @return A normalized \code{eset}. 

@@ -7,7 +7,8 @@
 ct.normalizeBySlope(ExpressionObject, trim = 0.25, lib.size = NULL, ...)
 }
 \arguments{
-\item{ExpressionObject}{An ExpressionSet containing, at minimum, count data accessible by \code{exprs}, or an EList object with count data in the $E slot (usually returned by voom).}
+\item{ExpressionObject}{An ExpressionSet containing, at minimum, count data accessible by \code{exprs}, or an EList object with count data in the $E 
+slot (usually returned by \link[limma]{voom}).}
 
 \item{trim}{The proportion to be trimmed from each end of the distributionbefore performing the linear fit; algorithm defaults to 25% such that the
 fit is performed on the interquartile range.}

@@ -6,6 +6,7 @@
 ##' @return A \code{MArrayLM} object for downstream processing. 
 ##' @author Russell Bainer
 ##' @import limma
+##' @keywords internal
 ##' @examples 
 ##' 
 ##' #Load and preprocess data
@@ -14,15 +15,15 @@
 ##' library(limma)
 ##' 
 ##' #Make a multi-level contrast
-##' design <- model.matrix(~ 0 + TREATMENT_NAME, Biobase::pData(es))
+##' design <- model.matrix(~ 0 + TREATMENT_NAME, pData(es))
 ##' colnames(design) <- gsub('TREATMENT_NAME', '', colnames(design))
-##' contrasts <- limma::makeContrasts((ControlExpansion - ControlReference), (DeathExpansion - ControlExpansion), levels = design)
+##' contrasts <- makeContrasts((ControlExpansion - ControlReference), (DeathExpansion - ControlExpansion), levels = design)
 ##' 
 ##' #Make a multi-level fit object
-##' vm <- limma::voom(exprs(es), design)
-##' fit <- limma::lmFit(vm, design)
-##' fit <- limma::contrasts.fit(fit, contrasts)
-##' fit <- limma::eBayes(fit)  
+##' vm <- voom(exprs(es), design)
+##' fit <- lmFit(vm, design)
+##' fit <- contrasts.fit(fit, contrasts)
+##' fit <- eBayes(fit)  
 ##' 
 ##' #And trim it
 ##' fit2  <- ct.preprocessFit(fit, modelTerm = '(DeathExpansion - ControlExpansion)')

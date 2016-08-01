@@ -3,7 +3,8 @@
 ##' distribution across samples. Specifically, the algorithm ranks the gRNA abundance estimates within each sample and determines a relationship between
 ##' rank change and gRNA within a trimmed region of the distribution via a linear fit. It then adjusts each sample such that the center of the logged
 ##' abundance distribution is strictly horizontal and returns these values as median-scaled counts in the appropriate slot of the input ExpressionObject.
-##' @param ExpressionObject An ExpressionSet containing, at minimum, count data accessible by \code{exprs}, or an EList object with count data in the $E slot (usually returned by voom).
+##' @param ExpressionObject An ExpressionSet containing, at minimum, count data accessible by \code{exprs}, or an EList object with count data in the $E 
+##' slot (usually returned by \link[limma]{voom}).
 ##' @param trim The proportion to be trimmed from each end of the distributionbefore performing the linear fit; algorithm defaults to 25% such that the
 ##' fit is performed on the interquartile range.
 ##' @param ... Other arguments to be passed to \code{ct.normalizeMedians()}, if desired.
@@ -78,11 +79,11 @@ ct.normalizeBySlope <-
 
 ##' @title Normalize an ExpressionSet Containing a Crispr Screen
 ##' @description This function normalizes Crispr gRNA abundance estimates contained in an \code{ExpressionSet} object.
-##' Currently four normalization methods are implemented: median scaling (via \code{limma::normalizeMedianValues()}), slope-based
+##' Currently four normalization methods are implemented: median scaling (via \code{normalizeMedianValues}), slope-based
 ##' normalization (via \code{ct.normalizeBySlope()}), scaling to the median of the nontargeting control values (via 
 ##' \code{ct.normalizeNTC()}), and spline fitting to the distribution of the nontargeting gRNAs (via \code{ct.normalizeSpline()}). 
 ##' Because of the peculiarities of pooled Crispr screening data, these implementations may be more stable than the endogenous methods 
-##' used downstream by \code{voom}. See the respective man pages for further details about specific normalization approaches.
+##' used downstream by \link[limma]{voom}. See the respective man pages for further details about specific normalization approaches.
 ##' @param eset An ExpressionSet object with integer count data extractable with \code{exprs()}.
 ##' @param method The normalization method to use.
 ##' @param annotation The annotation object for the library, required for the methods employing nontargeting controls.
@@ -166,7 +167,7 @@ ct.normalizeGuides <- function(eset, method = c("scale", "slope", "controlScale"
 ##' the usual way by dividing these values by user-specified library size factors. THis method should be more stable than the endogenous 
 ##' scaling functions used in \code{voom} in th especific case of Crispr screens or other cases where the median number of observed counts may be low. 
 ##' @param eset An \code{ExpressionSet} containing, at minimum, count data accessible by \code{exprs}.
-##' @param lib.size An optional vector of voom-appropriate library size adjustment factor, usually calculated with \code{edgeR::calcNormFactors}.
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factor, usually calculated with \link[edgeR]{calcNormFactors}.
 ##' @return A renormalized ExpressionSet object of the same type as the provided object.
 ##' @author Russell Bainer
 ##' @import limma
@@ -187,7 +188,7 @@ ct.normalizeMedians <- function(eset, lib.size = NULL){
     stop("Please provide an ExpressionSet object for normalization.")
   }
   
-  counts <- Biobase::exprs(eset)
+  counts <- exprs(eset)
   
   if (is.null(lib.size)){
     lib.size <- colSums(counts)
@@ -201,7 +202,7 @@ ct.normalizeMedians <- function(eset, lib.size = NULL){
   correctedCounts <- 2^t(t(y) - cmed)
   correctedCounts <- (t(t(correctedCounts) * ((lib.size + 1) / 1e+06)) - 0.5)
   
-  Biobase::exprs(eset) <- correctedCounts
+  exprs(eset) <- correctedCounts
   return(eset)
   }
 
