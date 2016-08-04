@@ -6,7 +6,7 @@ output:
 params:
   eset: !r ExpressionSet()
   fit: !r data.frame()
-  sampleKey: !r ordered()
+  sampleKey: !r factor()
   results: !r data.frame()
   annotation: !r data.frame()
   aln: !r matrix()
@@ -41,6 +41,29 @@ ct.rawCountDensities(params$eset, params$sampleKey)
 <br/>
 <br/>
 
+#####GC Content and gRNA Abundance
+
+GC content can influence PCR efficiency, and a strong relationshib between GC content and gRNA abundance may be evidence of poor viral library quality or sample preparation in Crispr screens. Ideally, there should be no clear relationship between GC content and a gRNA's measured abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content (e.g., nontargeting controls) which may affect this.  
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 3: GC content and gRNA Abundance"}
+if (is.null(params$sampleKey)) {
+  ct.GCbias(data.obj = params$eset, 
+            ann = params$annotation, 
+            lib.size = params$lib.size
+            )
+} else {
+   ct.GCbias(data.obj = params$eset, 
+            ann = params$annotation, 
+            lib.size = params$lib.size,
+            sampleKey = params$sampleKey
+            )
+}
+```
+
+<br/>
+<br/>
+<br/>
+
 ###Section 2: Library-level Distortion of gRNA Abundances
 
 Pooled CRISPR screens are fundamentally dynamic experiments, in which the measured abundance of a particular gRNA is fundamentally dependent on the scale of selection observed throughout the rest of the screen. In general, rigorous statistical methods perform well in screens where most cells survive the selection event and the gRNA distributions remain relatively stable throughout the experiment (i.e., dropout screens); more heuristic approaches are preferable in screens where most cells are affected and the resulting library only contains a small subset of gRNAs of extremely high abundance. The primary goal of this section is to determine the extent to which selection has distorted your gRNA library to guide downstream analyses.
@@ -48,7 +71,7 @@ Pooled CRISPR screens are fundamentally dynamic experiments, in which the measur
 #####Ranked and Scaled gRNA Abundance Distributions 
 Strong selection in a CRISPR screen will distort the gRNAs such that the "slope" of the middle of the distribution changes relative to what is observed in the control samples. This can lead to spurious inferences of gRNA depletion in some cases, and it may be useful to correct this with the `ct.normalizeBySlope()` function in the `gCrisprTools` R package prior to downstream analyses. Alternatively, experiments involving treatments where most cells are affected may have failed if library-level distortion is not readily apparent. The locations of nontargeting control guides are indicated as diamonds along each distribution.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 3: Ranked gRNA Distributions by Replicate"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 4: Ranked gRNA Distributions by Replicate"}
 ct.gRNARankByReplicate(params$eset, params$sampleKey, params$annotation, geneSymb = "NTC")  
 ```
 
@@ -61,7 +84,7 @@ ct.gRNARankByReplicate(params$eset, params$sampleKey, params$annotation, geneSym
 #####Cumulative Target-level Read Abundance
 A simple way to quantify the extent of distortion in a CRISPR screen is to observe the proportion of reads within each library that are derived from gRNA cassettes targeting each genomic element. By ranking the targets by their abundance within the library (*X* axis) and plotting the cumulative proportion of reads that the top *N* targets represent (*Y* axis), we can tell if the treatment libraries essentially only contain cassettes targeting a small number of genes, or if most of the cells survive the selection step. 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 4: Per-Replicate gRNA Cumulative Distributions"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 5: Per-Replicate gRNA Cumulative Distributions"}
 ct.guideCDF(params$eset, params$sampleKey, plotType = "Target", annotation = params$annotation)
 ```
 
@@ -74,7 +97,7 @@ ct.guideCDF(params$eset, params$sampleKey, plotType = "Target", annotation = par
 
 The behavior of nontargeting control guides can give some sense of the consistency of the gRNA abundances within experimental cultures and the likely effect of normalization on the gRNA abundance estimation. Note that it is not necessarily critical that the relative abundances of nontargeting gRNAs remain superficially identical across treatments, but extremely large changes may indicate that individual gRNA levels are not likely to be well estimated. 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 5: Nontargeting Control Behavior Before and After Median Scaling"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 6: Nontargeting Control Behavior Before and After Median Scaling"}
 ct.viewControls(params$eset, params$annotation, params$sampleKey, normalize = FALSE) 
 ct.viewControls(params$eset, params$annotation, params$sampleKey, normalize = TRUE)
 ```
@@ -86,18 +109,39 @@ ct.viewControls(params$eset, params$annotation, params$sampleKey, normalize = TR
 
 ###Section 3: Results Overview
 
+#####GC Content and Estimated Model Effects
+
+GC content can influence PCR efficiency, and strong GC-related effects may be evidence of poor library quality in Crispr screens. Ideally, there should be no clear relationship between GC content and a gRNA's variance, fold change, or evidence for chances in differential abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content, however (e.g., nontargeting controls).  
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 7: GC Content and Model Estimates"}
+if (is.null(params$sampleKey)) {
+  ct.GCbias(data.obj = params$fit, 
+            ann = params$annotation
+            )
+} else {
+  ct.GCbias(data.obj = params$fit, 
+            ann = params$annotation, 
+            sampleKey = params$sampleKey
+            )
+}
+```
+
+<br/>
+<br/>
+<br/>
+
 #####Most Variable Genes and gRNAs as a Proportion of the Libraries
 
 In experiments that include highly distorted libraries, it can be useful to identify the genes or gRNAs that change the most across the experiment as a heuristic way of identifying gRNAs of interest in situations where standard statistical approaches are not likely to function well. Note that the indicated genes and gRNAs are the most variable across all samples in the experiment; if desired, similar graphs displaying the most variable genes within a subset of samples may be generated by the analyst by invoking the `ct.stackGuides()` funtion in the `gCrisprTools` package.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 6: Stacked Barplot of the Most Variable Genes"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 8: Stacked Barplot of the Most Variable Genes"}
 ct.stackGuides(params$eset, params$sampleKey, plotType = "Target", annotation = params$annotation)
 ```
 
 <br/>
 <br/>
 <br/>
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 7: Stacked Barplot of the Most Variable Genes"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 9: Stacked Barplot of the Most Variable Genes"}
 ct.stackGuides(params$eset, params$sampleKey, plotType = "gRNA", annotation = params$annotation)
 ```
 
@@ -114,16 +158,16 @@ Below are plots indicating the targets with the most evidence for enrichment and
 Within each plot, candidates are ordered by the evidence for enrichment or depletion. Each gRNA targeting the gene is plotted as a point, with the estimated log2 fold change  indicated on the *Y*-axis and the standard deviation of the estimate shown as a gray bar. 
 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 8: Top 20 Enriched Targets"}
-enrich <- ct.topTargets(params$fit, params$results, params$annotation, ntargets = 20, enrich = TRUE)
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 10: Top 20 Enriched Targets"}
+enrich <- ct.topTargets(params$fit, params$results, params$annotation, targets = 20, enrich = TRUE)
 ```
 <br/>
 <br/>
 <br/>
 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 9: Top 20 Depleted Targets"}
-deplete <- ct.topTargets(params$fit, params$results, params$annotation, ntargets = 20, enrich = FALSE)
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 11: Top 20 Depleted Targets"}
+deplete <- ct.topTargets(params$fit, params$results, params$annotation, targets = 20, enrich = FALSE)
 ```
 <br/>
 <br/>

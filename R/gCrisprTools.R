@@ -13,18 +13,14 @@ NULL
 ##' @import parallel
 ##' @import BiocParallel
 ##' @import PANTHER.db
-##' @import grDevices
-##' @import graphics
-##' @import stats 
-##' @import utils
-NULL
-
 ##' @importFrom grDevices colorRampPalette rgb
 ##' @importFrom graphics abline axis barplot layout legend lines mtext par plot points polygon segments hist
 ##' @importFrom stats density lm median na.omit p.adjust pbeta phyper predict pt smooth.spline spline
 ##' @importFrom utils capture.output getFromNamespace 
 ##' @importFrom rmarkdown render draft 
 NULL
+
+
 
 ##' @name es
 ##' @aliases es

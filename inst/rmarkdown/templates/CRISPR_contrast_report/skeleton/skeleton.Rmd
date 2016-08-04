@@ -17,6 +17,27 @@ params:
 
 This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the fucntions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during the analysis of a Crispr screen. 
 
+#####GC Content and Estimated Model Effects
+
+GC content can influence PCR efficiency, and strong GC-related effects may be evidence of poor library quality in Crispr screens. Ideally, there should be no clear relationship between GC content and a gRNA's variance, fold change, or evidence for chances in differential abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content, however (e.g., nontargeting controls).  
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 6: Stacked Barplot of the Most Variable Genes"}
+if (is.null(params$sampleKey)) {
+  ct.GCbias(data.obj = params$fit, 
+            ann = params$annotation
+            )
+} else {
+  ct.GCbias(data.obj = params$fit, 
+            ann = params$annotation, 
+            sampleKey = params$sampleKey
+            )
+}
+```
+
+<br/>
+<br/>
+<br/>
+
 #####Most Variable Genes and gRNAs as a Proportion of the Libraries
 
 In experiments that include highly distorted libraries, it can be useful to identify the genes or gRNAs that change the most across the experiment as a heuristic way of identifying gRNAs of interest in situations where standard statistical approaches are not likely to function well. 
@@ -74,7 +95,7 @@ Below are plots indicating the targets with the most evidence for enrichment and
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 8: Top 20 Enriched Targets"}
-enrich <- ct.topTargets(params$fit, params$results, params$annotation, ntargets = 20, enrich = TRUE, contrast.term=params$comparison.id)
+enrich <- ct.topTargets(params$fit, params$results, params$annotation, targets = 20, enrich = TRUE, contrast.term=params$comparison.id)
 ```
 <br/>
 <br/>
@@ -82,7 +103,7 @@ enrich <- ct.topTargets(params$fit, params$results, params$annotation, ntargets 
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 9: Top 20 Depleted Targets"}
-deplete <- ct.topTargets(params$fit, params$results, params$annotation, ntargets = 20, enrich = FALSE, contrast.term=params$comparison.id)
+deplete <- ct.topTargets(params$fit, params$results, params$annotation, targets = 20, enrich = FALSE, contrast.term=params$comparison.id)
 ```
 <br/>
 <br/>

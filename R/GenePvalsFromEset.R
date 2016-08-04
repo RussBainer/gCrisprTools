@@ -24,7 +24,7 @@
 ##' @author Russell Bainer
 ##' @examples data('fit')
 ##' data('ann')
-##' output <- ct.generateResults(fit, ann)
+##' output <- ct.generateResults(fit, ann, permutations = 10)
 ##' head(output)
 ##' @export
 

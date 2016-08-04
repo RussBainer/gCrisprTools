@@ -4,7 +4,7 @@
 \alias{ct.rawCountDensities}
 \title{Visualization of Raw gRNA Count Densities}
 \usage{
-ct.rawCountDensities(eset, sampleKey)
+ct.rawCountDensities(eset, sampleKey = NULL)
 }
 \arguments{
 \item{eset}{An ExpressionSet object containing, at minimum, count data accessible by exprs() and some phenoData.}

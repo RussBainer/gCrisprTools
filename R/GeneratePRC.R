@@ -25,7 +25,7 @@
 ct.PRC <-
   function(summaryDF,
            target.list,
-           stat = c("enrich.p", "deplete.p", "enrich.fc", "deplete.fc"), 
+           stat = c("enrich.p", "deplete.p", "enrich.fc", "deplete.fc", "enrich.rho", "deplete.rho"), 
            plot.it = TRUE) {
     
   
@@ -56,15 +56,19 @@ ct.PRC <-
          enrich.p = (summaryDF[(summaryDF$geneID %in% present),"Target-level Enrichment P"]), 
          deplete.p = (summaryDF[(summaryDF$geneID %in% present),"Target-level Depletion P"]), 
          enrich.fc = (-summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"]), 
-         deplete.fc = (summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"])
-        )   
+         deplete.fc = (summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"]),
+         enrich.rho = (summaryDF[(summaryDF$geneID %in% present),"RhoRank_enrich"]),
+         deplete.rho = (summaryDF[(summaryDF$geneID %in% present),"RhoRank_deplete"])
+    )   
     #Extract the appropriate stat. 
     values <- switch(stat, 
         enrich.p = sort(summaryDF[,"Target-level Enrichment P"]), 
         deplete.p = sort(summaryDF[,"Target-level Depletion P"]), 
         enrich.fc = sort(-summaryDF[,"Median log2 Fold Change"]), 
-        deplete.fc = sort(summaryDF[,"Median log2 Fold Change"])
-        )
+        deplete.fc = sort(summaryDF[,"Median log2 Fold Change"]),
+        enrich.rho = sort(summaryDF[,"RhoRank_enrich"]), 
+        deplete.rho = sort(summaryDF[,"RhoRank_deplete"])
+    )
 
     out <- list()
     out$precision <- c(1, unlist(lapply(unique(values), function(x){sum(targvals <= x, na.rm = TRUE)/sum(values <= x, na.rm= TRUE)})), 0)
@@ -74,7 +78,9 @@ ct.PRC <-
                      enrich.p = ct.targetSetEnrichment(summaryDF, target.list, enrich = TRUE),
                      deplete.p =  ct.targetSetEnrichment(summaryDF, target.list, enrich = FALSE),
                      enrich.fc =  ct.targetSetEnrichment(summaryDF, target.list, enrich = TRUE),
-                     deplete.fc =  ct.targetSetEnrichment(summaryDF, target.list, enrich = FALSE)
+                     deplete.fc =  ct.targetSetEnrichment(summaryDF, target.list, enrich = FALSE),
+                     enrich.rho = ct.targetSetEnrichment(summaryDF, target.list, enrich = TRUE),
+                     deplete.rho = ct.targetSetEnrichment(summaryDF, target.list, enrich = FALSE)
     )
     out <- c(out, enrich)
     

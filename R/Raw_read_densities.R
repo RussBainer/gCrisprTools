@@ -21,7 +21,7 @@
 ##' 
 ##' ct.rawCountDensities(es, sk)
 ##' @export
-ct.rawCountDensities <- function(eset, sampleKey){
+ct.rawCountDensities <- function(eset, sampleKey = NULL){
 
   if(class(eset) != "ExpressionSet"){stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))}
   
@@ -37,7 +37,7 @@ ct.rawCountDensities <- function(eset, sampleKey){
   densities <- apply(e.dat, 2, density)
   
   y <- c(0, max(unlist(lapply(densities, function(dens){max(dens$y)}))))
-  x <- c(0,  max(ceiling(unlist(lapply(densities, function(dens){max(dens$x)})))));  
+  x <- c(0, max(ceiling(unlist(lapply(densities, function(dens){max(dens$x)})))));  
   plot(x[1], y[1], 
        xlim = x, ylim = y, 
        xlab = "gRNA Read Counts (Raw)", 

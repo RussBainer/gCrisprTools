@@ -5,7 +5,8 @@
 \title{Generate a Receiver-Operator Characteristic (ROC) Curve from a CRISPR screen}
 \usage{
 ct.ROC(summaryDF, target.list, stat = c("enrich.p", "deplete.p", "enrich.fc",
-  "deplete.fc"), condense = TRUE, plot.it = TRUE)
+  "deplete.fc", "enrich.rho", "deplete.rho"), condense = TRUE,
+  plot.it = TRUE)
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
@@ -14,7 +15,7 @@ ct.ROC(summaryDF, target.list, stat = c("enrich.p", "deplete.p", "enrich.fc",
 column of the provided \code{summaryDF} are considered.}
 
 \item{stat}{The statistic to use when ordering the genes. Must be one of \code{"enrich.p"}, \code{"deplete.p"}, \code{"enrich.fc"}, 
-or \code{"deplete.fc"}.}
+\code{"deplete.fc"}, \code{"enrich.rho"}, or \code{"deplete.rho"}.}
 
 \item{condense}{Logical indicating whether the returned x and y coordinates should be "condensed", returning only the points at which 
 the detected proportion of \code{target.list} changes. If set to \code{FALSE}, the returned \code{x} and \code{y} vectors will explicitly
