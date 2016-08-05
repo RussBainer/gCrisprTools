@@ -5,7 +5,7 @@
 \title{Display the log2 fold change estimates and associated standard deviations of the guides targeting the top 
 candidates in a crispr screen}
 \usage{
-ct.topTargets(fit, summaryDF, annotation, ntargets = 10, enrich = TRUE,
+ct.topTargets(fit, summaryDF, annotation, targets = 10, enrich = TRUE,
   contrast.term = NULL)
 }
 \arguments{
@@ -18,9 +18,11 @@ should ideally match that which is found in \code{annotation}.}
 \item{annotation}{An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
 row, and must minimally contain a column \code{geneSymbol}.}
 
-\item{ntargets}{The number of targets to display.}
+\item{targets}{Either the number of top targets to display, or a list of \code{geneSymbol}s contained in the \code{geneSymbol} 
+slot of the \code{annotation} object.}
 
-\item{enrich}{Logical indicating whether to display guides that are enriched (default) or depleted within the screen.}
+\item{enrich}{Logical indicating whether to display guides that are enriched (default) or depleted within the screen. If a vector of 
+\code{geneSymbol}s is specified, this controls the left-t0-right ordering of the corresponding gRNAs.}
 
 \item{contrast.term}{If a fit object with multiple coefficients is passed in, a string indiating the coefficient of interest.}
 }
@@ -29,13 +31,11 @@ An image on the default device indicating each gRNA's log2 fold change and the u
 derived from the \code{MArrayLM} object.
 }
 \description{
-This is a function for displaying the top candidates from a crispr screen, using the information summarized 
-in the corresponding \code{fit} and the output from \code{ct.generateResults()}. The results are plotted as a 
-classed scatterplot of the top \code{ntargets} upregulated and downregulated targets in the screen, as indicated by the 
-relevant p-values contained in the \code{summaryDF}. The fold change and standard deviation estimates for each gRNA targeting each target
-(extracted from the \code{coefficients} and \code{stdev.unscaled} slot of \code{fit}) are plotted on the y axis. Targets are 
-selected on the basis of their gene-level P-values; in the case of ties, they are ranked on the basis of the median gRNA 
-fold change.
+This is a function for displaying candidates from a crispr screen, using the information summarized 
+in the corresponding \code{fit} and the output from \code{ct.generateResults()}. The fold change and standard deviation 
+estimates for each gRNA associated with each target (extracted from the \code{coefficients} and \code{stdev.unscaled} slot 
+of \code{fit}) are plotted on the y axis. Targets are selected on the basis of their gene-level enrichment or depletion 
+P-values; in the case of ties, they are ranked on the basis of their corresponding Rho statistics.
 }
 \examples{
 data('fit')

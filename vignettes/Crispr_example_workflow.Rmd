@@ -45,9 +45,9 @@ es <- ct.filterReads(es, trim = 1000, sampleKey = sk)
 es <- ct.normalizeGuides(es, method = "scale", plot.it = TRUE) #See man page for other options
 vm <- voom(exprs(es), design)
 
-fit <- limma::lmFit(vm, design)
-fit <- limma::contrasts.fit(fit, contrasts)
-fit <- limma::eBayes(fit)
+fit <- lmFit(vm, design)
+fit <- contrasts.fit(fit, contrasts)
+fit <- eBayes(fit)
 ```
 
 #####Edit the annotation file if you used `ct.filterReads` above
@@ -69,14 +69,11 @@ resultsDF <-
 ```
 
 
-#####Optionally, just load an example results object for testing purposes
+#####Optionally, just load an example results object for testing purposes (trimming out reads as necessary)
 ```{r, eval = FALSE}
 data("fit", package = "gCrisprTools")
 data("resultsDF", package = "gCrisprTools")
-```
 
-#####Trim out reads as necessary
-```{r, eval = FALSE}
 fit <- fit[(row.names(fit) %in% row.names(ann)),]
 resultsDF <- resultsDF[(row.names(resultsDF) %in% row.names(ann)),]
 ```
@@ -96,7 +93,7 @@ ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "NoTarget")  #Show l
 #####Visualize control guide behavior across conditions
 ```{r, eval = FALSE}
 ct.viewControls(es, ann, sk, normalize = FALSE)
-t.viewControls(es, ann, sk, normalize = TRUE)
+ct.viewControls(es, ann, sk, normalize = TRUE)
 ```
 
 #####Visualize GC bias across samples, or within an experimental contrast
@@ -177,33 +174,33 @@ PRCs <- ct.PRC(resultsDF, essential.genes, stat = "deplete.p")
 #####Make reports in a directory of interest
 ```{r, eval = FALSE}
 path2report <-      #Make a report of the whole experiment
-  gCrisprTools::ct.makeReport(fit = fit, 
-                              eset = es, 
-                              sampleKey = sk, 
-                              annotation = ann, 
-                              results = resultsDF, 
-                              aln = aln, 
-                              outdir = ".") 
+  ct.makeReport(fit = fit, 
+                eset = es, 
+                sampleKey = sk, 
+                annotation = ann, 
+                results = resultsDF, 
+                aln = aln, 
+                outdir = ".") 
 
 path2QC <-          #Or one focusing only on experiment QC
-  gCrisprTools::ct.makeQCReport(es, 
-                                trim = 1000, 
-                                log2.ratio = 0.05, 
-                                sampleKey = sk, 
-                                annotation = ann, 
-                                aln = aln, 
-                                identifier = 'Crispr_QC_Report',
-                                lib.size = NULL
-                                )                
+  ct.makeQCReport(es, 
+                  trim = 1000, 
+                  log2.ratio = 0.05, 
+                  sampleKey = sk, 
+                  annotation = ann, 
+                  aln = aln, 
+                  identifier = 'Crispr_QC_Report',
+                  lib.size = NULL
+                  )                
 
 path2Contrast <-    #Or Contrast-specific one
-  gCrisprTools::ct.makeContrastReport(eset = es, 
-                                      fit = fit, 
-                                      sampleKey = sk, 
-                                      results = resultsDF, 
-                                      annotation = ann, 
-                                      comparison.id = NULL, 
-                                      identifier = 'Crispr_Contrast_Report')            
+  ct.makeContrastReport(eset = es, 
+                        fit = fit, 
+                        sampleKey = sk, 
+                        results = resultsDF, 
+                        annotation = ann, 
+                        comparison.id = NULL, 
+                        identifier = 'Crispr_Contrast_Report')            
 ```
 
 

@@ -46,7 +46,7 @@ This is a wrapper function that enables direct generation of target-level p-valu
 \examples{
 data('fit')
 data('ann')
-output <- ct.generateResults(fit, ann)
+output <- ct.generateResults(fit, ann, permutations = 10)
 head(output)
 }
 \author{

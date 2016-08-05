@@ -88,7 +88,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
  
   #Find the gRNAs targeting the gene from the annotation, and order them
   options(warn=-1)
-  ann <- ct.prepareAnnotation(ann, fit)
+  ann <- ct.prepareAnnotation(ann, fit, controls = FALSE)
   options(warn=0)
   
   if(!(sum(ann[,type] %in% gene))){stop(paste(gene, "is not present in the annotation file."))}

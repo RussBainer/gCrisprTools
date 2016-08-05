@@ -12,7 +12,7 @@
 ##' @param target.list A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneID} 
 ##' column of the provided \code{summaryDF} are considered.
 ##' @param stat The statistic to use when ordering the genes. Must be one of \code{"enrich.p"}, \code{"deplete.p"}, \code{"enrich.fc"}, 
-##' or \code{"deplete.fc"}. 
+##' \code{"deplete.fc"}, \code{"enrich.rho"}, or \code{"deplete.rho"}. 
 ##' @param condense Logical indicating whether the returned x and y coordinates should be "condensed", returning only the points at which 
 ##' the detected proportion of \code{target.list} changes. If set to \code{FALSE}, the returned \code{x} and \code{y} vectors will explicitly
 ##' indicate the curve value at every position (useful for performing curve arithmetic downstream).   
@@ -28,7 +28,7 @@
 ct.ROC <-
   function(summaryDF,
            target.list,
-           stat = c("enrich.p", "deplete.p", "enrich.fc", "deplete.fc"),
+           stat = c("enrich.p", "deplete.p", "enrich.fc", "deplete.fc", "enrich.rho", "deplete.rho"),
            condense = TRUE, 
            plot.it = TRUE) {
     
@@ -60,16 +60,20 @@ ct.ROC <-
          enrich.p = (summaryDF[(summaryDF$geneID %in% present),"Target-level Enrichment P"]), 
          deplete.p = (summaryDF[(summaryDF$geneID %in% present),"Target-level Depletion P"]), 
          enrich.fc = (-summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"]), 
-         deplete.fc = (summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"])
-        )   
+         deplete.fc = (summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"]),
+         enrich.rho = (summaryDF[(summaryDF$geneID %in% present),"RhoRank_enrich"]),
+         deplete.rho = (summaryDF[(summaryDF$geneID %in% present),"RhoRank_deplete"])
+    )   
 
     #Extract the appropriate stat for the curve 
     values <- switch(stat, 
         enrich.p = sort(summaryDF[,"Target-level Enrichment P"]), 
         deplete.p = sort(summaryDF[,"Target-level Depletion P"]), 
         enrich.fc = sort(-summaryDF[,"Median log2 Fold Change"]), 
-        deplete.fc = sort(summaryDF[,"Median log2 Fold Change"])
-        )
+        deplete.fc = sort(summaryDF[,"Median log2 Fold Change"]),
+        enrich.rho = sort(summaryDF[,"RhoRank_enrich"]), 
+        deplete.rho = sort(summaryDF[,"RhoRank_deplete"])
+    )
 
 
     out <- list()

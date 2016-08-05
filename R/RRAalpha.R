@@ -39,7 +39,6 @@ ct.numcores <- function()  {
 ##' betaScores((testp))
 ##' ct.alphaBeta(testp)  
 ##' @export
-
 ct.alphaBeta <- function(p.in){ 
   p.in <- na.omit(p.in)
   n <- length(p.in)  
