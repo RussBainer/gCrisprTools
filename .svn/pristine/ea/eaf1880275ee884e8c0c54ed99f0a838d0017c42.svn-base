@@ -1,0 +1,51 @@
+Package: gCrisprTools
+Type: Package
+Title: Suite of Functions for Pooled Crispr Screen QC and Analysis
+Version: 1.2.42
+Date: 2016-06-29
+Author: Russell Bainer, Dariusz Ratman, Pete Haverty, Steve Lianoglou
+Maintainer: Russell Bainer <bainer.russell@gene.com>
+Description: Set of tools for evaluating pooled high-throughput screening experiments, 
+    typically employing CRISPR/Cas9 or shRNA expression cassettes. Contains methods for interrogating 
+    library and cassette behavior within an experiment, identifying differentially abundant
+    cassettes, aggregating signals to identify candidate targets for empirical validation, 
+    hypothesis testing, and comprehensive reporting.
+License: file Artistic-2.0
+Imports:
+    Biobase,
+    limma,
+    RobustRankAggreg,
+    ggplot2,
+    parallel,
+    BiocParallel
+Suggests:
+    ExpressionPlot,
+    ExpressionCore,
+    edgeR,
+    knitr,
+    rmarkdown,
+    PANTHER.db,
+    AnnotationDbi
+RoxygenNote: 5.0.1
+VignetteBuilder: knitr
+biocViews: 
+    Crispr, 
+    PooledScreens,
+    ExperimentalDesign,
+    BiomedicalInformatics, 
+    CellBiology,
+    FunctionalGenomics,
+    Pharmacogenomics,
+    Pharmacogenetics,
+    SystemsBiology,
+    DifferentialExpression, 
+    GeneSetEnrichment, 
+    Genetics, 
+    MultipleComparison, 
+    Normalization, 
+    Preprocessing, 
+    QualityControl, 
+    RNASeq, 
+    Regression, 
+    Software,
+    Visualization

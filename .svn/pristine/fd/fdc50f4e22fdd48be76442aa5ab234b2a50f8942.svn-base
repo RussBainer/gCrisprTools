@@ -1,0 +1,91 @@
+---
+title: CRISPR Contrast Report
+output: 
+  html_document:
+    fig_caption: yes
+params:
+  eset: !r ExpressionSet()
+  fit: !r data.frame()
+  sampleKey: !r factor()
+  results: !r data.frame()
+  annotation: !r data.frame()
+  comparison.id: !r character()
+  contrast.subset: !r character()
+---
+
+#Contrast: `r params$comparison.id`
+
+This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the fucntions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during the analysis of a Crispr screen. 
+
+#####Most Variable Genes and gRNAs as a Proportion of the Libraries
+
+In experiments that include highly distorted libraries, it can be useful to identify the genes or gRNAs that change the most across the experiment as a heuristic way of identifying gRNAs of interest in situations where standard statistical approaches are not likely to function well. 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 6: Stacked Barplot of the Most Variable Genes"}
+if (is.null(params$sampleKey)) {
+  ct.stackGuides(
+    eset = params$eset, 
+    plotType = "Target", 
+    annotation = params$annotation,
+    subset = params$contrast.subset
+  )
+} else {
+  ct.stackGuides(
+    eset = params$eset,
+    sampleKey = params$sampleKey,
+    plotType = "Target", 
+    annotation = params$annotation,
+    subset = params$contrast.subset
+  )
+}
+```
+
+<br/>
+<br/>
+<br/>
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 7: Stacked Barplot of the Most Variable gRNAs"}
+if (is.null(params$sampleKey)) {
+  ct.stackGuides(
+    eset = params$eset, 
+    plotType = "gRNA", 
+    annotation = params$annotation,
+    subset = params$contrast.subset
+  )
+} else {
+  ct.stackGuides(
+    eset = params$eset,
+    sampleKey = params$sampleKey,
+    plotType = "gRNA", 
+    annotation = params$annotation,
+    subset = params$contrast.subset
+  )
+}
+```
+
+<br/>
+<br/>
+<br/>
+
+
+
+###Top Signals of Target Enrichment and Depletion
+
+Below are plots indicating the targets with the most evidence for enrichment and depletion within the indicated contrast. Genes are ranked by aggregating the signal for depletion or enrichment across all gRNAs targeting the corresponding element according to the method specified in the call to `ct.generateResults()`. Within each plot, candidates are ordered by the evidence for enrichment or depletion. Each gRNA targeting the gene is plotted as a point, with the estimated log2 fold change within the contrast indicated on the *Y*-axis and the standard deviation of the estimate shown as a blue bar. 
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 8: Top 20 Enriched Targets"}
+enrich <- ct.topTargets(params$fit, params$results, params$annotation, ntargets = 20, enrich = TRUE, contrast.term=params$comparison.id)
+```
+<br/>
+<br/>
+<br/>
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 9: Top 20 Depleted Targets"}
+deplete <- ct.topTargets(params$fit, params$results, params$annotation, ntargets = 20, enrich = FALSE, contrast.term=params$comparison.id)
+```
+<br/>
+<br/>
+<br/>
+
+

@@ -1,0 +1,42 @@
+##' @title Compute Directional P-values from eBayes Output
+##' @description This function produces two sets of one-sided P-values derived from the moderated t-statistics produced by eBayes.  
+##' @param fit An object of class MArrayLM containing, at minimum, a \code{df.residual} slot containing the appropriate degres of freedom for each test, and a \code{t} slot containing t statistics. 
+##' @return A matrix object with two numeric columns, indicating the p-values quantifying the evidence for enrichment and depletion of each feature in the relevant model contrast.   
+##' @param contrast.term If a fit object with multiple coefficients is passed in, a string indiating the coefficient of interest.   
+##' @author Russell Bainer
+##' @export
+ct.DirectionalTests <- function(fit, contrast.term = NULL){
+  require(Biobase)
+  
+  if(ncol(fit$coefficients > 1)){
+    if(is.null(contrast.term)){
+      stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
+    }
+    fit <- ct.preprocessFit(fit, contrast.term)
+  }
+  
+  if(class(fit) != "MArrayLM"){stop(paste(deparse(substitute(fit)), "is not an MArrayLM object."))}
+  if(!("t" %in% names(fit))){stop("No t statistics are present in the specified object.")}
+  if(!("df.residual" %in% names(fit))){stop("No t statistics are present in the specified object.")}
+
+  out <- matrix(cbind(pt(fit$t, df = fit$df.residual[1], lower.tail = TRUE), 
+                      pt(fit$t, df = fit$df.residual[1], lower.tail = FALSE)), length(fit$t), 2)
+  colnames(out) <- c("Depletion.P", "Enrichment.P")
+  row.names(out) <- row.names(fit$t)
+  return(out)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

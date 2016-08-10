@@ -1,0 +1,124 @@
+##' @title Generate an experimental report from a specified contrast in a pooled CRISPR screen
+##' @description This is a function to generate an html report for a specified contrast in a CRISPR screen. The report contains a combination of 
+##' experiment-level and contrast-specific analyses, largely collected from other functions in \code{gCrisprTools}. It is designed to be used 'as-is', 
+##' and analysts interested in using different functionalities of the various functions should do that outside of this wrapper script. 
+##' @param fit An object of class \code{MArrayLM} containing, at minimum, a \code{coefficents} slot with coefficients from the comparison, 
+##' and a \code{stdev.unscaled} slot with the corresponding standard deviation of the coefficent estimates. The \code{row.names} attribute 
+##' should ideally match that which is found in \code{annotation}.
+##' @param eset An ExpressionSet object containing, at minimum, a matrix of gRNA abundances extractable with the \code{exprs()} function and some named 
+##' phenodata extractable with \code{pData()}.
+##' @param classVariable A character string exactly matching the \code{names()} of a column in \code{pData(eset)} that defines relevant sample groups.
+##' @param annotation An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
+##' @param results A data.frame summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}. 
+##' @param aln An alignment matrix, whose format exactly matches that returned by \code{ep.alignment.class.counts()}. 
+##' @param outdir A directory in which to generate the report. The report will be located in a subdirectory whose name is internally generated (see below); 
+##' the path to the report itself is returned by the function.
+##' @param contrast.term A parameter passed to \code{ct.preprocessFit} in the event that the fit object contains data from multiple contrasts. See 
+##' that man page for further details. 
+##' @param identifier A character string to name the report and corresponding subdirectories. If provided, the final report will be called 
+##' '\code{identifier}.html' and will be located in a directory called \code{identifier} in the \code{outdir}. If \code{NULL}, a generic name including the 
+##' timestamp will be generated. 
+##' @return The path to the generated html report. 
+##' @author Russell Bainer
+##' @export
+
+ct.makeReport <- function(fit, eset, classVariable, annotation, results, aln, outdir = ".", contrast.term = NULL, identifier = NULL){
+
+  if(class(fit) != "MArrayLM"){
+    stop("the provided fit does not appear to be a MArrayLM object.")
+    }
+  
+  if(ncol(fit$coefficients) > 1){
+    if(is.null(contrast.term)){
+      stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
+    }
+    fit <- ct.preprocessFit(fit, contrast.term)
+  }
+  
+  #filter the annotation file as necessary for downstream processes
+  if(!setequal(row.names(fit), row.names(annotation))){
+    if(length(setdiff(row.names(fit), row.names(annotation))) > 0){
+      stop("fit contains elements not present in the annotation file.")
+      }
+    message("The annotation file contains elements not present in the fit object. They will be discarded for downstream analyses.")
+    annotation <- annotation[row.names(fit),]
+  }
+
+  if(!is.matrix(aln) | !setequal(row.names(aln), c("targets", "nomatch", "rejections", "double_match"))){
+    stop("I don't think that the provided alignment matrix is actually an alignment matrix.")
+  }
+  
+  
+  
+  
+#Set up the path and folder for writing (heavily based on code from multiGSEA): 
+if (is.null(outdir)) {
+  outdir.created <- FALSE
+  noutdir <- character()
+  } else {
+  if (!is.character(outdir)) {
+    stop("`outdir` must be path to a directory used ot save results")
+  }
+  outdir.created <- .initOutDir(outdir)   #True/false indicating whether the directory was created
+  noutdir <- normalizePath(outdir)
+}
+
+#make the sample names and build the parameter list for the rmd. 
+if(!(classVariable %in% names(pData(eset)))){
+  stop(paste("classVariable:", classVariable, "is not present in the phenotype data of the specified eset. Please specify one of the following: ", names(pData(eset))))  
+  }
+sn <- pData(eset)[,classVariable]
+names(sn) <- row.names(pData(eset))
+
+rmdParamList <- list(eset= eset,
+                    fit= fit,
+                    classVariable= classVariable, 
+                    results = results,
+                    annotation = annotation, 
+                    sn = sn, 
+                    aln = aln)
+
+#make the name of the rmd & output, and render it in the location of interest. 
+if(!is.null(identifier)){
+  if(!is.character(identifier) | length(identifier) != 1){
+    stop("identifier must be a character string of length 1.")
+    }
+  namebase <- identifier
+  }else{
+    namebase <- paste0("CrisprContrastReport", format(Sys.time(), "_%b_%d_%Y_%H.%M.%S"))
+    }  
+
+rmdname <- paste0(noutdir, '/', namebase, '.Rmd')
+outname <- paste0(noutdir, '/', namebase, '/', namebase, '.html')
+
+print(names(rmdParamList))
+
+rmarkdown::render(rmarkdown::draft(rmdname, template = 'CRISPR_report', package = "gCrisprTools", edit = FALSE), params = rmdParamList)
+
+return(outname)
+  
+}
+  
+##' @title Add a static report to ExpressionPlot
+##' @description This is a function to save a file of interest (typically a Crispr report) to the static file area of ExpressionPlot, and then 
+##' add a link to the 
+##' @param proj An Expressionplot project, writable by the user.
+##' @param path A charvec of the path to the file to be appended to the landing page of \code{proj}, typically an html report generated by \code{ct.makeReport}. 
+##' @param description An optional character string to be used as the link text in EP. 
+##' @param mime.type The mime type for the file, passed to \code{ep.save.static.file}. 
+##' @param ... Additional arguments to pass to \code{ep.save.static.file}. 
+##' @return Nothing. 
+##' @author Russell Bainer, based on code from Dorothee Nickles
+##' @export
+ct.addCrisprReportToEp <- function(proj, path, description="Crispr Contrast Report", mime.type="text/html", ...) {
+    if (!requireNamespace("ExpressionPlot", quietly=TRUE)) {
+        stop("Failed to require 'ExpressionPlot'.")
+    }
+  ep.save.static.file(proj=proj, path=path, description=description, mime.type=mime.type, ...)
+  ep.add.static.link(proj=proj, name=basename(path))
+}
+
+
+
+
+

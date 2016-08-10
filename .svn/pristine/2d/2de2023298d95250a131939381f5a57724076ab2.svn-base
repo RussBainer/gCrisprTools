@@ -1,0 +1,37 @@
+##' @title Visualization of Ranked gRNA Abundances by Replicate
+##' @description This function median scales and log2 transforms the raw gRNA count data contained in an ExpressionSet, and then plots the ordered expression values within each replicate. The curve colors are assigned based on a user-specified column of the pData contained in the ExpressionSet.  
+##' @param eset An ExpressionSet object containing, at minimum, count data accessible by exprs() and some phenoData. 
+##' @param class.var The name of a column in the phenoData slot of eset that can be used to group samples. Coerced to a factor. 
+##' @author Russell Bainer
+##' @export
+ct.gRNARankByReplicate <- function(eset, class.var){
+  current.graphic.params <- par(no.readonly = TRUE)
+  on.exit(suppressWarnings(par(current.graphic.params)))
+
+  if(class(eset) != "ExpressionSet"){stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))}
+  
+  p <- pData(eset)
+  if(!(class.var %in% names(p))){stop(paste(deparse(substitute(class.var)), "is not a column in in the phenoData of", deparse(substitute(eset)), "."))}
+  p[,class.var] <- as.factor(p[,class.var]) 
+  
+  e.dat <- exprs(eset)
+  #Median scale them
+  med <- apply(e.dat, 2, median)
+  med <- med/median(med)
+  e.dat <- t(t(e.dat)/med)
+  e.dat <- log2(e.dat + 1)
+  
+  y <- range(e.dat);
+  x <- c(1, nrow(e.dat));  
+  plot(x[1], y[1], xlim = x, ylim = y, xlab = "gRNA Abundance Rank", ylab = "Log2 Counts", pch = NA)
+  
+  colors <- colorRampPalette(c("blue", "red"), alpha = TRUE)(length(levels(p[, class.var])))
+  colors <- gsub("FF$", "99", colors, perl = TRUE)
+  
+  invisible(lapply(1:ncol(e.dat), function(x){lines(1:nrow(e.dat), sort(e.dat[,x], decreasing = FALSE), col = colors[as.numeric(p[colnames(e.dat)[x], class.var])])}))
+  legend("topleft", legend = levels(p[, class.var]), fill = colors)
+}
+
+
+
+

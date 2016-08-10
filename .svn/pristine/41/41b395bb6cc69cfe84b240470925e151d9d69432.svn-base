@@ -1,0 +1,36 @@
+##' @title Prepare an annotation file for usage in a Crispr Screen
+##' @description This function constructs a guide key from a supplied annotation file, usually extracted from ExpressionPlot with the \code{ep.load.annot()}
+##' function. Originally this was something special, but now it is essentially the original annotation object in which the geneSymbol column has been 
+##' factorized. This is primarily used internally during a call to the \code{ct.generateResults()} function.
+##' @param ann A \code{data.frame} containing an annotation object with gRNA-level information encoded as rows. The \code{row.names} attribute should correspond to the individual gRNAs, and it should at minimum contain a column named "geneSymbol" indicating the corresponding gRNA target. Essentially a wrapper for \code{split()}.   
+##' @param fit A \code{fit} object containing data derived from the relevant gRNAs described in the supplied annotation object, accessible with \code{row.names()}. 
+##' @return A new annotation data frame, where the "geneSymbol" column of \code{ann} has been factorized and only gRNAs contained in the fit object are included. 
+##' @author Russell Bainer
+##' @export
+ct.buildKeyFromAnnotation <- function(ann, fit){
+  if(!("geneSymbol" %in% colnames(ann))){
+    stop("The annotation object must contain a geneSymbol column.")
+  }
+  
+  if(sum(is.na(ann[,"geneSymbol"])) > 0){
+    warning('NAs present in the annotation target set. These will be collected into an element called "NoTarget".', call. = TRUE)
+    ann[is.na(ann[,"geneSymbol"]),"geneSymbol"] <- "NoTarget"
+    }
+
+  #Trim out the gRNAs not present in the fit. 
+  if(any(!is.element(row.names(fit), row.names(ann)))){
+    stop("The supplied fit contains rows not present in the annotation file. Please omit these elements prior to downstream analyses.")
+    }
+  
+  omit <- length(setdiff(row.names(ann), row.names(fit)))
+  if(omit > 0){
+    message(paste(omit, "elements defined in the annotation file are not present in row names of the specified fit. Omitting."))
+    ann <- ann[row.names(fit),]
+  }
+
+  ann$geneSymbol <- as.factor(ann$geneSymbol)
+  ann <- droplevels(ann)
+  return(ann)
+}
+
+

@@ -1,0 +1,10 @@
+name: CRISPR Report for a Specified Contrast
+description: Creates a report describing a contrast of interest generated from a pooled CRISPR experiment. 
+create_dir: true
+params:
+  eset: NULL
+  fit: NULL
+  classVariable: NULL
+  results: NULL
+  annotation: NULL
+  sn: NULL 

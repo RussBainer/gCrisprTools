@@ -1,0 +1,304 @@
+---
+title: "gCrisprTools and the Analysis of Pooled Screening Data"
+author: "Russell Bainer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{gCrisprTools_Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+###1. Overview of gCrisprTools
+Competitive screening experiments, in which bulk cell cultures infected with a heterogeneous viral library are experimentally manipulated to identify guide RNAs or shRNAs that influence cell viability, are conceptually straightforward but often challenging to implement. Here, we present gCrisprTools, an R/Bioconductor analysis suite facilitating quality assessment, target prioritization, and interpretation of arbitrarily complex competitive screening experiments. gCrisprTools provides functionalities for detailed and principled analysis of diverse aspects of these experiments both as a standalone pipeline or as an extension to alternative analytical approaches.
+
+####1.1 Explore the Vignettes Folder
+This vignette is only one of the resources provided in `gCrisprTools` to help you understand, analyse, and explore pooled screening data. Ass appropriate, please see the `/vignettes` subdirectory for additional documentation describing best practices, example code, and package layout. 
+
+####1.2 Citing gCrisprTools
+If you use gCrisprTools while developing a publication, please cite the following paper:
+> [Bioinformatics App Note Citation, to be updated later]
+
+####1.3 Dependencies
+`gCrisprTools` uses the existing `Biobase` framework for data storage and manipulation and consequently depends heavily on the `Biobase` and `limma` packages.
+
+```{r, message=FALSE, warning=FALSE}
+library(Biobase)
+library(limma)
+library(gCrisprTools)
+```
+
+
+###2. Inputs
+
+####2.1 Counting Cassettes from Sequencing Data
+To use the various methods available in this package, you will first need to conform your screen data into an `ExpressionSet` object containing cassette abundance counts in the assayData slot, retrievable with `exprs()`. This package assumes that end users are familiar enough with the R/Bioconductor framework and their own sequencing pipelines to extract raw cassette counts from FASTQ files and to compose them into an `ExpressionSet`. For newer users read counting may be facilitated with [cutadapt](https://cutadapt.readthedocs.io/en/stable/) or other software designed for these purposes; details about composition of `ExpressionSet` objects can be found in the  [Biobase](http://bioconductor.org/packages/release/bioc/manuals/Biobase/man/Biobase.pdf) vignette. 
+
+#####2.2 An ExpressionSet of Cassette Counts
+Raw cassette counts should be contained within an `ExpressionSet` object, with the counts retrievable with`exprs()`. The column names (`colnames()`) should correspond to unique sample identifiers, and the row names (`row.names()`) should correspond to identifiers uniquely specifying each cassette of interest. 
+```{r}
+data("es", package = "gCrisprTools")
+es
+head(exprs(es))
+```
+
+#####2.3 An Annotation Object
+gCrisprTools requires an annotation object mapping the individual cassettes to genes or other genomic features for most applications. The annotation object should be provided as a named `data.frame`, with columns describing the '`geneID`' and '`geneSymbol`' of the target elements to which each cassette is annotated. These columns should contain character vectors with elements that uniquely describe the targets in the screen; by convention, the `geneID` field contains an official identifier that unambiguously describes each target element in a manner suitable for external software (e.g., an Entrez ID). The `geneSymbol` column indicates a more human-readable descriptor, such as a gene symbol. 
+
+The annotation object may optionally contain other columns with additional information about the corresponding cassettes. 
+
+```{r}
+data("ann", package = "gCrisprTools")
+head(ann)
+```
+
+####2.4 A Sample Key
+Many `gCrisprTools` functions require or are enhanced by a sample key detailing the experimental groups of the functions included in the study. This key should be provided as a named factor, with `names` perfectly matching the `colnames` of the ExpressionSet. The first level of the sample key should correspond to the 'control' condition, indexing samples whose cassette distributions are expected to be the minimally distorted by experimental treatments. 
+
+```{r}
+sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+names(sk) <- row.names(pData(es))
+sk
+```
+
+####2.5 Alignment Statistics
+Users may provide a matrix of alignment statistics to enhance some applications, including QC reporting. These should be provided as a numeric matrix in which rows correspond to `targets` (reads containing a target cassette), `nomatch` (reads containing a cassette sequence but not a known target sequence), `rejections` (reads not containg a cassette sequence), and `double_match` (reads derived from multiple cassettes). The column names should exactly match the `colnames()` of the ExpressionSet object. Simple charting functionality is also provided to inspect the alignment rates of each sample. 
+
+```{r, fig.width = 7, fig.height = 5}
+data("aln", package = "gCrisprTools")
+head(aln)
+ct.alignmentChart(aln, sk)
+```
+
+###3. Preprocess Raw Data
+`gCrisprTools` provides tools for common data preprocessing steps, including eliminating underinfected or contaminant cassettes and sample-level normalization. 
+
+#####3.1 ct.filterReads
+Low abundance cassettes can be removed by specifying a minimum number of counts or a level relative to the trimmed distribution maximum.
+
+```{r, fig.width=6, fig.height = 8}
+es.floor <- ct.filterReads(es, read.floor = 30, sampleKey = sk)
+es <- ct.filterReads(es, trim = 1000, log2.ratio = 4, sampleKey = sk)
+
+##Convenience function for conforming the annotation object to exclude the trimmed gRNAs
+ann <- gCrisprTools::ct.prepareAnnotation(ann, es, controls = "NoTarget")
+```
+
+#####3.2 ct.normalizeGuides
+
+A suite of normalization tools are provided with the `ct.normalizeGuides()` wrapper function; see the relevant manual pages for further details about these methods. 
+
+```{r, fig.width=6, fig.height = 8}
+es <- ct.normalizeGuides(es, 'scale', annotation = ann, sampleKey = sk, plot.it = TRUE)
+es.norm <- ct.normalizeGuides(es, 'slope', annotation = ann, sampleKey = sk, plot.it = TRUE)
+es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
+es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
+```
+
+#####3.3 ct.makeQCReport
+
+For convenience, experiment-level dynamics and the effects of various preprocessing steps may be automatically summarized in the form of a report. The following code isn't run as part of this vignette, but if run from the terminal `path2QC` will indicate the path to an html Quality Control report. 
+
+```{r, eval= FALSE}
+#Not run: 
+path2QC <- gCrisprTools::ct.makeQCReport(es, 
+                                trim = 1000, 
+                                log2.ratio = 0.05, 
+                                sampleKey = sk, 
+                                annotation = ann, 
+                                aln = aln, 
+                                identifier = 'Crispr_QC_Report',
+                                lib.size = NULL
+                                )      
+```
+
+###4. Quality Assessment
+The `gCrisprTools` package provides a series of functions for assessing distributional and technical properties of sequencing libraries. Please see additional details about all of these methods on their respective manual pages. 
+
+#####4.1 ct.rawCountDensities
+The raw cassette count distributions can be visualized to determine whether samples were inadequately sequenced or if PCR amplification artifacts might be present. 
+
+```{r, fig.width=6, fig.height=6}
+gCrisprTools::ct.rawCountDensities(es, sk)
+```
+
+#####4.2 ct.gRNARankByReplicate
+Aspects of cassette distributions are often better visualized with a 'waterfall' plot than a standard density estimate, which can clarify the ranking relationships in specific parts of the distribution. 
+
+```{r, fig.width=6, fig.height = 6}
+gCrisprTools::ct.gRNARankByReplicate(es, sk)  #Visualization of gRNA abundance distribution
+```
+
+These plots also enable explicit visualization of cassettes of interest in the context of the experimental distribution.
+
+```{r, fig.width=6, fig.height = 6}
+gCrisprTools::ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "Target1633")
+```
+
+#####4.3 ct.viewControls
+`gCrisprTools` provides tools for visualizing the behavior of control gRNAs across experimental conditions. 
+
+```{r, fig.width=6, fig.height = 6}
+gCrisprTools::ct.viewControls(es, ann, sk, normalize = FALSE, geneSymb = 'NoTarget')
+```
+
+#####4.4 ct.guideCDF
+Depending on the screen in question, it can be useful to quantify the extent to which experimental libraries have been distorted by experimental treatments. `gCrisprTools` provides tools to estimate an empirical cumulative distribution function describing the cassettes or (targets) within a screen. 
+
+```{r, fig.width=6, fig.height = 4}
+gCrisprTools::ct.guideCDF(es, sk, plotType = "gRNA")
+```
+
+
+###5. Identifying Candidate Targets
+
+The core analytical machinery of gCrisprTools is built on the linear modelling framework implemented in the `limma` package. Specifically, users employ `limma/voom` to generate an experimental contrast of interest at the gRNA level. The model coefficent and P-value estimates may be subsequently processed with the infrastructure provided by `gCrisprTools`. 
+
+```{r}
+design <- model.matrix(~ 0 + sk, sk)
+colnames(design) <- gsub('sk', '', colnames(design))
+contrasts <- limma::makeContrasts(DeathExpansion - ControlExpansion, levels = design)
+
+vm <- limma::voom(exprs(es), design)
+
+fit <- limma::lmFit(vm, design)
+fit <- limma::contrasts.fit(fit, contrasts)
+fit <- limma::eBayes(fit)
+```
+
+#####5.1 ct.generateResults
+
+After generating a fit object (class `MArrayLM`) for a contrast of interest, we may summarize the signals from the various cassettes annotated to each target via RRA\alpha aggregation: 
+
+```{r, message=FALSE, warning=FALSE}
+resultsDF <-
+  gCrisprTools::ct.generateResults(
+    fit,
+    annotation = ann,
+    RRAalphaCutoff = 0.1,
+    permutations = 1000,
+    scoring = "combined"
+  )
+```
+
+###6. Visualization of Results
+
+After identifying candidate targets, various aspects of the contrast may be visualized with `gCrisprTools`. 
+
+#####6.1 ct.topTargets
+
+The `ct.topTargets` function enables simple visualization of the model effect estimates (log2 fold changes) and associated uncertainties of all cassettes associated with the top-ranking targets.
+
+```{r, fig.width=6, fig.height = 6}
+gCrisprTools::ct.topTargets(fit,
+                              resultsDF,
+                              ann,
+                              ntargets = 10,
+                              enrich = TRUE)
+```
+
+#####6.2 ct.stackGuides
+
+In some screens it can be useful to visualize the degree of library distortion associated with the strongest signals. Such an approach can supply additional confidence in a particular candidate of interest by showing that clear differences are evident outside of the linear modeling framework (which may be inaccurate in heavily distorted libraries). 
+
+```{r, fig.width=6, fig.height = 8}
+gCrisprTools::ct.stackGuides(
+  es,
+  sk,
+  plotType = "Target",
+  annotation = ann,
+  subset = names(sk)[grep('Expansion', sk)]
+)
+```
+
+#####6.3 ct.viewGuides
+
+`gCrisprTools` provides methods to visualize the behavior of individual cassettes annotated to target of interest, and positions these within the observed distribution of effect sizes across all cassettes within the experiment. 
+
+```{r, fig.width=6, fig.height = 4}
+gCrisprTools::ct.viewGuides("Target1633", fit, ann)
+```
+
+####6.4 ct.makeContrastReport and ct.makeReport
+As with the Quality Control components of an individual screen, `gCrisprTools` provides functionality to automatically generate contrast-level reports. 
+
+```{r, eval= FALSE}
+#Not run: 
+path2Contrast <-    
+  gCrisprTools::ct.makeContrastReport(eset = es, 
+                                      fit = fit, 
+                                      sampleKey = sk, 
+                                      results = resultsDF, 
+                                      annotation = ann, 
+                                      comparison.id = NULL, 
+                                      identifier = 'Crispr_Contrast_Report')            
+```
+
+If you wish, you can also make a single report encompassing both quality control and the contrast of interest. 
+
+```{r, eval=FALSE}
+#Not run:
+path2report <-      
+  gCrisprTools::ct.makeReport(fit = fit, 
+                              eset = es, 
+                              sampleKey = sk, 
+                              annotation = ann, 
+                              results = resultsDF, 
+                              aln = aln, 
+                              outdir = ".") 
+```
+
+###7 Hypothesis Testing
+
+In addition to identifying targets of interest within a screen, it may be worthwhile to ask more comprehensive questions about the targets identified. `gCrisprTools` provides a series of basic functions for determining the enrichment of known or unknown target groups within the context of a screen. 
+
+#####7.1 ct.PantherPathwayEnrichment
+
+If a screen was performed with a library targeting genes, `gCrisprTools` can provide basic ontological enrichment testing. This function annotates Entrez gene IDs contained in the `geneID` column of the annotation object to pathways contained in the PANTHER database, and then checks for significant enrichment or depletion of these pathways using a hypergeometric test.  
+
+```{r, eval= FALSE}
+#Not run: 
+enrichmentResults <-
+  ct.PantherPathwayEnrichment(
+    resultsDF,
+    pvalue.cutoff = 0.01,
+    enrich = TRUE,
+    organism = 'mouse'
+  )
+
+> head(enrichmentResults)   #Note: Pathway names have been edited for display purposes.
+                         PATHWAY nGenes sigGenes expected     odds            p        FDR
+1 EGF receptor signaling pathway    200       14 5.240550 3.332647 0.0004498023 0.03958260
+2          FGF signaling pathway    230       14 5.949958 2.869779 0.0016284304 0.07165094
+3     Insulin/MAP kinase cascade    138        9 3.714916 2.785331 0.0101632822 0.20272465
+4          CCKR signaling map ST    331       15 8.211061 2.148459 0.0126368744 0.20272465
+5               p38 MAPK pathway    145        9 3.891333 2.641968 0.0135928688 0.20272465
+6              B cell activation    204       11 5.336192 2.368705 0.0146442541 0.20272465
+```
+
+#####7.2 ct.targetSetEnrichment, ct.ROC, and ct.PRC
+
+In some cases, it may be useful to ask whether a set of known targets is disproportionately enriched or depleted within a screen. `gCrisprTools` provides functions for answering these sorts of questions with `ct.ROC()`, which generates Reciever-Operator Characteristics for a specified gene set within a screen, and `ct.PRC()`, which draws precision-recall curves.  When called, both functions return the raw data necessary to reproduce or combine these results, along with appropriate statistics for assessing the significance of the overall signal within the specified target set (via a hypergeometric test). 
+
+```{r, fig.width=6, fig.height = 6, warning=FALSE}
+data("essential.genes", package = "gCrisprTools")  #Artificial list created for demonstration
+data("resultsDF", package = "gCrisprTools")
+ROC <- gCrisprTools::ct.ROC(resultsDF, essential.genes, stat = "deplete.p")
+str(ROC)
+```
+
+```{r, fig.width=6, fig.height = 6, warning=FALSE}
+PRC <- gCrisprTools::ct.PRC(resultsDF, essential.genes, stat = "deplete.p")
+str(PRC)
+```
+
+Alternatively, the significance of the enrichment within the target set may be assessed directly with `ct.targetSetEnrichment`.
+          
+```{r, fig.width=6, fig.height = 6, warning=FALSE}
+targetsTest <- gCrisprTools::ct.targetSetEnrichment(resultsDF, essential.genes, enrich = FALSE)
+str(targetsTest)
+```
+          
+```{r}
+sessionInfo()
+```
+

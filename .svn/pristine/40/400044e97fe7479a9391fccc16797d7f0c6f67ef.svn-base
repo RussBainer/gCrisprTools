@@ -1,0 +1,135 @@
+###################
+#
+# This is an example Crispr workflow, using NGS830 as an example.
+#
+library(Biobase)
+library(limma)
+library(gCrisprTools)
+
+#load from the supplied package data
+data("es", package = "gCrisprTools")
+data("ann", package = "gCrisprTools")
+data("aln", package = "gCrisprTools")
+
+#Make a sample key, structured as an ordered factor
+sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+names(sk) <- row.names(pData(es))
+
+#Generate a contrast of interest using voom/limma
+design <- model.matrix(~ 0 + TREATMENT_NAME, Biobase::pData(es))
+colnames(design) <- gsub('TREATMENT_NAME', '', colnames(design))
+contrasts <-
+  limma::makeContrasts(DeathExpansion - ControlExpansion, levels = design)
+
+#Optional trimming of trace reads (unnormalized object is recommended, see man page for details)
+#es <- ct.filterReads(es, trim = 1000, sampleKey = sk)
+
+#Normalize and convert to a voom object
+es <- gCrisprTools::ct.normalizeGuides(es, method = "scale") #Safer than using endogenous functions in voom
+vm <- limma::voom(exprs(es), design)
+
+fit <- limma::lmFit(vm, design)
+fit <- limma::contrasts.fit(fit, contrasts)
+fit <- limma::eBayes(fit)
+
+##Edit the annotation file if you used ct.filterReads()
+ann <- gCrisprTools::ct.prepareAnnotation(ann, fit, controls = "NTC")
+
+#Generate results
+resultsDF <-
+  gCrisprTools::ct.generateResults(
+    fit,
+    annotation = ann,
+    RRAalphaCutoff = 0.1,
+    permutations = 1000,
+    scoring = "combined"
+  )
+
+#OR use multicore if available
+#resultsDF <- gCrisprTools::ct.generateResults(fit, annotation = ann, RRAalphaCutoff = 0.1, permutations = 1000, scoring = 'combined', multi.core = TRUE)
+
+#OR load an example results object for testing purposes, trimming out reads as necessary.
+#data("resultsDF", package = "gCrisprTools")
+#resultsDF <- resultsDF[(row.names(resultsDF) %in% row.names(ann)),]
+
+#Crispr-specific quality control and visualization tools (see man pages for details):
+gCrisprTools::ct.alignmentChart(aln, sk)
+gCrisprTools::ct.rawCountDensities(es, sk)
+
+gCrisprTools::ct.gRNARankByReplicate(es, sk)  #Visualization of gRNA abundance distribution
+gCrisprTools::ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "NoTarget")  #Show locations of NTC gRNAs
+gCrisprTools::ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "Ripk3") #Or gRNAs targeting an arbitrary gene
+
+#Optional slope normalization, as appropriate:
+#es.n <- gCrisprTools::ct.normalizeBySlope(es)
+#es.s <- gCrisprTools::ct.normalizeSpline(es, ann)
+
+#Visualize control guide behavior across conditions
+gCrisprTools::ct.viewControls(es, ann, sk, normalize = FALSE)
+gCrisprTools::ct.viewControls(es, ann, sk, normalize = TRUE)
+#gCrisprTools::ct.viewControls(es.s, ann, sk, normalize = FALSE)
+
+#View most variable gRNAs/Genes (as % of sequencing library)
+gCrisprTools::ct.stackGuides(es,
+                             sk,
+                             plotType = "gRNA",
+                             annotation = ann,
+                             nguides = 40)
+gCrisprTools::ct.stackGuides(es, sk, plotType = "Target", annotation = ann)
+gCrisprTools::ct.stackGuides(
+  es,
+  sk,
+  plotType = "Target",
+  annotation = ann,
+  subset = names(sk)[grep('Expansion', sk)]
+)
+#View a CDF of genes/guides
+gCrisprTools::ct.guideCDF(es, sk, plotType = "gRNA")
+gCrisprTools::ct.guideCDF(es, sk, plotType = "Target", annotation = ann)
+
+#View top enriched/depleted candidates
+rankedUpreg <-
+  gCrisprTools::ct.topTargets(fit,
+                              resultsDF,
+                              ann,
+                              ntargets = 10,
+                              enrich = TRUE)
+rankedDnreg <-
+  gCrisprTools::ct.topTargets(fit,
+                              resultsDF,
+                              ann,
+                              ntargets = 10,
+                              enrich = FALSE)
+
+#View the gRNA behavior and distributional information of gRNAs targeting a particular gene of interest
+gCrisprTools::ct.viewGuides("Ripk3", fit, ann)
+
+#View ontological enrichment within the depleted/enriched guides
+enrichmentResults <-
+  gCrisprTools::ct.PantherPathwayEnrichment(
+    resultsDF,
+    pvalue.cutoff = 0.01,
+    enrich = TRUE,
+    organism = 'mouse'
+  )
+
+#Test a gene set for enrichment within target candidates
+data("essential.genes", package = "gCrisprTools")
+ROCs <- gCrisprTools::ct.ROC(resultsDF, essential.genes, stat = "deplete.p")
+PRCs <- gCrisprTools::ct.PRC(resultsDF, essential.genes, stat = "deplete.p")
+
+
+#Make a report of a particular contrast in a directory of interest
+#NOTE: not currently implemented on the cluster, so it's best to generate the file in a local directory and then move it somewhere visible.
+path2report <-
+  gCrisprTools::ct.makeReport(fit, es, sk, ann, resultsDF, aln, outdir = ".") #Make a report
+
+path2QC <-
+  gCrisprTools::ct.makeQCReport(es, sk, ann, aln)                             #Or one focusing only on experiment QC
+
+path2Contrast <- 
+  gCrisprTools::ct.makeContrastReport(es, fit, sk, resultsDF, ann)            #Or Contrast-specific one
+
+
+
+

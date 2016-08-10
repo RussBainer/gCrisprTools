@@ -1,0 +1,14 @@
+##' @title Generate a guide key object from a supplied annotation file 
+
+##' @description This function constructs a guide key from a supplied annotation file, usually extracted from ExpressionPlot with the \code{ep.load.annot()} function. 
+##' @param ann A \code{data.frame} containing an annotation file with gRNA-level information encoded as rows. The \code{row.names} attribute should correspond to the individual gRNAs, and it should at minimum contain a column named "geneSymbol" indicating the corresponding gRNA target. Essentially a wrapper for \code{split()}.   
+##' @return A list, where each element is named for a target within the "geneSymbol" column of \code{ann}, and contains a vector indicating the set of gRNAs targeting that element. 
+##' @author Russell Bainer
+##' @export
+ct.buildKeyFromAnnotation <- function(ann){
+  if(sum(is.na(ann[,"geneSymbol"])) > 0){
+    warning('NAs present in the annotation target set. These will be collected into an element called "NoTarget".', call. = TRUE)
+    ann[is.na(ann[,"geneSymbol"]),"geneSymbol"] <- "NoTarget"
+  }
+  split(rownames(ann), ann[,"geneSymbol"])
+}

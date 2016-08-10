@@ -1,0 +1,74 @@
+##' @title Calculate results of a crispr screen from a contrast
+##' @description This is a wrapper function that enables direct generation of gene-level p-values from a crispr screen.  
+##' @param fit An object of class \code{MArrayLM} containing, at minimum, a \code{t} slot with t-statistics from the comparison, 
+##' a \code{df.residual} slot with the corresponding residuals fo the model fits, and an \code{Amean} slot with the respective mean abundances. 
+##' @param annotation An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
+##' row, and must minimally contain columns \code{geneSymbol} and \code{geneID}.
+##' @param RRAalphaCutoff A nominal p-value cutoff to use when defining gRNAs with significantly altered abundance during the RRAa aggregation step.  
+##' @param permutations The number of permutations to use during the RRAa aggregation step.  
+##' @return A dataframe containing gRNA-level and gene-level statistics 
+##' @author Russell Bainer
+##' @export
+
+ct.generateResults <- function(fit, annotation, RRAalphaCutoff = 0.05, permutations = 1000, multi.core = TRUE){
+  require(Biobase)
+  require(limma)
+
+  pvals <- ct.DirectionalTests(fit)
+  key <- ct.buildKeyFromAnnotation(annotation)
+  geneP.enrichment <- ct.RRAaPvals(as.matrix(pvals[,2]), g.key = key, alpha = RRAalphaCutoff, multicore = multi.core, permute=permutations)
+  geneP.depletion <- ct.RRAaPvals(as.matrix(pvals[,1]), g.key = key, alpha = RRAalphaCutoff, multicore = multi.core, permute=permutations)
+
+  geneQ.enrichment <- p.adjust(geneP.enrichment, method = "fdr")
+  geneQ.depletion <- p.adjust(geneP.depletion, method = "fdr")
+
+  annotFields <- c("symbol", "target", "geneID", "geneSymbol")  
+  if(!all(annotFields %in% names(ann))){
+    warning(paste("Some expected columns are not present in the supplied annotation file.", call. = FALSE))
+    annotFields <- intersect(annotFields, names(ann))
+    message(paste("Only the following information will be included in the output:", paste(annotFields, collapse = ',')))  
+  } 
+
+  #make the DF
+  summaryDF <- ann[,annotFields]
+  summaryDF["gRNA Log2 Fold Change"] <- fit$coefficients[row.names(summaryDF),1]
+  summaryDF["gRNA Depletion P"] <- signif(pvals[row.names(summaryDF),1], 5)
+  summaryDF["gRNA Depletion Q"] <- signif(p.adjust(pvals[,1], "fdr")[row.names(summaryDF)], 5)
+  summaryDF["gRNA Enrichment P"] <- signif(pvals[row.names(summaryDF),2], 5)
+  summaryDF["gRNA Enrichment Q"] <- signif(p.adjust(pvals[,2], "fdr")[row.names(summaryDF)], 5)
+  summaryDF["Gene-level Enrichment P"] <- geneP.enrichment[summaryDF$geneSymbol]
+  summaryDF["Gene-level Enrichment Q"] <- geneQ.enrichment[summaryDF$geneSymbol]
+  summaryDF["Gene-level Depletion P"] <- geneP.depletion[summaryDF$geneSymbol]
+  summaryDF["Gene-level Depletion Q"] <- geneQ.depletion[summaryDF$geneSymbol]
+
+  #Add a column for the median FC for each target: 
+  targets <- unique(summaryDF$geneSymbol)
+  medianfc <- vapply(targets, function(x){median(summaryDF[(summaryDF$geneSymbol == x),"gRNA Log2 Fold Change"], na.rm = TRUE)}, numeric(1), USE.NAMES = TRUE)
+  summaryDF["Median log2 Fold Change"] <- vapply(summaryDF$geneSymbol, function(x){medianfc[x][1]}, numeric(1))
+  
+  summaryDF <- summaryDF[order(summaryDF[,"Gene-level Enrichment P"], decreasing = FALSE),]
+  return(summaryDF)
+}
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+

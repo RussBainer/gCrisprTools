@@ -1,0 +1,204 @@
+#This is a collection of functions to enclose a specified object in an .rmd template provided in /otherdata, 
+#store it in the static area of expressionplot, and then upload a link to the project page. 
+
+
+
+
+##' @title Upload a supplied dataframe as a static link to an expressionplot project. 
+##' @description This is a wrapper function that enables direct generation of gene-level p-values from a crispr screen.  
+##' @param fit An object of class \code{MArrayLM} containing, at minimum, a \code{t} slot with t-statistics from the comparison, 
+##' a \code{df.residual} slot with the corresponding residuals fo the model fits, and an \code{Amean} slot with the respective mean abundances. 
+##' @param annotation An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
+##' row, and must minimally contain columns \code{geneSymbol} and \code{geneID}.
+##' @param RRAalphaCutoff A nominal p-value cutoff to use when defining gRNAs with significantly altered abundance during the RRAa aggregation step.  
+##' @param permutations The number of permutations to use during the RRAa aggregation step.  
+##' @return A dataframe containing gRNA-level and gene-level statistics 
+##' @author Russell Bainer
+##' @export
+
+
+
+
+
+#Intended usage: 
+reportName <- ep.multiGSEA.report(proj, compId)
+ep.add.static.link(proj, name = reportName, link.title = paste("GSEA report for", compId))
+
+##Code
+
+
+##' @title Create a standard Crispr Report
+##' @description This function creates a standard crispr report (currently a searchable datatable with gRNA-level and gene-level 
+##' results) and saves it to the static area of ExpressionPlot. 
+##' @param 
+##' @return Path to temporary output directory, if saveReport if FALSE.
+##' Name of main report HTML file in static report area, if saveReport is TRUE.
+##' @author Russell Bainer
+##' @export
+ep.Crispr.report <- function(proj,
+                                comp.id,
+                                author = Sys.getenv("USER"),
+                                feature.type = "gene",
+                                plot.stat = "logFC",
+                                top.n = 100,
+                                max.p = 0.3,
+                                reportRmd = system.file("extdata/template.Rmd",
+                                                        package = "ExpressionPlotMultiGSEA"),
+                                mg = ep.MultiGSEAResult(proj,
+                                                        feature.type = feature.type,
+                                                        comp.id = comp.id),
+                                saveReport = TRUE,
+                                overwriteSavedReport = TRUE)  {
+  
+  if(saveReport)  {
+    
+    #Make the directory path relative to the pwd, getting rid of special characters in the supplied string.
+    reportBasedir <- ep.multiGSEA.report.static.path(comp.id, feature.type)
+    if(reportBasedir %in% substr(ep.static.file.names(proj), 1, nchar(reportBasedir)) &&
+         ! overwriteSavedReport)  {
+      stop("'", reportBasedir, "' already exists in static file area. Supply overwriteSavedReport to continue")
+    }
+  }
+  
+  #Make a folder in the tmp folder, and put a copy of the rmd template into it. 
+  outdir <- tempfile()
+  dir.create(outdir)
+  file.copy(reportRmd, outdir)
+  in.fn <- dir(outdir, full = TRUE)
+  stopifnot(length(in.fn) == 1)
+  stopifnot(basename(in.fn) == basename(reportRmd))
+  
+  ## I think report.render might already do the chdir for me
+  ## but I'll do it again just in case.
+  .wd <- getwd()
+  on.exit(setwd(.wd))
+  
+  #move (reversibly) to the temp directory
+  setwd(outdir)
+  
+  env <- list2env(list(max.p = max.p,
+                       top.n = top.n,
+                       plot.stat = plot.stat,
+                       mg = mg))
+  curFrame <- sys.frame(sys.nframe())
+  
+  rmd.plugins::report.render(in.fn,
+                             envir = curFrame)
+  
+  if(saveReport)  {
+    ep.save.static.dirtree(proj,
+                           basepath = outdir,
+                           static.basedir = reportBasedir,
+                           extra.ext.map = c(svg = "image/svg+xml",
+                                             csv = "text/csv"),
+                           overwrite = overwriteSavedReport)
+    
+    report.html <- dir(outdir, "\\.html$")
+    stopifnot(length(report.html) == 1)
+    unlink(outdir, recursive = TRUE)
+    
+    return(file.path(reportBasedir, report.html))
+  }  else  {
+    
+    return(outdir)
+  }
+}
+
+
+
+
+ep.multiGSEA.report
+function (proj, comp.id, author = Sys.getenv("USER"), feature.type = "gene", 
+          plot.stat = "logFC", top.n = 100, max.p = 0.3, reportRmd = system.file("extdata/template.Rmd", 
+                                                                                 package = "ExpressionPlotMultiGSEA"), mg = ep.MultiGSEAResult(proj, 
+                                                                                                                                               feature.type = feature.type, comp.id = comp.id), saveReport = TRUE, 
+          overwriteSavedReport = TRUE) 
+{
+  if (saveReport) {
+    reportBasedir <- ep.multiGSEA.report.static.path(comp.id, 
+                                                     feature.type)
+    if (reportBasedir %in% substr(ep.static.file.names(proj), 
+                                  1, nchar(reportBasedir)) && !overwriteSavedReport) {
+      stop("'", reportBasedir, "' already exists in static file area. Supply overwriteSavedReport to continue")
+    }
+  }
+  outdir <- tempfile()
+  dir.create(outdir)
+  file.copy(reportRmd, outdir)
+  in.fn <- dir(outdir, full = TRUE)
+  stopifnot(length(in.fn) == 1)
+  stopifnot(basename(in.fn) == basename(reportRmd))
+  .wd <- getwd()
+  on.exit(setwd(.wd))
+  setwd(outdir)
+  env <- list2env(list(max.p = max.p, top.n = top.n, plot.stat = plot.stat, 
+                       mg = mg))
+  curFrame <- sys.frame(sys.nframe())
+  rmd.plugins::report.render(in.fn, envir = curFrame)
+  if (saveReport) {
+    ep.save.static.dirtree(proj, basepath = outdir, static.basedir = reportBasedir, 
+                           extra.ext.map = c(svg = "image/svg+xml", csv = "text/csv"), 
+                           overwrite = overwriteSavedReport)
+    report.html <- dir(outdir, "\\.html$")
+    stopifnot(length(report.html) == 1)
+    unlink(outdir, recursive = TRUE)
+    return(file.path(reportBasedir, report.html))
+  }
+  else {
+    return(outdir)
+  }
+}
+
+
+
+
+
+
+
+
+```{r, echo = FALSE, include = FALSE}
+library(Biobase)
+library(limma)
+library(devtools)
+library(DT)
+load_all("/Users/bainerr/R_packages/gCrisprTools")
+
+d <- readRDS("/Users/bainerr/R_packages/NGS634.rds")
+ann <- readRDS("/Users/bainerr/R_packages/NGS634ann.rds")
+pData(d)[,"TIME"] <- paste0("day", pData(d)[,"TIME"])
+
+design <- model.matrix(~ 0 + TIME*DRUG, pData(d))
+colnames(design) <- gsub(':', 'x', colnames(design))
+cm <- makeContrasts(TIMEday28 - TIMEday28xDRUGcon, levels=design)
+vm <- voom(d, design)
+
+fit <- lmFit(vm, design)
+fit2 <- contrasts.fit(fit, cm)
+fit2 <- eBayes(fit2)
+
+pvals <- ct.DirectionalTests(fit2)
+key <- ct.buildKeyFromAnnotation(ann)
+geneP <- ct.RRAaPvals(as.matrix(pvals[,2]), key, alpha = 0.05)
+geneQ <- p.adjust(geneP, "fdr")
+ann[is.na(ann[, "geneSymbol"]), "geneSymbol"] <- "NoTarget"
+
+#make the DF
+summaryDF <- ann[,c(1,2,11)]
+summaryDF[is.na(summaryDF[, "geneSymbol"]), "geneSymbol"] <- "NoTarget"
+summaryDF["gRNA P"] <- round(pvals[row.names(summaryDF),2], 5)
+summaryDF["gRNA q"] <- round(p.adjust(pvals[,2], "fdr")[row.names(summaryDF)], 5)
+summaryDF["Gene-level P"] <- geneP[summaryDF$geneSymbol]
+summaryDF["Gene-level Q"] <- geneQ[summaryDF$geneSymbol]
+names(summaryDF) <- c("gRNA", "Sequence", "Target", "Guide P", "Guide Q", "Gene-level P", "Gene-level Q")
+```
+
+```{r}
+datatable(summaryDF, rownames = FALSE, caption= 'Summarization of guides specifically depleted at day 28 in NGS634', filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE))
+```
+
+This would be a place for a shiny-type interface for the various gRNA images. 
+
+
+
+

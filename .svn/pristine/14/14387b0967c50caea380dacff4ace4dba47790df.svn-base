@@ -1,0 +1,35 @@
+##' @title Remove low-abundance reads and median scale a voom dataset
+##' @description This function removes gRNAs only present in very low abundance across all samples of a pooled Crispr 
+##' screening experiment, and then renormalizes the data appropriately. In most cases very low-abundance guides are the
+##' result of low-level contamination from other libraries, and often distort standard normalization approaches. This 
+##' function trims gRNAs in a largely heuristic way, assuming that the majority of 'real' gRNAs within the library are 
+##' comparably abundant in at least some of the samples (such as unexpanded controls), and that contaminants are 
+##' present at negligible levels. Specifically, the function trims the \code{trim} most abundant guides from the upper 
+##' tail of each sample distribution, and then omits gRNAs whose abundances are always less than \code{ratio} of this 
+##' value. The distributions are then median scaled before 
+##' returning the data as a Voom-style \code{EList}.
+##' @param voom.obj An \code{EList} object containing, at minimum, a matrix of log-scale abundance estimates in the \code{E} slot. 
+##' @param trim The number of gRNAs to be trimmed from the top of the distribution before estimating the abundance range. 
+##' @param ratio Maximum abundance of contaminant gRNAs, expressed as a proportion of the trimmed range of each sample.
+##' @return An \code{EList} object, containing a trimmed and normalized data set. 
+##' @author Russell Bainer
+##' @export
+
+ct.filterVoom <- function(voom.obj, trim = 500, ratio = 0.625){
+  
+  if(class(voom.obj) != "EList"){stop(paste(deparse(substitute(voom.obj)), "is not an Elist returned by voom."))}
+  if(!is.numeric(trim)){stop(paste("trim is not an integer."))}
+  if(!is.numeric(ratio)){stop(paste("trim is not an integer."))}
+  
+  e <- voom.obj$E
+  
+  #Trim and discard the low-level values
+  e.cuts <- apply(e, 2, sort, decreasing = TRUE)[trim,] - log2(1/ratio)
+  
+  whitelist <- row.names(e)[colSums(apply((t(e) - e.cuts), 2, sign)) != -ncol(e)]
+  
+  new.v <- voom.obj[whitelist,]
+  new.v$E <- limma::normalizeBetweenArrays(new.v$E, method = "scale")
+  return(new.v)
+  }
+

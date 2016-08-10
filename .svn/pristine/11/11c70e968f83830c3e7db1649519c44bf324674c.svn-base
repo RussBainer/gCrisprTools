@@ -1,0 +1,175 @@
+#This document contains functions for the RRAa algorithm. 
+
+##' @title Calculate default number of cores to use in RRAa aggregation. 
+##' @description This function calculates default number of cores to use. Default is 4, unless
+##' LSB_DJOB_NUMPROC envvar is available, in which case it is 2 times that number. This code was
+##' stolen wholesale from the \code{shRNASeqExpressionPlot} package developed by Brad Friedman. 
+##' 
+##' @return 4 or \code{2*$LSB_DJOB_NUMPROC}
+##' @author Brad Friedman
+
+ct.default.numcores <- function()  {
+  lsf.numproc <- Sys.getenv("LSB_DJOB_NUMPROC")
+  if(lsf.numproc == "")  {
+    numcores <- 1
+  }  else  {
+    numcores <- 2*as.integer(lsf.numproc)
+  }
+  return(numcores)
+}
+
+##' @title Aggregation of P-value Ranks using a Beta Distribution and Alpha Cutoff  
+##' @description This function calculates an alpha-modified rho statistic from a set of ranks on the unit interval by comparing them to a uniform distribution. Specifically, the ranks are ordered and p-values calculated at each position in the ordered vector by comparison to a Beta distribution. The rho value returned is the smallest p-value identified in this comparison, only considering the first 'sigs'-ranked values. Should not be used by end users.
+##' @param p.in A single column matrix of P-values, with row.names indicating the gRNA labels.
+##' @param sigs The number of ranks to be considered. 
+##' @return A numeric rho value corresponding to the minimum rank order P. 
+##' @author Russell Bainer
+##' @export
+
+ct.alphaBeta <- function(p.in, sigs){
+  #Input checks
+  if(sigs > length(p.in)){stop("Insufficient p-values provided for the specified number of significant elements. (", names(p.in)[1], ")")}
+
+  #Function
+  if(sigs < 1){return(1)
+    }else{
+      scores <- betaScores(p.in);
+      return(min(scores[1:sigs]))
+      }
+  }
+
+##' @title Aggregation of P-value Ranks using a Beta Distribution and Alpha Cutoff  
+##' @description This function is called internally as a single instance of the beta aggregation step in RRAa. Users should not interact with it directly. Should not be used by end users. 
+##' @param p A single column matrix of P-values, with row.names indicating the gRNA labels
+##' @param g.key A list of targets, where each element contains the appropriate gRNA identifiers contained in the row.names of p. 
+##' @param alpha The alpha cutoff parameter, corresponding to the P-value threshold at which gRNAs should no longer be considered to be differntially expressed. 
+##' @return A named list of target-level P-values, which are treated as a rho statistic in the permutation step. 
+##' @author Russell Bainer
+##' @export
+
+ct.RRAalpha <- function(p, g.key, alpha = 0.05){
+  
+  #tally the significant genes
+  pass <- lapply(g.key, function(x){sum(p[x,1] <= alpha)})
+  
+  #Normalize pvalues to ranks
+  p.rank <- rank(p)/nrow(p)
+  names(p.rank) <- row.names(p)
+
+  #compile list-like object of pvalues for each target
+  
+  p.collect <- lapply(g.key, function(target){p.rank[target]})
+    
+  #determine the adjusted rho value
+    
+  return(mapply(ct.alphaBeta, p.collect, pass));
+  
+}
+
+##' @title Function to break Row/pvalue dependency.
+##' @description A shuffling function used during empirical P-value estimation. Should not be used by end users. 
+##' @param A mat A matrix of p-values to be shuffled. 
+##' @return A shuffled matrix of p-values. 
+##' @author Russell Bainer
+##' @export
+
+#Function to break row.name contingency on values
+ct.shuffleRows <- function(mat){
+  row.names(mat) <- sample(row.names(mat), length(mat), replace = FALSE)
+  return(mat)   
+}
+
+
+##' @title gRNA signal aggregation via RRAa 
+##' @description This is a wrapper function implementing the RRAalpha p-value aggregation algorithm. Takes in a set of gRNA p-values (formatted as a single-column numeric matrix with row.names indicating the guide names) and a list object of gRNA annotations (names are the gene targets, and each element of the list contains a vector of the corresponding guide names). 
+##' @param p A single column matrix of P-values, with row.names indicating the gRNA labels
+##' @param g.key A list of targets, where each element contains the appropriate gRNA identifiers contained in the row.names of p. 
+##' @param alpha The alpha cutoff parameter, corresponding to the P-value threshold at which gRNAs should no longer be considered to be differntially expressed. 
+##' @param permute Numebr of permutations to be used during empirical p-value estimation. 
+##' @return A named list of target-level empirical P-values. 
+##' @author Russell Bainer
+##' @export
+
+ct.RRAaPvals <- function(p, g.key, alpha, permute = 100){
+  require(RobustRankAggreg)
+  message(paste("Permuting", permute, "times. This may take some time."))
+  #Input checks
+  if(class(p) != "matrix" | is.null(ncol(p))){
+    stop("P-values should be input as a single-column matrix with row names contained in the gs.list")}
+  if(ncol(p) > 1){
+    warning(paste('Multiple columns are present in the p-value matrix. Using the first column:', colnames(p)[1]))}
+  
+  if(!is.numeric(alpha) | !length(alpha != 1) | (alpha > 1) | (alpha < 0)){
+    stop("alpha parameter must be a single numeric value on the unit interval.")}
+  if(!class(g.key) == "list"){stop("The target key must be a named list of targets.")}
+  if(is.null(length(names(g.key)))){warning("The target key list is unnamed.")}
+  if(!setequal(unlist(g.key), row.names(p))){stop("Provided p-value list and target key contain different elements.")}
+
+  #Everything apparently ok, generate observed and permuted values and calculate the pvals. 
+
+  obs <- ct.RRAalpha(p, g.key, alpha)
+  perm <- replicate(permute, ct.RRAalpha(ct.shuffleRows(p), g.key, alpha))
+  
+  return(vapply(names(obs), function(x, obs, perm){sum(perm[x,] <= obs[x])}, numeric(1), obs, perm)/permute)
+}
+
+
+##' @title gRNA signal aggregation via RRAa using multiple cores. 
+##' @description This is a wrapper function implementing the RRAalpha p-value aggregation algorithm. Takes in a set of gRNA p-values (formatted as a single-column numeric matrix with row.names indicating the guide names) and a list object of gRNA annotations (names are the gene targets, and each element of the list contains a vector of the corresponding guide names). 
+##' @param p A single column matrix of P-values, with row.names indicating the gRNA labels
+##' @param g.key A list of targets, where each element contains the appropriate gRNA identifiers contained in the row.names of p. 
+##' @param alpha The alpha cutoff parameter, corresponding to the P-value threshold at which gRNAs should no longer be considered to be differntially expressed. 
+##' @param permute Numebr of permutations to be used during empirical p-value estimation. 
+##' @return A named list of target-level empirical P-values. 
+##' @author Russell Bainer
+##' @export
+
+ct.mcRRAaPvals <- function(p, g.key, alpha, permute = 1000, multicore = TRUE){
+  require(RobustRankAggreg)
+
+  #Input checks
+  if(class(p) != "matrix" | is.null(ncol(p))){
+    stop("P-values should be input as a single-column matrix with row names contained in the gs.list")}
+  if(ncol(p) > 1){
+    warning(paste('Multiple columns are present in the p-value matrix. Using the first column:', colnames(p)[1]))}
+  
+  if(!is.numeric(alpha) | !length(alpha != 1) | (alpha > 1) | (alpha < 0)){
+    stop("alpha parameter must be a single numeric value on the unit interval.")}
+  if(!class(g.key) == "list"){stop("The target key must be a named list of targets.")}
+  if(is.null(length(names(g.key)))){warning("The target key list is unnamed.")}
+  if(!setequal(unlist(g.key), row.names(p))){stop("Provided p-value list and target key contain different elements.")}
+  
+  #Everything apparently ok, generate observed and permuted values and calculate the pvals. 
+  obs <- ct.RRAalpha(p, g.key, alpha)
+
+  if(multicore){
+    require(parallel)
+    mc.cores <- ct.default.numcores()
+    message(paste("Permuting", permute, 'times, using', mc.cores, 'cores.'))
+
+    shuffled <- replicate(permute, ct.shuffleRows(p), simplify = FALSE)
+    shuffled.pvals <- mclapply(shuffled, ct.RRAalpha, g.key, alpha)
+    resgenes <- names(shuffled.pvals[[1]])
+    perm <- do.call(cbind, lapply(shuffled.pvals, function(x){x[resgenes]}))  
+  } else {
+    
+    message(paste("Permuting", permute, 'times, this may take a while...'))
+    perm <- replicate(permute, ct.RRAalpha(ct.shuffleRows(p), g.key, alpha))
+  }
+  return(vapply(names(obs), function(x, obs, perm){sum(perm[x,] <= obs[x])}, numeric(1), obs, perm)/permute)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

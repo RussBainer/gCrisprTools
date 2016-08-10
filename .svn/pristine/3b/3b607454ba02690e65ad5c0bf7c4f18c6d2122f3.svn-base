@@ -1,0 +1,13 @@
+Package: gCrisprTools
+Type: Package
+Title: Suite of Functions for Crispr Screen QC and Analysis
+Version: 0.0.2
+Date: 2015-06-26
+Author: Russell Bainer, Sarah Kummerfeld
+Maintainer: Russell Bainer <bainerr@gene.com>
+Description: Set of tools for evaluating guide RNA cassette behavior, identifying differentially abundant guides, and aggregating gRNA signals to identify candidate targets for empirical validation. 
+License: file GNE_LICENSE
+Imports: Biobase,
+    limma,
+    RobustRankAggreg,
+    ggplot2

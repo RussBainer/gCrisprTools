@@ -1,0 +1,13 @@
+##' gCrisprTools
+##'
+##' Pipeline for using CRISPR data at Genentech
+##'
+##' @docType package
+##' @name gCrisprTools-package
+##' @import Biobase
+##' @import limma
+##' @import RobustRankAggreg
+##' @import ggplot2
+##' @import parallel
+##' @import BiocParallel
+NULL

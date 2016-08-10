@@ -1,0 +1,77 @@
+##' @title Remove low-abundance reads and median scale a voom dataset
+##' @description This function removes gRNAs only present in very low abundance across all samples of a pooled Crispr 
+##' screening experiment, and then normalizes the data by median scaling. In most cases very low-abundance guides are the
+##' result of low-level contamination from other libraries, and often distort standard normalization approaches. This 
+##' function trims gRNAs in a largely heuristic way, assuming that the majority of 'real' gRNAs within the library are 
+##' comparably abundant in at least some of the samples (such as unexpanded controls), and that contaminants are 
+##' present at negligible levels. Specifically, the function trims the \code{trim} most abundant guides from the upper 
+##' tail of each sample distribution, and then omits gRNAs whose abundances are always less than \code{ratio} of this 
+##' value. The distributions are then median scaled before returning the data as a Voom-style \code{EList}.
+##' @param voom.obj An unnormalized \code{EList} object containing, at minimum, a matrix of log-scale abundance estimates in the \code{E} 
+##' slot and appropriate \code{lib.size} values in the \code{targets} slot. 
+##' @param trim The number of gRNAs to be trimmed from the top of the distribution before estimating the abundance range. Usually should be equal to about 2% of the guides in the library. 
+##' @param ratio Maximum abundance of contaminant gRNAs, expressed as a proportion of the trimmed range of each sample.
+##' @param control.samples An optional character vector indicating the control samples to test.
+##' @plot.it Logical value indicating whether to plot the adjusted gRNA densities on the default device. 
+##' @return An \code{EList} object, containing a trimmed and normalized data set. 
+##' @author Russell Bainer
+##' @export
+
+ct.filterVoom <- function(voom.obj, trim = 500, ratio = 0.0625, control.samples = NULL, plot.it = TRUE){
+  
+  if(class(voom.obj) != "EList"){stop(paste(deparse(substitute(voom.obj)), "is not an Elist returned by voom."))}
+  if(!is.numeric(trim)){stop(paste("trim is not an integer."))}
+  if(!is.numeric(ratio)){stop(paste("trim is not an integer."))}
+  message("This function may be unstable if the supplied Elist object is prenormalized. \nFor best results, provide an object returned by a call to voom() with normalize.method = 'none'.")
+  
+  e <- voom.obj$E
+  if(!is.null(control.samples)){
+    if(length(setdiff(control.samples, colnames(e))) != 0){stop("One or more of the provided control samples is not present in the colnames of the voom object.")}
+    if(length(control.samples) == 0){stop("The provided control samples vector is empty. Please set to NULL if you do not wish to specify controls for this experiment.")}
+    e <- e[,control.samples]
+  }
+  
+  #Trim and discard the low-level values
+  e.cuts <- apply(e, 2, sort, decreasing = TRUE)[trim,] - log2(1/ratio)
+  whitelist <- row.names(e)[colSums(apply((t(e) - e.cuts), 2, sign)) != -ncol(e)]
+  
+  #Reverse the voom transformation to get back to raw counts:               
+  voomcounts <- round(t(((voom.obj$targets[,'lib.size'] - 1)/1e+06) * t(2^voom.obj$E)) - 0.5)
+  new.v <- voom(voomcounts, design = voom.obj$design, normalize.method="scale")
+  
+  #Raw
+  if(plot.it){
+    par(mfrow= c(2,1))
+    ds <- apply(voom.obj$E, 2, density)
+    ymax <- max(unlist(lapply(ds, function(x){x$y})))
+    xr <- range(unlist(lapply(ds, function(d){d$x})))
+    plot(ds[[1]], main = 'Raw gRNA Density', 
+         ylim = c(0, ymax), xlim = xr, 
+         xlab = "Raw Log2 gRNA Count", 
+         ylab = "Density")
+    invisible(lapply(ds, lines))
+    if(!is.null(control.samples)){
+      ds <- apply(voom.obj$E[,control.samples], 2, density)
+      invisible(lapply(ds, lines, col = "red"))
+      legend("topright", "Control", fill = "red")  
+    }    
+    
+    #corrected
+    ds <- apply(new.v$E, 2, density)
+    ymax <- max(unlist(lapply(ds, function(x){x$y})))
+    xr <- range(unlist(lapply(ds, function(d){d$x})))
+    plot(ds[[1]], main = 'Corrected gRNA Density', 
+         ylim = c(0, ymax), xlim = xr, 
+         xlab = "Normalized Log2 gRNA Count", 
+         ylab = "Density")
+    invisible(lapply(ds, lines))
+    if(!is.null(control.samples)){
+      ds <- apply(new.v$E[,control.samples], 2, density)
+      invisible(lapply(ds, lines, col = "red"))
+      legend("topright", "Control", fill = "red")  
+      }
+     }
+  
+  return(new.v)
+  }
+

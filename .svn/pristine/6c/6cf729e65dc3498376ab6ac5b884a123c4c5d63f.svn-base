@@ -1,0 +1,12 @@
+##' @export
+topGenes <- function(summaryDF, enrich=TRUE) {
+    # Gene-wise output
+     if (enrich == TRUE) {
+        summaryDF = summaryDF[ order(summaryDF$"Gene-level Enrichment Q"), ]
+        summaryDF = summaryDF[ !duplicated(summaryDF$geneID), ]
+    } else {
+        summaryDF = summaryDF[ order(summaryDF$"Gene-level Depletion Q"), ]
+        summaryDF = summaryDF[ !duplicated(summaryDF$geneID), ]
+    }
+  summaryDF
+}

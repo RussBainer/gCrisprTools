@@ -1,0 +1,133 @@
+---
+title: CRISPR Report
+output: 
+  html_document:
+    fig_caption: yes
+params:
+  eset: !r ExpressionSet()
+  fit: !r data.frame()
+  sampleKey: !r ordered()
+  results: !r data.frame()
+  annotation: !r data.frame()
+  aln: !r matrix()
+---
+
+#Contrast: `r dimnames(params$fit$contrasts)$Contrasts`
+
+This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the fucntions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during teh analysis of a Crispr screen. 
+
+###Section 1: Experiment Overiview 
+
+####gRNA Alignment Overview
+
+In a high-quality library the overwhelming majority of reads will contain valid gRNA target sequences (>80%). Reads not matching the gRNA library may correspond to experimental contamination by lentivirus derived from other libraries. Rejected reads contain to sequences not derived from the lentiviral cassette and may reflect problems with cassette isolation, library prep, or sequencing quality. Reads that "double match" contain apparent gRNA sequences in both mate pairs of a single paired-end read; this shouldn't happen given the structure of the lentiviral cassette, but may be rarely produced as an artifact of the library construction process. 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=6, fig.width=10, fig.cap= "Figure 1: Sample-Level gRNA Aligment Profile"}
+ct.alignmentChart(params$aln, params$sampleKey)
+```
+
+<br/>
+<br/>
+<br/>
+
+####Raw gRNA Read Counts
+
+In most Crispr libraries the majority of gRNA abundances will form a relatively smooth distribution distributed about the median count, often with a long tail. Sample libraries may be undersequenced if the raw number of read counts per gRNA is low, and PCR artifacts may be present if the sample contains a subset of extremely abundant guides or the distribution is jagged or contains multiple modes. In most well-executed experiments the majority of gRNAs in the control samples will form a tight distribution around some reasonably high average read count (hundreds of reads, *X* axis). Excessively low raw count values can compromise normalization steps and subsequent estimation of gRNA levels, which is typically a problem in screens where identification of disproportionately depleted gRNAs is important. 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 2: Raw gRNA Count Densities"}
+ct.rawCountDensities(params$eset, params$sampleKey)
+```
+
+<br/>
+<br/>
+<br/>
+
+###Section 2: Library-level Distortion of gRNA Abundances
+
+Pooled CRISPR screens are fundamentally dynamic experiments, in which the measured abundance of a particular gRNA is fundamentally dependent on the scale of selection observed throughout the rest of the screen. In general, rigorous statistical methods perform well in screens where most cells survive the selection event and the gRNA distributions remain relatively stable throughout the experiment (i.e., dropout screens); more heuristic approaches are preferable in screens where most cells are affected and the resulting library only contains a small subset of gRNAs of extremely high abundance. The primary goal of this section is to determine the extent to which selection has distorted your gRNA library to guide downstream analyses.
+
+#####Ranked and Scaled gRNA Abundance Distributions 
+Strong selection in a CRISPR screen will distort the gRNAs such that the "slope" of the middle of the distribution changes relative to what is observed in the control samples. This can lead to spurious inferences of gRNA depletion in some cases, and it may be useful to correct this with the `ct.normalizeBySlope()` function in the `gCrisprTools` R package prior to downstream analyses. Alternatively, experiments involving treatments where most cells are affected may have failed if library-level distortion is not readily apparent. The locations of nontargeting control guides are indicated as diamonds along each distribution.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 3: Ranked gRNA Distributions by Replicate"}
+ct.gRNARankByReplicate(params$eset, params$sampleKey, params$annotation, geneSymb = "NTC")  
+```
+
+<br/>
+<br/>
+<br/>
+
+
+
+#####Cumulative Target-level Read Abundance
+A simple way to quantify the extent of distortion in a CRISPR screen is to observe the proportion of reads within each library that are derived from gRNA cassettes targeting each genomic element. By ranking the targets by their abundance within the library (*X* axis) and plotting the cumulative proportion of reads that the top *N* targets represent (*Y* axis), we can tell if the treatment libraries essentially only contain cassettes targeting a small number of genes, or if most of the cells survive the selection step. 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 4: Per-Replicate gRNA Cumulative Distributions"}
+ct.guideCDF(params$eset, params$sampleKey, plotType = "Target", annotation = params$annotation)
+```
+
+
+<br/>
+<br/>
+<br/>
+
+#####Nontargeting Control Guides
+
+The behavior of nontargeting control guides can give some sense of the consistency of the gRNA abundances within experimental cultures and the likely effect of normalization on the gRNA abundance estimation. Note that it is not necessarily critical that the relative abundances of nontargeting gRNAs remain superficially identical across treatments, but extremely large changes may indicate that individual gRNA levels are not likely to be well estimated. 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 5: Nontargeting Control Behavior Before and After Median Scaling"}
+ct.viewControls(params$eset, params$annotation, params$sampleKey, normalize = FALSE) 
+ct.viewControls(params$eset, params$annotation, params$sampleKey, normalize = TRUE)
+```
+
+<br/>
+<br/>
+<br/>
+
+
+###Section 3: Results Overview
+
+#####Most Variable Genes and gRNAs as a Proportion of the Libraries
+
+In experiments that include highly distorted libraries, it can be useful to identify the genes or gRNAs that change the most across the experiment as a heuristic way of identifying gRNAs of interest in situations where standard statistical approaches are not likely to function well. Note that the indicated genes and gRNAs are the most variable across all samples in the experiment; if desired, similar graphs displaying the most variable genes within a subset of samples may be generated by the analyst by invoking the `ct.stackGuides()` funtion in the `gCrisprTools` package.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 6: Stacked Barplot of the Most Variable Genes"}
+ct.stackGuides(params$eset, params$sampleKey, plotType = "Target", annotation = params$annotation)
+```
+
+<br/>
+<br/>
+<br/>
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 7: Stacked Barplot of the Most Variable Genes"}
+ct.stackGuides(params$eset, params$sampleKey, plotType = "gRNA", annotation = params$annotation)
+```
+
+<br/>
+<br/>
+<br/>
+
+
+
+###Top Signals of Target Enrichment and Depletion
+
+Below are plots indicating the targets with the most evidence for enrichment and depletion within the indicated contrast. Genes are ranked by aggregating the signal for depletion or enrichment across all gRNAs targeting the corresponding element. Briefly, individual gRNAs are assigned a P-value quantifying the evidence for enrichment or depletion within the contrast using a linear model. The P-values of all the gRNAs in the experiment are transformed into a ranking, and genes are assigned a score based on the distribution of the ranks of the P-values observed among the guides targeting it, ignoring gRNAs with P-values above a nominal significance threshold (*P*= 0.05 by default). These scores are transformed into a P-value via permutation; genes targeted by lots of guides with the highest overall evidence for abundance changes will be top ranked. Genes with identical P-values are ordered by their median gRNA abundance change within the contrast (log2 fold change within the framework of the linear model). This method of gRNA signal aggregation is identical to that employed by the MAGeCK algorithm (Li et al., *Genome Research* 2014). 
+
+Within each plot, candidates are ordered by the evidence for enrichment or depletion. Each gRNA targeting the gene is plotted as a point, with the estimated log2 fold change  indicated on the *Y*-axis and the standard deviation of the estimate shown as a gray bar. 
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 8: Top 20 Enriched Targets"}
+enrich <- ct.topTargets(params$fit, params$results, params$annotation, ntargets = 20, enrich = TRUE)
+```
+<br/>
+<br/>
+<br/>
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height= 5, fig.width= 10, fig.cap="Figure 9: Top 20 Depleted Targets"}
+deplete <- ct.topTargets(params$fit, params$results, params$annotation, ntargets = 20, enrich = FALSE)
+```
+<br/>
+<br/>
+<br/>
+
+

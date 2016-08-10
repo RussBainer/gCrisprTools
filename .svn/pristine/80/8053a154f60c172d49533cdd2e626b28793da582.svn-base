@@ -1,0 +1,62 @@
+% \VignetteIndexEntry{exampleTemplate}
+% \VignetteDepends{}
+% \VignetteKeywords{Sweave}
+% \VignettePackage{GNEtestPackage}
+\documentclass[10pt]{article}
+
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{Sweave}
+
+\textwidth=6.5in
+\textheight=8.5in
+\oddsidemargin=-.1in
+\evensidemargin=-.1in
+\headheight=-.3in
+
+\title{Example Sweave template for GNEPackageMaker}
+\author{Bob Smith}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Describe the overall analysis goals of package in this section
+
+%Make subheading title
+\subsection{Title of section of analysis goes here}
+
+<<code_block_tag>>=
+# the code written in this code block and any text
+# output will be displayed in the final document
+@ 
+
+<<plotting, fig=TRUE, width=4, height=3>>=
+# will show code, output, and plots generated within this block in the final document.
+# width and height are in inches
+# only 1 figure is supported per code block
+# The following is some example code:
+x <- seq(-10, 10, length=100)
+hx <- dnorm(x)
+plot(x, hx)
+@ 
+
+<<code_block_noEval, eval=FALSE>>=
+# the code within this block will be printed out to
+# the final document, but not evaluated
+@
+
+<<code_block_without_printing, echo=FALSE>>=
+# code in this block will not be printed out to the final document if echo=FALSE
+# but results from the evaluation will be printed.
+# suppress both code and output by adding eval=FALSE
+@
+
+% the following line will print exampleFunction in the typewriter font in the pdf
+This is an example of how to display the GNEPackageMaker example function call, \tt exampleFunction \rm, within the document in a typewriter font.
+
+\end{document}

@@ -1,0 +1,96 @@
+###################
+#
+# This is an example Crispr workflow, using NGS830 as an example.
+#
+
+library(gCrisprTools)
+library(Biobase)
+library(limma)
+library(grid)
+
+#get the data in EP
+library(ExpressionPlot)
+proj <- ep.find.project("PRJ0006644")
+ann <- ep.load.annot(proj, "crispr-gRNA")
+es <- ep.ExpressionSet(proj, feature.type = "crispr-gRNA", stat = "count")
+aln <- ep.alignment.class.counts(proj)
+
+#OR load from the supplied package data
+#data("es")
+#data("ann")
+#data("aln")
+
+pheno <- pData(es)
+pheno$TREATMENT_NAME <- gsub(' ', '', pheno$TREATMENT_NAME)
+
+#Generate a contrast of interest using voom/limma
+design <- model.matrix(~ 0 + TREATMENT_NAME, pheno)
+colnames(design) <- gsub('TREATMENT_NAME', '', colnames(design))
+contrasts <- makeContrasts(DeathExpansion - ControlExpansion, levels=design)
+
+vm <- voom(exprs(es), design, normalize.method="scale")
+
+#Optional trimming of trace reads (see man page for details)
+#cs <- row.names(pData(es))[pData(es)$TREATMENT_NAME == "ControlReference"]fit <- lmFit(vm, design)
+#vm <- ct.filterVoom(vm, trim = 500, control.samples = cs)
+
+fit <- contrasts.fit(fit, contrasts)
+fit <- eBayes(fit)
+
+#Generate results
+resultsDF <- ct.generateResults(fit, annotation = ann, RRAalphaCutoff = 0.05, permutations = 100)
+
+#OR use multicore if available
+#resultsDF <- ct.generateResults(fit, annotation = ann, RRAalphaCutoff = 0.05, permutations = 100, multi.core = TRUE)
+
+#OR load an example results object for testing purposes
+#data("resultsDF")
+
+#Crispr-specific quality control and visualization tools (see man pages for details): 
+ct.alignmentChart(aln)
+ct.rawCountDensities(es, "TREATMENT_NAME")
+
+ct.gRNARankByReplicate(es, "TREATMENT_NAME")  #Visualization of gRNA abundance distribution
+ct.gRNARankByReplicate(es, "TREATMENT_NAME", controls = TRUE, annotation = ann)  #Show locations of NTC gRNAs
+ct.gRNARankByReplicate(es, "TREATMENT_NAME", controls = TRUE, annotation = ann, geneSymb = "Ripk3") #Or gRNAs targeting an arbitrary gene
+
+
+
+#Optional slope normalization, as appropriate: 
+#es <- ct.normalizeBySlope(es)
+
+#Visualize control guide behavior across conditions
+ct.viewControls(es, ann, order.by = "TREATMENT_NAME", normalize = FALSE) 
+ct.viewControls(es, ann, order.by = "TREATMENT_NAME", normalize = TRUE)
+
+#View most variable gRNAs/Genes (as % of sequencing library)
+ct.stackGuides(es, sample.ordering = "TREATMENT_NAME", plotType = "gRNA", annotation = ann, nguides = 40)
+ct.stackGuides(es, sample.ordering = "TREATMENT_NAME", plotType = "Target", annotation = ann)
+ct.stackGuides(es, sample.ordering = "TREATMENT_NAME", plotType = "Target", annotation = ann, subset = row.names(pData(es))[grep('Expansion', pData(es)$TREATMENT_NAME)])
+
+#View a CDF of genes/guides
+sn <- pData(es)$TREATMENT_NAME
+names(sn) <- row.names(pData(es))
+ct.guideCDF(es, sampleNames = sn, plotType = "gRNA")
+ct.guideCDF(es, sampleNames = sn, plotType = "Target", annotation = ann)
+
+#View top enriched/depleted candidates
+ct.topTargets(fit, resultsDF, ann, ntargets = 10, enrich = TRUE)
+ct.topTargets(fit, resultsDF, ann, ntargets = 10, enrich = FALSE)
+
+#View the gRNA behavior and distributional information of gRNAs targeting a particular gene of interest
+ct.viewGuides("Ripk3", fit, ann)
+
+#View ontological enrichment within the depleted/enriched guides
+enrichmentResults <- ct.PantherPathwayEnrichment(resultsDF, pvalue.cutoff = 0.01, enrich = TRUE, organism = 'mouse')
+
+#Make a report of a particular contrast in a directory of interest
+#NOTE: not currently implemented on the cluster, so it's best to generate the file in a local directory and then move it somewhere visible. 
+
+path2report <- ct.makeReport(fit, es, "TREATMENT_NAME", ann, resultsDF, aln, outdir = ".") #Make a report
+#Add the report to the project page in EP. 
+#NOTE: It is strongly recommended that you include the NGS identifier in the description string. 
+ct.addCrisprReportToEp(proj, path = path2report, description="Crispr Contrast Report") 
+
+
+

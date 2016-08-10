@@ -1,0 +1,103 @@
+##' @title Display the log2 fold change estimates and associated standard deviations of the guides targeting the top 
+##' candidates in a crispr screen
+##' @description This is a function for displaying the top candidates from a crispr screen, using the information summarized 
+##' in the corresponding \code{fit} and the output from \code{ct.generateResults()}. The results are plotted as a 
+##' classed scatterplot of the top \code{ntargets} upregulated and downregulated targets in the screen, as indicated by the 
+##' relevant p-values contained in the \code{summaryDF}. The fold change and standard deviation estimates for each gRNA targeting each target
+##' (extracted from the \code{coefficients} and \code{stdev.unscaled} slot of \code{fit}) are plotted on the y axis. Targets are 
+##' selected on the basis of their gene-level P-values; in the case of ties, they are ranked on the basis of the median gRNA 
+##' fold change. 
+##' @param fit An object of class \code{MArrayLM} containing, at minimum, a \code{coefficents} slot with coefficients from the comparison, 
+##' and a \code{stdev.unscaled} slot with the corresponding standard deviation of the coefficent estimates. The \code{row.names} attribute 
+##' should ideally match that which is found in \code{annotation}.
+##' @param summaryDF A data.frame summarizing the results of the screen, returned by the function \code{\link{ct.generateResults()}}. 
+##' @param annotation An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
+##' row, and must minimally contain a column \code{geneSymbol}. 
+##' @param ntargets The number of targets to display. 
+##' @param enrich Logical indicating whether to display guides that are enriched (default) or depleted within the screen. 
+##' @return An image on the default device. 
+##' @author Russell Bainer
+##' @export
+
+ct.topTargets <- function(fit, summaryDF, annotation, ntargets = 10, enrich = TRUE){
+    require(ggplot2)
+    require(Biobase)
+
+    #Test input: 
+    #testing
+    if(class(fit) != "MArrayLM"){stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))}
+    if(ntargets <= 0){stop("Please specify a positive number of targets to display.")}
+    if(!setequal(row.names(annotation), row.names(fit))){
+      warning("row.names of the fit object and the annotation file are not identical. Using the intersection only.")
+        grnas <- intersect(row.names(fit), row.names(annotation))
+        fit <- fit[grnas,]
+        annotation <- annotation[grnas,]
+    }
+    if(!is.logical(enrich)){
+      stop("enrich must be set to TRUE or FALSE.")
+    }
+    if(!setequal(names(summaryDF), c("symbol","target","geneID","geneSymbol","gRNA Log2 Fold Change","gRNA Depletion P",
+                                     "gRNA Depletion Q","gRNA Enrichment P","gRNA Enrichment Q", "Gene-level Enrichment P",
+                                     "Gene-level Enrichment Q", "Gene-level Depletion P",  "Gene-level Depletion Q",
+                                     "Median log2 Fold Change"))){
+      stop("Please supply a summaryDF object generated from ct.generateResults() in the gCrisprTools package.")
+    }
+
+    #Identify the top targets from the summary DF; order and group gRNAs within a target, then rank targets
+    summaryDF <- summaryDF[with(summaryDF, 
+                                order(summaryDF[,"Gene-level Enrichment P"], 
+                                      -summaryDF[,"Median log2 Fold Change"], 
+                                      summaryDF[,"geneSymbol"], 
+                                      -summaryDF[,"gRNA Log2 Fold Change"])),]   
+    plottitle <- paste0("Top ", ntargets, " Enriched Targets")
+    
+    if(enrich == FALSE){
+      summaryDF <- summaryDF[with(summaryDF, 
+                                  order(summaryDF[,"Gene-level Depletion P"], 
+                                        summaryDF[,"Median log2 Fold Change"], 
+                                        summaryDF[,"geneSymbol"], 
+                                        summaryDF[,"gRNA Log2 Fold Change"])),]   
+      plottitle <- paste0("Top ", ntargets, " Depleted Targets")
+    }
+
+    toptargets <- unique(summaryDF$geneSymbol)[1:ntargets]
+    targetrows <- row.names(summaryDF)[(summaryDF$geneSymbol %in% toptargets)]
+    nguides <- unlist(lapply(toptargets, function(x){sum(summaryDF$geneSymbol == x)}))
+   
+    lfc <- fit$coefficients[targetrows,1]
+    sdu <- fit$stdev.unscaled[targetrows,1] + fit$coefficients[targetrows,1]
+    sdl <- fit$coefficients[targetrows,1] - fit$stdev.unscaled[targetrows,1]
+    
+    ylimit <- c(min(0, min(sdl)), max(0, max(sdu)))
+    
+    #Compose a vector of the x locations
+    xloc <- as.vector(unlist(mapply(function(start, numguides){seq(start, start+1, length.out = numguides)}, 
+                   start = seq(1, by = 2, length.out = ntargets), 
+                   numguides = nguides, 
+                   SIMPLIFY = TRUE)))
+  
+    sddf <- cbind(xloc, sdu, sdl)  
+    
+    #make the plot
+    plot(xloc, lfc, xaxt='n', main = plottitle, ylim = ylimit, xlab = "", ylab = "Log2 gRNA Abundance Change", pch = 18, col = "darkred")
+    suppress <- apply(sddf, 1, function(x){lines(c(x[1], x[1]), c(x[2], x[3]), col = rgb(0,0,1,0.3), lwd = 4)})
+    points(xloc, lfc, pch = 18, col = "darkred")
+    suppress <- capture.output(lapply(seq(2.5, by = 2, length.out = (ntargets - 1)), function(x){abline(v = x, lty = "dotted", col= "gray")}))
+    abline(h = 0)
+    #Add the labels
+    axis(1, at = seq(1.5, by = 2, length.out = ntargets), labels = toptargets, las = 3)
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
