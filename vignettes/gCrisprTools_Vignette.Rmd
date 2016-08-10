@@ -206,7 +206,7 @@ The `ct.topTargets` function enables simple visualization of the model effect es
 ct.topTargets(fit,
               resultsDF,
               ann,
-              ntargets = 10,
+              targets = 10,
               enrich = FALSE)
 ```
 
