@@ -151,7 +151,7 @@ ct.normalizeGuides <- function(eset, method = c("scale", "slope", "controlScale"
       col[col < 0] <- 0
       col
     })
-  
+    
   if(plot.it){
     par(mfrow = c(2, 1))
     ct.gRNARankByReplicate(eset, sampleKey, lib.size = lib.size) 
@@ -202,7 +202,7 @@ ct.normalizeMedians <- function(eset, lib.size = NULL){
   correctedCounts <- 2^t(t(y) - cmed)
   correctedCounts <- (t(t(correctedCounts) * ((lib.size + 1) / 1e+06)) - 0.5)
   
-  exprs(eset) <- correctedCounts
+  exprs(eset) <- round(correctedCounts)
   return(eset)
   }
 

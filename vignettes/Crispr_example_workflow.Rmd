@@ -138,12 +138,12 @@ ct.guideCDF(es, sk, plotType = "Target", annotation = ann)
 ct.topTargets(fit,
               resultsDF,
               ann,
-              ntargets = 10,
+              targets = 10,
               enrich = TRUE)
 ct.topTargets(fit,
               resultsDF,
               ann,
-              ntargets = 10,
+              targets = 10,
               enrich = FALSE)
 ```
 
