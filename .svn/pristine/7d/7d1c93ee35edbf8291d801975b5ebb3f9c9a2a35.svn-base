@@ -1,3 +1,0 @@
-name: CRISPR_QC_Report
-description: Creates a report with a summary of CRISPR experiment and basic QC plots.
-create_dir: true
