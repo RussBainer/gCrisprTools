@@ -56,8 +56,8 @@ ct.drawColorLegend <- function(dens, colorscale){
 ##' @param gene the name of the target element of interest, contained within the "type" column of the annotation file.
 ##' @param fit An object of class MArrayLM containing, at minimum, an "Amean" slot containing the guide level abundances, 
 ##' a "coefficients" slot containing the effect estimates for each guide, and an "stdev.unscaled" slot giving the coefficient standard Deviations. 
-##' @param ann A data.frame object containing the gRNA annotations, usually returned from the ExpressionPlot function 'ep.load.annot()'. 
-##' At mimimum, it should have a column with the name specified in the type argument, containing the element targeted by each guide. 
+##' @param ann A data.frame object containing the gRNA annotations. 
+##' At mimimum, it should have a column with the name specified by the \code{type} argument, containing the element targeted by each guide. 
 ##' @param type A character string indicating the column in ann containing the target of interest. 
 ##' @param contrast.term If a fit object with multiple coefficients is passed in, a string indiating the coefficient of interest.   
 ##' @return An image summarizing gRNA behavior within the specifed gene on the default device. 

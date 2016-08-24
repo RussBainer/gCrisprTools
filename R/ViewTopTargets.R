@@ -9,7 +9,7 @@
 ##' and a \code{stdev.unscaled} slot with the corresponding standard deviation of the coefficent estimates. The \code{row.names} attribute 
 ##' should ideally match that which is found in \code{annotation}.
 ##' @param summaryDF A data.frame summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}. 
-##' @param annotation An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
+##' @param annotation An annotation object for the experiment. gRNAs are annotated by 
 ##' row, and must minimally contain a column \code{geneSymbol}. 
 ##' @param targets Either the number of top targets to display, or a list of \code{geneSymbol}s contained in the \code{geneSymbol} 
 ##' slot of the \code{annotation} object. 
@@ -63,7 +63,7 @@ ct.topTargets <- function(fit, summaryDF, annotation, targets = 10, enrich = TRU
     summaryDF$geneSymbol <- as.character(summaryDF$geneSymbol)
     summaryDF <- summaryDF[with(summaryDF, 
                                order(summaryDF[,"Target-level Enrichment P"], 
-                                      summaryDF[,"RhoRank_enrich"], 
+                                      summaryDF[,"Rho_enrich"], 
                                       summaryDF[,"geneSymbol"], 
                                       -summaryDF[,"gRNA Log2 Fold Change"])),]   
     plottitle <- "Enriched Targets"
@@ -71,7 +71,7 @@ ct.topTargets <- function(fit, summaryDF, annotation, targets = 10, enrich = TRU
     if(enrich == FALSE){
       summaryDF <- summaryDF[with(summaryDF, 
                                   order(summaryDF[,"Target-level Depletion P"], 
-                                        summaryDF[,"RhoRank_deplete"], 
+                                        summaryDF[,"Rho_deplete"], 
                                         summaryDF[,"geneSymbol"], 
                                         summaryDF[,"gRNA Log2 Fold Change"])),]   
       plottitle <- "Depleted Targets"

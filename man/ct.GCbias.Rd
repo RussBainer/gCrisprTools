@@ -18,7 +18,9 @@ vector that indicates the corresponding nucleotide sequences.}
 variables. The \code{names} attribute should exactly match those present in \code{eset}, and the 
 control set is assumed to be the first \code{level}. Ignored in the analysis of model fit objects.}
 
-\item{lib.size}{An optional vector of voom-style library size factors.}
+\item{lib.size}{An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.}
 }
 \value{
 An image relating GC content to experimental observations on the default device. If the 

@@ -2,7 +2,7 @@
 ##' @description This is a wrapper function that enables direct generation of target-level p-values from a crispr screen.  
 ##' @param fit An object of class \code{MArrayLM} containing, at minimum, a \code{t} slot with t-statistics from the comparison, 
 ##' a \code{df.residual} slot with the corresponding residuals fo the model fits, and an \code{Amean} slot with the respective mean abundances. 
-##' @param annotation An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
+##' @param annotation An annotation file for the experiment. gRNAs are annotated by 
 ##' row, and must minimally contain columns \code{geneSymbol} and \code{geneID}.
 ##' @param RRAalphaCutoff A cutoff to use when defining gRNAs with significantly altered abundance during the RRAa aggregation step. If \code{scoring} is set 
 ##' to \code{pvalue} or \code{combined}, this parameter is interpreted as the maximum nominal p-value required to consider a gRNA's abundance meaningfully 
@@ -20,7 +20,10 @@
 ##' @param permutation.seed numeric seed for permutation reproducibility. 
 ##'   Default: \code{NULL} means to not set any seed. This argument is passed
 ##'   through to \code{\link{ct.RRAaPvals}}.
-##' @return A dataframe containing gRNA-level and target-level statistics
+##' @return A dataframe containing gRNA-level and target-level statistics. In addition to the information present in the supplied annotation object, 
+##' the returned object indicates P-values and Q-values for the depletion and enrichment of each gRNA and associated target, the median log2 fold 
+##' change estimate among all gRNAs associated with the target, and Rho statistics that are calculated internally by the RRAa algorithm that may be 
+##' useful in ranking targets that are considered significant at a given alpha or false discovery threshold.
 ##' @author Russell Bainer
 ##' @examples data('fit')
 ##' data('ann')
@@ -121,21 +124,21 @@ ct.generateResults <- function(fit,
   geneQ.enrichment <- p.adjust(geneP.enrichment, method = "fdr")
 
   #generate the Rho Ranks: 
-  rho <- ct.RRAalpha(scores.enrich, 
+  rhoEnrich <- ct.RRAalpha(scores.enrich, 
                            g.key = key, 
                            alpha = cut.enrich, 
                            shuffle = FALSE, 
                            return.obj = TRUE)
-  rhoEnrich <- rank(rho)
-  names(rhoEnrich) <- names(rho)
+  #rhoEnrich <- rank(rho)
+  #names(rhoEnrich) <- names(rho)
   
-  rho <- ct.RRAalpha(scores.deplete, 
+  rhoDeplete <- ct.RRAalpha(scores.deplete, 
                            g.key = key, 
                            alpha = cut.deplete, 
                            shuffle = FALSE, 
                            return.obj = TRUE)
-  rhoDeplete <- rank(rho)
-  names(rhoDeplete) <- names(rho)
+  #rhoDeplete <- rank(rho)
+  #names(rhoDeplete) <- names(rho)
   
   annotFields <- c("ID", "target", "geneID", "geneSymbol")  
   if(!all(annotFields %in% names(annotation))){
@@ -170,11 +173,11 @@ ct.generateResults <- function(fit,
   summaryDF["Median log2 Fold Change"] <- vapply(summaryDF$geneSymbol, 
                                                  function(x){medianfc[x][1]}, 
                                                  numeric(1))
-  summaryDF["RhoRank_enrich"] <-rhoEnrich[summaryDF$geneSymbol]
-  summaryDF["RhoRank_deplete"] <- rhoDeplete[summaryDF$geneSymbol]
+  summaryDF["Rho_enrich"] <-rhoEnrich[summaryDF$geneSymbol]
+  summaryDF["Rho_deplete"] <- rhoDeplete[summaryDF$geneSymbol]
   
   #order them
-  summaryDF <- summaryDF[order(summaryDF[,"RhoRank_enrich"], decreasing = FALSE),]
+  summaryDF <- summaryDF[order(summaryDF[,"Rho_enrich"], decreasing = FALSE),]
   summaryDF <- summaryDF[order(summaryDF[,"Target-level Enrichment P"], decreasing = FALSE),]
   return(summaryDF)
 }

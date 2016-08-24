@@ -14,7 +14,9 @@ ct.normalizeSpline(eset, annotation, geneSymb = NULL, lib.size = NULL)
 \item{geneSymb}{The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.gRNARankByReplicate} will
 attempt to infer nontargeting guides by searching for \code{"no_gid"} or \code{NA} in the appropriate columns.}
 
-\item{lib.size}{An optional voom-appropriate library size adjustment factor, usually calculated with \link[edgeR]{calcNormFactors}.}
+\item{lib.size}{An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.}
 }
 \value{
 A normalized \code{eset}.

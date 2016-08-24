@@ -28,10 +28,10 @@ A new annotation data frame, usually with nontargeting controls and NA values re
 an \code{object}, the gRNAs not present in the \code{object} will be omitted.
 }
 \description{
-This function processes a supplied annotation file, usually extracted from ExpressionPlot with the 
-\code{ep.load.annot()} function. Originally this was processed into something special, but now it is essentially 
+This function processes a supplied annotation object for use in a pooled screening experiment. 
+Originally this was processed into something special, but now it essentially returns
 the original annotation object in which the geneSymbol column has been factorized. This is primarily used 
-internally during a call to the \code{ct.generateResults()} function. Also performs some minor checking functionality.
+internally during a call to the \code{ct.generateResults()} function. Also performs some minor functionality checking.
 }
 \examples{
 data('ann')

@@ -15,7 +15,7 @@ should ideally match that which is found in \code{annotation}.}
 
 \item{summaryDF}{A data.frame summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
 
-\item{annotation}{An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
+\item{annotation}{An annotation object for the experiment. gRNAs are annotated by 
 row, and must minimally contain a column \code{geneSymbol}.}
 
 \item{targets}{Either the number of top targets to display, or a list of \code{geneSymbol}s contained in the \code{geneSymbol} 

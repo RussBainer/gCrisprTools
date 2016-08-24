@@ -3,7 +3,7 @@
 ##' object. Ideally, the user will supply a geneSymbol present in the appropriate annotation file that uniquely identifies the nontargeting gRNAs.
 ##' Absent this, the the function will search for common identifier used by nontargeting controls (geneID "no_gid", or geneSymbol NA).
 ##' @param eset An ExpressionSet  object containing, at minimum, a matrix of gRNA abundances extractable with the \code{exprs} function.
-##' @param annotation An annotation data.frame for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by
+##' @param annotation An annotation data.frame for the experiment. gRNAs are annotated by
 ##' row, and must minimally contain columns \code{geneSymbol} and \code{geneID}.
 ##' @param sampleKey A sample key, supplied as an ordered factor linking the samples to experimental
 ##' variables. The \code{names} attribute should exactly match those present in \code{eset}, and the control condition is assumed to be
@@ -12,7 +12,9 @@
 ##' attempt to infer nontargeting guides by searching for \code{"no_gid"} or \code{NA} in the appropriate columns.
 ##' @param normalize Logical indicating whether to attempt to normalize the data in the \code{eset} by DESeq size factors present in the metadata. If \code{TRUE},
 ##' then the metadata must contain a column containing these factors, named \code{sizeFactor.crispr-gRNA}.
-##' @param lib.size An optional vector of voom-style library size factors to be used in normalization. 
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
 ##' @return An image of nontargeting control gRNA abundances on the default device.
 ##' @author Russell Bainer
 ##' @examples 

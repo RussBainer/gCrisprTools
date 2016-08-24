@@ -19,7 +19,9 @@ ct.normalizeGuides(eset, method = c("scale", "slope", "controlScale",
 variables. The \code{names} attribute should exactly match those present in \code{eset}, and the control set is assumed to be
 the first \code{level}.}
 
-\item{lib.size}{An optional vector of voom-style library size factors.}
+\item{lib.size}{An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.}
 
 \item{plot.it}{Logical indicating whether to plot the ranked log2 gRNA count distributions before and after normalization.}
 
@@ -53,5 +55,8 @@ es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey =
 }
 \author{
 Russell Bainer
+}
+\seealso{
+\code{\link{ct.normalizeMedians}}, \code{\link{ct.normalizeBySlope}}, \code{\link{ct.normalizeNTC}}, \code{\link{ct.normalizeSpline}}
 }
 

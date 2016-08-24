@@ -9,7 +9,9 @@
 ##' @param sampleKey An optional sample key, supplied as a factor linking the samples to experimental 
 ##' variables. The \code{names} attribute should exactly match those present in \code{eset}, and the 
 ##' control set is assumed to be the first \code{level}. Ignored in the analysis of model fit objects. 
-##' @param lib.size An optional vector of voom-style library size factors. 
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
 ##' @return An image relating GC content to experimental observations on the default device. If the 
 ##' provided \code{data.obj} is an \code{ExpressionSet}, this takes the form of a scatter plot where the 
 ##' GC% and abundance estimates of each guide are represented as points overlaid

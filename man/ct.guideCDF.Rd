@@ -16,8 +16,8 @@ the first \code{level}.}
 \item{plotType}{A string indicating whether the individual guides should be displayed ("\code{gRNA}"), or if they should be aggregated into target-level
 estimates ("\code{Target}") according to the \code{geneSymbol} column in the \code{annotation} object.}
 
-\item{annotation}{An optional data.frame containing an annotation object to be used to aggregate the guides into targets, usually extracted with 
-\code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by row, and must minimally contain a column \code{geneSymbol} indicating the target elements.}
+\item{annotation}{An optional data.frame containing an annotation object to be used to aggregate the guides into targets. gRNAs are annotated by row, 
+and must minimally contain a column \code{geneSymbol} indicating the target elements.}
 }
 \value{
 A CDF plot displaying the appropriate CDF curves on the default device.
