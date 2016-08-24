@@ -7,10 +7,9 @@
 ct.alignmentChart(aln, sampleKey = NULL)
 }
 \arguments{
-\item{aln}{A numeric matrix of alignment statistics for a Crispr experiment, typically generated from ExpressionPlot with \code{ep.alignment.class.counts()}. 
-Alternatively, a 4xN matrix of read counts, with columns indicating samples and rows indicating the number of "targets", "nomatch", "rejections", 
-and "double_match" reads. Details about these classes may be found in the best practices vignette or as part of the report generated with 
-\code{ct.makeReport()}.}
+\item{aln}{A numeric matrix of alignment statistics for a Crispr experiment. Corresponds to a 4xN matrix of read counts, with columns indicating 
+samples and rows indicating the number of "targets", "nomatch", "rejections", and "double_match" reads. Details about these classes may be found 
+in the best practices vignette or as part of the report generated with \code{ct.makeReport()}.}
 
 \item{sampleKey}{An optional ordered factor linking the samples to experimental variables. The \code{names} attribute should exactly match those present in \code{aln}.}
 }

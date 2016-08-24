@@ -90,13 +90,16 @@ ct.normalizeBySlope <-
 ##' @param sampleKey An (optional) sample key, supplied as an ordered factor linking the samples to experimental
 ##' variables. The \code{names} attribute should exactly match those present in \code{eset}, and the control set is assumed to be
 ##' the first \code{level}.
-##' @param lib.size An optional vector of voom-style library size factors. 
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
 ##' @param plot.it Logical indicating whether to plot the ranked log2 gRNA count distributions before and after normalization. 
 ##' @param ... Other parameters to be passed to the individual normalization methods.
 ##' @return A renormalized ExpressionSet. If specified, the sample level counts will be scaled so as to maintain the validity 
 ##' of the specified \code{lib.size} values. 
 ##' @author Russell Bainer
 ##' @import limma
+##' @seealso \code{\link{ct.normalizeMedians}}, \code{\link{ct.normalizeBySlope}}, \code{\link{ct.normalizeNTC}}, \code{\link{ct.normalizeSpline}}
 ##' @examples data('es')
 ##' data('ann')
 ##' 
@@ -167,7 +170,9 @@ ct.normalizeGuides <- function(eset, method = c("scale", "slope", "controlScale"
 ##' the usual way by dividing these values by user-specified library size factors. THis method should be more stable than the endogenous 
 ##' scaling functions used in \code{voom} in th especific case of Crispr screens or other cases where the median number of observed counts may be low. 
 ##' @param eset An \code{ExpressionSet} containing, at minimum, count data accessible by \code{exprs}.
-##' @param lib.size An optional vector of voom-appropriate library size adjustment factor, usually calculated with \link[edgeR]{calcNormFactors}.
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
 ##' @return A renormalized ExpressionSet object of the same type as the provided object.
 ##' @author Russell Bainer
 ##' @import limma

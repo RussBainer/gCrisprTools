@@ -14,8 +14,8 @@
 ##' @param nguides The number of guides (or targets) to display.    
 ##' @param plotType A string indicating whether the individual guides should be displayed ("\code{gRNA}"), or if they should be aggregated into target-level
 ##' estimates ("\code{Target}") according to the \code{geneSymbol} column in the \code{annotation} object.  
-##' @param annotation An optional data.frame containing an annotation object to be used to aggregate the guides into targets, usually extracted with 
-##' \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by row, and must minimally contain a column \code{geneSymbol} indicating the target elements.
+##' @param annotation An optional data.frame containing an annotation object to be used to aggregate the guides into targets. gRNAs are annotated by row, 
+##' and must minimally contain a column \code{geneSymbol} indicating the target elements.
 ##' @param ylimit An optional numeric vector of length 2 specifying the y limits for the plot, useful in comparin across studies. 
 ##' @param subset An optional character vector containing the sample labels to be used in the analysis; all elements must be contained in the \code{colnames} of the specified \code{eset}. 
 ##' @return A stacked barplot displaying the appropriate entities on the default device. 

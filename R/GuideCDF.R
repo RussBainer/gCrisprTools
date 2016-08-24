@@ -25,8 +25,8 @@ ct.ecdf <- function(vector){
 ##' the first \code{level}.
 ##' @param plotType A string indicating whether the individual guides should be displayed ("\code{gRNA}"), or if they should be aggregated into target-level
 ##' estimates ("\code{Target}") according to the \code{geneSymbol} column in the \code{annotation} object.  
-##' @param annotation An optional data.frame containing an annotation object to be used to aggregate the guides into targets, usually extracted with 
-##' \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by row, and must minimally contain a column \code{geneSymbol} indicating the target elements.
+##' @param annotation An optional data.frame containing an annotation object to be used to aggregate the guides into targets. gRNAs are annotated by row, 
+##' and must minimally contain a column \code{geneSymbol} indicating the target elements.
 ##' @return A CDF plot displaying the appropriate CDF curves on the default device. 
 ##' @author Russell Bainer
 ##' @examples data('es')

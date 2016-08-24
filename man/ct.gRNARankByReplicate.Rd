@@ -19,7 +19,9 @@ is assumed to be the first \code{level}.}
 \item{geneSymb}{The \code{geneSymbol} identifier(s) in \code{annotation} that corresponds to gRNAs to be plotted on the curves. 
 If the provided value is not present in the \code{geneSymbol}, nontargeting controls will be plotted instead.}
 
-\item{lib.size}{An optional vector of voom-appropriate library size adjustment factor, usually calculated with \code{calcNormFactors}.}
+\item{lib.size}{An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.}
 }
 \value{
 A waterfall plot as specified, on the default device.

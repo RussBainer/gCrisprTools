@@ -12,7 +12,7 @@ ct.generateResults(fit, annotation, RRAalphaCutoff = 0.1,
 \item{fit}{An object of class \code{MArrayLM} containing, at minimum, a \code{t} slot with t-statistics from the comparison, 
 a \code{df.residual} slot with the corresponding residuals fo the model fits, and an \code{Amean} slot with the respective mean abundances.}
 
-\item{annotation}{An annotation file for the experiment, usually extracted with \code{ep.load.annot()} in ExpressionPlot. gRNAs are annotated by 
+\item{annotation}{An annotation file for the experiment. gRNAs are annotated by 
 row, and must minimally contain columns \code{geneSymbol} and \code{geneID}.}
 
 \item{RRAalphaCutoff}{A cutoff to use when defining gRNAs with significantly altered abundance during the RRAa aggregation step. If \code{scoring} is set 
@@ -38,7 +38,10 @@ Default: \code{NULL} means to not set any seed. This argument is passed
 through to \code{\link{ct.RRAaPvals}}.}
 }
 \value{
-A dataframe containing gRNA-level and target-level statistics
+A dataframe containing gRNA-level and target-level statistics. In addition to the information present in the supplied annotation object, 
+the returned object indicates P-values and Q-values for the depletion and enrichment of each gRNA and associated target, the median log2 fold 
+change estimate among all gRNAs associated with the target, and Rho statistics that are calculated internally by the RRAa algorithm that may be 
+useful in ranking targets that are considered significant at a given alpha or false discovery threshold.
 }
 \description{
 This is a wrapper function that enables direct generation of target-level p-values from a crispr screen.

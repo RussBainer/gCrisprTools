@@ -57,8 +57,8 @@ ct.PRC <-
          deplete.p = (summaryDF[(summaryDF$geneID %in% present),"Target-level Depletion P"]), 
          enrich.fc = (-summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"]), 
          deplete.fc = (summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"]),
-         enrich.rho = (summaryDF[(summaryDF$geneID %in% present),"RhoRank_enrich"]),
-         deplete.rho = (summaryDF[(summaryDF$geneID %in% present),"RhoRank_deplete"])
+         enrich.rho = (summaryDF[(summaryDF$geneID %in% present),"Rho_enrich"]),
+         deplete.rho = (summaryDF[(summaryDF$geneID %in% present),"Rho_deplete"])
     )   
     #Extract the appropriate stat. 
     values <- switch(stat, 
@@ -66,8 +66,8 @@ ct.PRC <-
         deplete.p = sort(summaryDF[,"Target-level Depletion P"]), 
         enrich.fc = sort(-summaryDF[,"Median log2 Fold Change"]), 
         deplete.fc = sort(summaryDF[,"Median log2 Fold Change"]),
-        enrich.rho = sort(summaryDF[,"RhoRank_enrich"]), 
-        deplete.rho = sort(summaryDF[,"RhoRank_deplete"])
+        enrich.rho = sort(summaryDF[,"Rho_enrich"]), 
+        deplete.rho = sort(summaryDF[,"Rho_deplete"])
     )
 
     out <- list()

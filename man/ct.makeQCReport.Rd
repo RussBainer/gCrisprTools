@@ -40,7 +40,9 @@ subdirectories. If provided, the final report will be called
 \code{identifier}. If \code{NULL}, a generic name including the timestamp 
 will be generated.}
 
-\item{lib.size}{Optional numeric vector of limma-type size factors}
+\item{lib.size}{An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.}
 
 \item{geneSymb}{The \code{geneSymbol} identifier(s) in \code{annotation} 
 that corresponds to gRNAs to be plotted on the curves. Passed through to 

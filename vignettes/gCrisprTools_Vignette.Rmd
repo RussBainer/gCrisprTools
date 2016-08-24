@@ -179,7 +179,9 @@ fit <- eBayes(fit)
 
 #####5.1 ct.generateResults
 
-After generating a fit object (class `MArrayLM`) for a contrast of interest, we may summarize the signals from the various cassettes annotated to each target via RRA\alpha aggregation: 
+After generating a fit object (class `MArrayLM`) for a contrast of interest, we may summarize the signals from the various cassettes annotated to each target via RRA$\alpha$ aggregation. The core algorithm is described in detail in the original publication on Robust Rank Aggregation[^1] and has been implemented according to the $\alpha$ thresholding modification proposed by Li et al.[^2] Briefly, gRNA signals contained in the specified fit object are ranked and normalized, and these ranks are grouped by the associated target and assigned a score ($\rho$) on the basis of the skewness of the gRNA signal ranks. The statistical significance of each target-level score is then assessed by permutation of the gRNA target assignments. *Q*-values are computed directly from the resulting *P*-value distributions using the FDR approach described by Benjamini and Hochberg.[^3]  
+
+A more extensive treatment of RRA$\alpha$ and comparisons to MAGeCK may be found in `inst/Mageck_&_gCrisprTools.html`.
 
 ```{r, message=FALSE, warning=FALSE}
 resultsDF <-
@@ -192,7 +194,7 @@ resultsDF <-
   )
 ```
 
-The resulting dataframe contains columns passing some of the information from the fit and annotation objects, as well as a number of statistics describing the evidence for a target's depletion or enrichment within the context of the screen. These include the Target-level *P* and *Q* values quantifying the evidence for enrichment or depletion, the median log2 fold change of all of the gRNAs associated with each target, and the rankings of the target-level Rho statistics (gene-level scores may be useful for ranking targets with equivalent P-values). 
+The resulting dataframe contains columns passing some of the information from the fit and annotation objects, as well as a number of statistics describing the evidence for a target's depletion or enrichment within the context of the screen. These include the Target-level *P* and *Q* values quantifying the evidence for enrichment or depletion, the median log2 fold change of all of the gRNAs associated with each target, and the rankings of the target-level $/rho$ statistics (gene-level scores may be useful for ranking targets with equivalent *P*-values). 
 
 ###6. Visualization of Results
 
@@ -311,6 +313,12 @@ Alternatively, the significance of the enrichment within the target set may be a
 targetsTest <- ct.targetSetEnrichment(resultsDF, essential.genes, enrich = FALSE)
 str(targetsTest)
 ```
+
+[^1]: Kolde R, Laur S, Adler P, Vilo J. Robust rank aggregation for gene list integration and meta-analysis. Bioinformatics. 2012;28(4):573-80. PMID:22247279 
+
+[^2]: Li W, Xu H, Xiao T, Cong L, Love MI, Zhang F, Irizarry RA, Liu JS, Brown M, Liu XS. MAGeCK enables robust identification of essential genes from genome-scale CRISPR/Cas9 knockout screens. Genome Biol. 2014;15(12):554. PMID:25476604 
+
+[^3]:Benjamini Y, Hochberg Y. Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the Royal Statistical Society, Series B. 1995;57(1):289–300. MR 1325392.  
           
 ```{r}
 sessionInfo()

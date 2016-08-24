@@ -12,8 +12,8 @@ ct.viewGuides(gene, fit, ann, type = "geneSymbol", contrast.term = NULL)
 \item{fit}{An object of class MArrayLM containing, at minimum, an "Amean" slot containing the guide level abundances, 
 a "coefficients" slot containing the effect estimates for each guide, and an "stdev.unscaled" slot giving the coefficient standard Deviations.}
 
-\item{ann}{A data.frame object containing the gRNA annotations, usually returned from the ExpressionPlot function 'ep.load.annot()'. 
-At mimimum, it should have a column with the name specified in the type argument, containing the element targeted by each guide.}
+\item{ann}{A data.frame object containing the gRNA annotations. 
+At mimimum, it should have a column with the name specified by the \code{type} argument, containing the element targeted by each guide.}
 
 \item{type}{A character string indicating the column in ann containing the target of interest.}
 

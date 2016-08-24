@@ -1,8 +1,8 @@
 ##' @title Check and optionally subset an annotation file for use in a Crispr Screen
-##' @description This function processes a supplied annotation file, usually extracted from ExpressionPlot with the 
-##' \code{ep.load.annot()} function. Originally this was processed into something special, but now it is essentially 
+##' @description This function processes a supplied annotation object for use in a pooled screening experiment. 
+##' Originally this was processed into something special, but now it essentially returns
 ##' the original annotation object in which the geneSymbol column has been factorized. This is primarily used 
-##' internally during a call to the \code{ct.generateResults()} function. Also performs some minor checking functionality.
+##' internally during a call to the \code{ct.generateResults()} function. Also performs some minor functionality checking.
 ##' @param ann A \code{data.frame} containing an annotation object with gRNA-level information encoded as rows. The 
 ##' \code{row.names} attribute should correspond to the individual gRNAs, and it should at minimum contain columns 
 ##' named "geneID" and "geneSymbol" indicating the corresponding gRNA target gene ID and symbol, respectively. 
