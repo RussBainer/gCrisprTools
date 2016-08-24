@@ -25,4 +25,4 @@ biocViews: CRISPR, PooledScreens, ExperimentalDesign,
         QualityControl, RNASeq, Regression, Software, Visualization
 NeedsCompilation: no
 Packaged: 2016-08-24 18:46:40 UTC; bainerr
-Depends: R (>= 2.10)
+Depends: R (>= 3.3)
