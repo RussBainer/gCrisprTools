@@ -34,32 +34,24 @@ ct.stackGuides <- function(eset, sampleKey = NULL, nguides = 20, plotType = "gRN
   if (!requireNamespace("ggplot2")) {
     stop("The ggplot2 package is required")
   }
-  #if (!requireNamespace("grid")) {
-  #  stop("The grid package is required")
-  #}
-  
-  
-  #Convert all gRNA abundance to % representation
-  d <- exprs(eset)
+  if(!is.numeric(nguides)){stop('Please specify a numeric number of guides to display.')}  
+  if(class(eset) != "ExpressionSet"){stop('eset must be an expressionset object.')}  
+  if(!(plotType %in% c("gRNA", "Target"))){stop('Please specify "gRNA" or "Target" to be displayed.')}
+
+  #Check eset colnames
+  d <- exprs(eset)  
   
   if(is.null(sampleKey)){
     sampleKey <- ordered(rep('', ncol(d)))
     names(sampleKey) <- colnames(d)
   }
   
-  invisible(ct.inputCheck(sampleKey, eset))
-  
   if(any(make.names(colnames(d)) != colnames(d))){
     warning("Some of the sample names are not syntactically valid. Coercing.")  
-    names(sampleKey)[names(colnames(d))] <-  make.names(colnames(d))
+    sampleKey <- sampleKey[colnames(d)]
+    names(sampleKey) <- make.names(colnames(d))
     colnames(d) <- make.names(colnames(d))
-  }
-  
-  #if(!(sample.ordering %in% names(p))){stop(paste(sample.ordering, 'not in the names of the metadata contained in the specified eset.'))}
-  #if(!("SAMPLE_LABEL" %in% names(p))){stop('Metadata must contain a SAMPLE_LABEL column, typically uniquely specifying all samples.')}
-  if(!is.numeric(nguides)){stop('Please specify a numeric number of guides to display.')}  
-  if(class(eset) != "ExpressionSet"){stop('eset must be an expressionset object.')}  
-  if(!(plotType %in% c("gRNA", "Target"))){stop('Please specify "gRNA" or "Target" to be displayed.')}
+  }  
   
   #If a fit is included, check to see if it's valid and then subset the expression and pheno data appropriately. 
   if(!is.null(subset)){
@@ -78,7 +70,10 @@ ct.stackGuides <- function(eset, sampleKey = NULL, nguides = 20, plotType = "gRN
   
   #idiosyncracies of ggplot forces rearrangement of factor labels for proper plotting. 
   sampleKey <- sampleKey[order(sampleKey)]
-  
+
+  invisible(ct.inputCheck(sampleKey, d))
+
+  #Everything ok, moving on. 
   plottitle <- paste0("Top ", nguides, " Most Variable ", plotType, "s Across Experimental Condition")
   
   if(plotType == "Target"){
@@ -94,6 +89,7 @@ ct.stackGuides <- function(eset, sampleKey = NULL, nguides = 20, plotType = "gRN
       annotation$geneSymbol[is.na(annotation$geneSymbol)] <- "NoTarget"
       }
 
+    #Convert all gRNA abundance to % representation
     message('Summarizing gRNA counts into targets.')
     d <- t(vapply(levels(annotation$geneSymbol), 
                         function(x){if(sum(annotation$geneSymbol %in% x) > 1){

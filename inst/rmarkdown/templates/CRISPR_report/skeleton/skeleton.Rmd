@@ -13,7 +13,7 @@ params:
 ---
 
 
-This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the fucntions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during teh analysis of a Crispr screen. 
+This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the fucntions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during teh analysis of a CRISPR screen. 
 
 ###Section 1: Experiment Overiview 
 
@@ -31,7 +31,7 @@ ct.alignmentChart(params$aln, params$sampleKey)
 
 ####Raw gRNA Read Counts
 
-In most Crispr libraries the majority of gRNA abundances will form a relatively smooth distribution distributed about the median count, often with a long tail. Sample libraries may be undersequenced if the raw number of read counts per gRNA is low, and PCR artifacts may be present if the sample contains a subset of extremely abundant guides or the distribution is jagged or contains multiple modes. In most well-executed experiments the majority of gRNAs in the control samples will form a tight distribution around some reasonably high average read count (hundreds of reads, *X* axis). Excessively low raw count values can compromise normalization steps and subsequent estimation of gRNA levels, which is typically a problem in screens where identification of disproportionately depleted gRNAs is important. 
+In most CRISPR libraries the majority of gRNA abundances will form a relatively smooth distribution distributed about the median count, often with a long tail. Sample libraries may be undersequenced if the raw number of read counts per gRNA is low, and PCR artifacts may be present if the sample contains a subset of extremely abundant guides or the distribution is jagged or contains multiple modes. In most well-executed experiments the majority of gRNAs in the control samples will form a tight distribution around some reasonably high average read count (hundreds of reads, *X* axis). Excessively low raw count values can compromise normalization steps and subsequent estimation of gRNA levels, which is typically a problem in screens where identification of disproportionately depleted gRNAs is important. 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 2: Raw gRNA Count Densities"}
 ct.rawCountDensities(params$eset, params$sampleKey)
@@ -43,7 +43,7 @@ ct.rawCountDensities(params$eset, params$sampleKey)
 
 #####GC Content and gRNA Abundance
 
-GC content can influence PCR efficiency, and a strong relationshib between GC content and gRNA abundance may be evidence of poor viral library quality or sample preparation in Crispr screens. Ideally, there should be no clear relationship between GC content and a gRNA's measured abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content (e.g., nontargeting controls) which may affect this.  
+GC content can influence PCR efficiency, and a strong relationshib between GC content and gRNA abundance may be evidence of poor viral library quality or sample preparation in CRISPR screens. Ideally, there should be no clear relationship between GC content and a gRNA's measured abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content (e.g., nontargeting controls) which may affect this.  
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 3: GC content and gRNA Abundance"}
 if (is.null(params$sampleKey)) {
@@ -95,7 +95,7 @@ ct.guideCDF(params$eset, params$sampleKey, plotType = "Target", annotation = par
 
 #####Nontargeting Control Guides
 
-The behavior of nontargeting control guides can give some sense of the consistency of the gRNA abundances within experimental cultures and the likely effect of normalization on the gRNA abundance estimation. Note that it is not necessarily critical that the relative abundances of nontargeting gRNAs remain superficially identical across treatments, but extremely large changes may indicate that individual gRNA levels are not likely to be well estimated. 
+The behavior of nontargeting control guides can give some sense of the consistency of the gRNA abundances within experimental cultures and the likely effect of normalization on the gRNA abundance estimation. Note that it is not necessarily critical that the relative abundances of nontargeting gRNAs remain superficially stable across treatments, but extremely large changes may indicate that individual gRNA levels are not likely to be well estimated. 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 6: Nontargeting Control Behavior Before and After Median Scaling"}
 ct.viewControls(params$eset, params$annotation, params$sampleKey, normalize = FALSE) 
@@ -111,7 +111,7 @@ ct.viewControls(params$eset, params$annotation, params$sampleKey, normalize = TR
 
 #####GC Content and Estimated Model Effects
 
-GC content can influence PCR efficiency, and strong GC-related effects may be evidence of poor library quality in Crispr screens. Ideally, there should be no clear relationship between GC content and a gRNA's variance, fold change, or evidence for chances in differential abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content, however (e.g., nontargeting controls).  
+GC content can influence PCR efficiency, and strong GC-related effects may be evidence of poor library quality in  screens. Ideally, there should be no clear relationship between GC content and a gRNA's variance, fold change, or evidence for differential abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content, however (e.g., nontargeting controls).  
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 7: GC Content and Model Estimates"}
 if (is.null(params$sampleKey)) {
@@ -153,7 +153,7 @@ ct.stackGuides(params$eset, params$sampleKey, plotType = "gRNA", annotation = pa
 
 ###Top Signals of Target Enrichment and Depletion
 
-Below are plots indicating the targets with the most evidence for enrichment and depletion within the indicated contrast. Genes are ranked by aggregating the signal for depletion or enrichment across all gRNAs targeting the corresponding element. Briefly, individual gRNAs are assigned a P-value quantifying the evidence for enrichment or depletion within the contrast using a linear model. The P-values of all the gRNAs in the experiment are transformed into a ranking, and genes are assigned a score based on the distribution of the ranks of the P-values observed among the guides targeting it, ignoring gRNAs with P-values above a nominal significance threshold (*P*= 0.05 by default). These scores are transformed into a P-value via permutation; genes targeted by lots of guides with the highest overall evidence for abundance changes will be top ranked. Genes with identical P-values are ordered by their median gRNA abundance change within the contrast (log2 fold change within the framework of the linear model). This method of gRNA signal aggregation is identical to that employed by the MAGeCK algorithm (Li et al., *Genome Research* 2014). 
+Below are plots indicating the targets with the most evidence for enrichment and depletion within the indicated contrast. Genes are ranked by aggregating the signal for depletion or enrichment across all gRNAs targeting the corresponding element. Briefly, individual gRNAs are assigned a *P*-value quantifying the evidence for enrichment or depletion within the contrast using a linear model. The *P*-values of all the gRNAs in the experiment are transformed into a ranking, and genes are assigned a score based on the distribution of the ranks of the *P*-values observed among the guides targeting it, ignoring gRNAs with *P*-values above a nominal significance threshold (*P*= 0.1 by default). These scores are transformed into a *P*-value via permutation; genes targeted by lots of guides with the highest overall evidence for abundance changes will be top ranked. Genes with identical *P*-values are ordered by their median gRNA abundance change within the contrast (log2 fold change within the framework of the linear model). This method of gRNA signal aggregation is identical to that employed by the MAGeCK algorithm (Li et al., *Genome Research* 2014). 
 
 Within each plot, candidates are ordered by the evidence for enrichment or depletion. Each gRNA targeting the gene is plotted as a point, with the estimated log2 fold change  indicated on the *Y*-axis and the standard deviation of the estimate shown as a gray bar. 
 

@@ -28,9 +28,9 @@ sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
 names(sk) <- row.names(pData(es))
 ```
 
-#####Generate a contrast of interest using voom/limma
+#####Generate a contrast of interest using voom/limma; pairing replicates is a good idea if that information is available. 
 ```{r, eval = FALSE}
-design <- model.matrix(~ 0 + TREATMENT_NAME, pData(es))
+design <- model.matrix(~ 0 + REPLICATE_POOL + TREATMENT_NAME, pData(es))
 colnames(design) <- gsub('TREATMENT_NAME', '', colnames(design))
 contrasts <-makeContrasts(DeathExpansion - ControlExpansion, levels = design)
 ```

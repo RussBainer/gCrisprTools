@@ -160,7 +160,7 @@ if(!is.null(identifier)){
     }
   namebase <- identifier
   }else{
-    namebase <- paste0("CrisprContrastReport", format(Sys.time(), "_%b_%d_%Y_%H.%M.%S"))
+    namebase <- paste0("CrisprReport", format(Sys.time(), "_%b_%d_%Y_%H.%M.%S"))
     }
 
 rmdname <- file.path(noutdir, paste0(namebase, '.Rmd'))

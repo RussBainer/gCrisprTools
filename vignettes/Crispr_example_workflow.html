@@ -12,7 +12,7 @@
 
 <meta name="author" content="Russell Bainer" />
 
-<meta name="date" content="2016-08-01" />
+<meta name="date" content="2016-09-16" />
 
 <title>Example Workflow For Processing a CRISPR-based Pooled Screen</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Example Workflow For Processing a CRISPR-based Pooled Screen</h1>
 <h4 class="author"><em>Russell Bainer</em></h4>
-<h4 class="date"><em>2016-08-01</em></h4>
+<h4 class="date"><em>2016-09-16</em></h4>
 
 
 
@@ -92,9 +92,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sk &lt;-<span class="st"> </span><span class="kw">relevel</span>(<span class="kw">as.factor</span>(<span class="kw">pData</span>(es)$TREATMENT_NAME), <span class="st">&quot;ControlReference&quot;</span>)
 <span class="kw">names</span>(sk) &lt;-<span class="st"> </span><span class="kw">row.names</span>(<span class="kw">pData</span>(es))</code></pre></div>
 </div>
-<div id="generate-a-contrast-of-interest-using-voomlimma" class="section level5">
-<h5>Generate a contrast of interest using voom/limma</h5>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">design &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(~<span class="st"> </span><span class="dv">0</span> +<span class="st"> </span>TREATMENT_NAME, <span class="kw">pData</span>(es))
+<div id="generate-a-contrast-of-interest-using-voomlimma-pairing-replicates-is-a-good-idea-if-that-information-is-available." class="section level5">
+<h5>Generate a contrast of interest using voom/limma; pairing replicates is a good idea if that information is available.</h5>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">design &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(~<span class="st"> </span><span class="dv">0</span> +<span class="st"> </span>REPLICATE_POOL +<span class="st"> </span>TREATMENT_NAME, <span class="kw">pData</span>(es))
 <span class="kw">colnames</span>(design) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">'TREATMENT_NAME'</span>, <span class="st">''</span>, <span class="kw">colnames</span>(design))
 contrasts &lt;-<span class="kw">makeContrasts</span>(DeathExpansion -<span class="st"> </span>ControlExpansion, <span class="dt">levels =</span> design)</code></pre></div>
 </div>
@@ -107,9 +107,9 @@ contrasts &lt;-<span class="kw">makeContrasts</span>(DeathExpansion -<span class
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">es &lt;-<span class="st"> </span><span class="kw">ct.normalizeGuides</span>(es, <span class="dt">method =</span> <span class="st">&quot;scale&quot;</span>, <span class="dt">plot.it =</span> <span class="ot">TRUE</span>) <span class="co">#See man page for other options</span>
 vm &lt;-<span class="st"> </span><span class="kw">voom</span>(<span class="kw">exprs</span>(es), design)
 
-fit &lt;-<span class="st"> </span>limma::<span class="kw">lmFit</span>(vm, design)
-fit &lt;-<span class="st"> </span>limma::<span class="kw">contrasts.fit</span>(fit, contrasts)
-fit &lt;-<span class="st"> </span>limma::<span class="kw">eBayes</span>(fit)</code></pre></div>
+fit &lt;-<span class="st"> </span><span class="kw">lmFit</span>(vm, design)
+fit &lt;-<span class="st"> </span><span class="kw">contrasts.fit</span>(fit, contrasts)
+fit &lt;-<span class="st"> </span><span class="kw">eBayes</span>(fit)</code></pre></div>
 </div>
 <div id="edit-the-annotation-file-if-you-used-ct.filterreads-above" class="section level5">
 <h5>Edit the annotation file if you used <code>ct.filterReads</code> above</h5>
@@ -127,14 +127,12 @@ fit &lt;-<span class="st"> </span>limma::<span class="kw">eBayes</span>(fit)</co
     <span class="dt">permutation.seed =</span> <span class="dv">2</span>
   )</code></pre></div>
 </div>
-<div id="optionally-just-load-an-example-results-object-for-testing-purposes" class="section level5">
-<h5>Optionally, just load an example results object for testing purposes</h5>
+<div id="optionally-just-load-an-example-results-object-for-testing-purposes-trimming-out-reads-as-necessary" class="section level5">
+<h5>Optionally, just load an example results object for testing purposes (trimming out reads as necessary)</h5>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;fit&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)
-<span class="kw">data</span>(<span class="st">&quot;resultsDF&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)</code></pre></div>
-</div>
-<div id="trim-out-reads-as-necessary" class="section level5">
-<h5>Trim out reads as necessary</h5>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span>fit[(<span class="kw">row.names</span>(fit) %in%<span class="st"> </span><span class="kw">row.names</span>(ann)),]
+<span class="kw">data</span>(<span class="st">&quot;resultsDF&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)
+
+fit &lt;-<span class="st"> </span>fit[(<span class="kw">row.names</span>(fit) %in%<span class="st"> </span><span class="kw">row.names</span>(ann)),]
 resultsDF &lt;-<span class="st"> </span>resultsDF[(<span class="kw">row.names</span>(resultsDF) %in%<span class="st"> </span><span class="kw">row.names</span>(ann)),]</code></pre></div>
 </div>
 <div id="crispr-specific-quality-control-and-visualization-tools-see-man-pages-for-details" class="section level5">
@@ -150,7 +148,7 @@ resultsDF &lt;-<span class="st"> </span>resultsDF[(<span class="kw">row.names</s
 <div id="visualize-control-guide-behavior-across-conditions" class="section level5">
 <h5>Visualize control guide behavior across conditions</h5>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.viewControls</span>(es, ann, sk, <span class="dt">normalize =</span> <span class="ot">FALSE</span>)
-<span class="kw">t.viewControls</span>(es, ann, sk, <span class="dt">normalize =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<span class="kw">ct.viewControls</span>(es, ann, sk, <span class="dt">normalize =</span> <span class="ot">TRUE</span>)</code></pre></div>
 </div>
 <div id="visualize-gc-bias-across-samples-or-within-an-experimental-contrast" class="section level5">
 <h5>Visualize GC bias across samples, or within an experimental contrast</h5>
@@ -184,12 +182,12 @@ resultsDF &lt;-<span class="st"> </span>resultsDF[(<span class="kw">row.names</s
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.topTargets</span>(fit,
               resultsDF,
               ann,
-              <span class="dt">ntargets =</span> <span class="dv">10</span>,
+              <span class="dt">targets =</span> <span class="dv">10</span>,
               <span class="dt">enrich =</span> <span class="ot">TRUE</span>)
 <span class="kw">ct.topTargets</span>(fit,
               resultsDF,
               ann,
-              <span class="dt">ntargets =</span> <span class="dv">10</span>,
+              <span class="dt">targets =</span> <span class="dv">10</span>,
               <span class="dt">enrich =</span> <span class="ot">FALSE</span>)</code></pre></div>
 </div>
 <div id="view-the-grna-behavior-of-grnas-targeting-a-particular-gene-of-interest" class="section level5">
@@ -216,33 +214,33 @@ PRCs &lt;-<span class="st"> </span><span class="kw">ct.PRC</span>(resultsDF, ess
 <div id="make-reports-in-a-directory-of-interest" class="section level5">
 <h5>Make reports in a directory of interest</h5>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">path2report &lt;-<span class="st">      </span><span class="co">#Make a report of the whole experiment</span>
-<span class="st">  </span>gCrisprTools::<span class="kw">ct.makeReport</span>(<span class="dt">fit =</span> fit, 
-                              <span class="dt">eset =</span> es, 
-                              <span class="dt">sampleKey =</span> sk, 
-                              <span class="dt">annotation =</span> ann, 
-                              <span class="dt">results =</span> resultsDF, 
-                              <span class="dt">aln =</span> aln, 
-                              <span class="dt">outdir =</span> <span class="st">&quot;.&quot;</span>) 
+<span class="st">  </span><span class="kw">ct.makeReport</span>(<span class="dt">fit =</span> fit, 
+                <span class="dt">eset =</span> es, 
+                <span class="dt">sampleKey =</span> sk, 
+                <span class="dt">annotation =</span> ann, 
+                <span class="dt">results =</span> resultsDF, 
+                <span class="dt">aln =</span> aln, 
+                <span class="dt">outdir =</span> <span class="st">&quot;.&quot;</span>) 
 
 path2QC &lt;-<span class="st">          </span><span class="co">#Or one focusing only on experiment QC</span>
-<span class="st">  </span>gCrisprTools::<span class="kw">ct.makeQCReport</span>(es, 
-                                <span class="dt">trim =</span> <span class="dv">1000</span>, 
-                                <span class="dt">log2.ratio =</span> <span class="fl">0.05</span>, 
-                                <span class="dt">sampleKey =</span> sk, 
-                                <span class="dt">annotation =</span> ann, 
-                                <span class="dt">aln =</span> aln, 
-                                <span class="dt">identifier =</span> <span class="st">'Crispr_QC_Report'</span>,
-                                <span class="dt">lib.size =</span> <span class="ot">NULL</span>
-                                )                
+<span class="st">  </span><span class="kw">ct.makeQCReport</span>(es, 
+                  <span class="dt">trim =</span> <span class="dv">1000</span>, 
+                  <span class="dt">log2.ratio =</span> <span class="fl">0.05</span>, 
+                  <span class="dt">sampleKey =</span> sk, 
+                  <span class="dt">annotation =</span> ann, 
+                  <span class="dt">aln =</span> aln, 
+                  <span class="dt">identifier =</span> <span class="st">'Crispr_QC_Report'</span>,
+                  <span class="dt">lib.size =</span> <span class="ot">NULL</span>
+                  )                
 
 path2Contrast &lt;-<span class="st">    </span><span class="co">#Or Contrast-specific one</span>
-<span class="st">  </span>gCrisprTools::<span class="kw">ct.makeContrastReport</span>(<span class="dt">eset =</span> es, 
-                                      <span class="dt">fit =</span> fit, 
-                                      <span class="dt">sampleKey =</span> sk, 
-                                      <span class="dt">results =</span> resultsDF, 
-                                      <span class="dt">annotation =</span> ann, 
-                                      <span class="dt">comparison.id =</span> <span class="ot">NULL</span>, 
-                                      <span class="dt">identifier =</span> <span class="st">'Crispr_Contrast_Report'</span>)            </code></pre></div>
+<span class="st">  </span><span class="kw">ct.makeContrastReport</span>(<span class="dt">eset =</span> es, 
+                        <span class="dt">fit =</span> fit, 
+                        <span class="dt">sampleKey =</span> sk, 
+                        <span class="dt">results =</span> resultsDF, 
+                        <span class="dt">annotation =</span> ann, 
+                        <span class="dt">comparison.id =</span> <span class="ot">NULL</span>, 
+                        <span class="dt">identifier =</span> <span class="st">'Crispr_Contrast_Report'</span>)            </code></pre></div>
 </div>
 </div>
 

@@ -14,7 +14,7 @@ params:
   lib.size: !r numeric()
 ---
 
-This is a report detailing experiment-level properties of a pooled Crispr screening experiment. For information about individual contrasts, please consult the dedicated contrast report. 
+This is a report detailing experiment-level properties of a pooled CRISPR screening experiment. For information about individual contrasts, please consult the dedicated contrast report. 
 
 ###Section 1: Experiment Overview 
 
@@ -23,7 +23,7 @@ This is a report detailing experiment-level properties of a pooled Crispr screen
 In a high-quality library the overwhelming majority of reads will contain valid
 gRNA target sequences (>80%). Reads not matching the gRNA library may correspond
 to experimental contamination by lentivirus derived from other libraries.
-Rejected reads contain to sequences not derived from the lentiviral cassette and
+Rejected reads correspond to sequences not derived from the lentiviral cassette and
 may reflect problems with cassette isolation, library prep, or sequencing
 quality. Reads that "double match" contain apparent gRNA sequences in both mate
 pairs of a single paired-end read; this shouldn't happen given the structure of
@@ -40,14 +40,14 @@ ct.alignmentChart(aln = params$aln, sampleKey = params$sampleKey)
 
 ####Raw gRNA Read Counts
 
-In most Crispr libraries the majority of gRNA abundances will form a relatively
-smooth distribution distributed about the median count, often with a long tail.
+In most CRISPR libraries the majority of gRNA abundances will form a relatively
+smooth distribution about the median count, often with a long tail.
 Sample libraries may be undersequenced if the raw number of read counts per gRNA
 is low, and PCR artifacts may be present if the sample contains a subset of
-extremely abundant guides or the distribution is jagged or contains multiple
+extremely abundant guides, or if the distribution is jagged or contains multiple
 modes. In most well-executed experiments the majority of gRNAs in the control
 samples will form a tight distribution around some reasonably high average read
-count (hundreds of reads, *X* axis). Excessively low raw count values can
+count (e.g., hundreds of reads, *X* axis). Excessively low raw count values can
 compromise normalization steps and subsequent estimation of gRNA levels, which
 is typically a problem in screens where identification of disproportionately
 depleted gRNAs is important.
@@ -62,7 +62,7 @@ ct.rawCountDensities(eset = params$eset, sampleKey = params$sampleKey)
 
 #####GC Content and gRNA Abundance
 
-GC content can influence PCR efficiency, and a strong relationshib between GC content and gRNA abundance may be evidence of poor viral library quality or sample preparation in Crispr screens. Ideally, there should be no clear relationship between GC content and a gRNA's measured abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content (e.g., nontargeting controls) which may affect this.  
+GC content can influence PCR efficiency, and a strong relationshib between GC content and gRNA abundance may be evidence of poor viral library quality or sample preparation in CRISPR screens. Ideally, there should be no clear relationship between GC content and a gRNA's measured abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content (e.g., nontargeting controls) which may affect this.  
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 3: GC content and gRNA Abundance"}
 if (is.null(params$sampleKey)) {
@@ -187,7 +187,7 @@ tryCatch(
 
 #####The effect of filtering on read density
 
-Most pooled Crispr screening experiments include gRNA cassettes whose abundance 
+Most pooled CRISPR screening experiments include gRNA cassettes whose abundance 
 is extremely low, either because of low-level sample contamination from other 
 libraries or because the corresponding cassettes are simply lowly abundant in the original 
 plasmid or lentiviral libraries. If a very large number of lowly abundant gRNAs are present 

@@ -67,7 +67,7 @@ head(ann)
 Many `gCrisprTools` functions require or are enhanced by a sample key detailing the experimental groups of the functions included in the study. This key should be provided as a named factor, with `names` perfectly matching the `colnames` of the ExpressionSet. The first level of the sample key should correspond to the 'control' condition, indexing samples whose cassette distributions are expected to be the minimally distorted by experimental treatments. 
 
 ```{r}
-sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
 names(sk) <- row.names(pData(es))
 sk
 ```
@@ -166,9 +166,9 @@ ct.guideCDF(es, sk, plotType = "gRNA")
 The core analytical machinery of gCrisprTools is built on the linear modelling framework implemented in the `limma` package. Specifically, users employ `limma/voom` to generate an experimental contrast of interest at the gRNA level. The model coefficent and P-value estimates may be subsequently processed with the infrastructure provided by `gCrisprTools`. 
 
 ```{r}
-design <- model.matrix(~ 0 + sk, sk)
-colnames(design) <- gsub('sk', '', colnames(design))
-contrasts <- makeContrasts(DeathExpansion - ControlExpansion, levels = design)
+design <- model.matrix(~ 0 + REPLICATE_POOL + TREATMENT_NAME, pData(es))
+colnames(design) <- gsub('TREATMENT_NAME', '', colnames(design))
+contrasts <-makeContrasts(DeathExpansion - ControlExpansion, levels = design)
 
 vm <- voom(exprs(es), design)
 
@@ -209,7 +209,7 @@ ct.topTargets(fit,
               resultsDF,
               ann,
               targets = 10,
-              enrich = FALSE)
+              enrich = TRUE)
 ```
 
 #####6.2 ct.stackGuides
