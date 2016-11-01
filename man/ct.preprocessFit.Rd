@@ -9,7 +9,7 @@ ct.preprocessFit(fit, modelTerm)
 \arguments{
 \item{fit}{An object of class MArrayLM to be processed.}
 
-\item{modelTerm}{The model coefficeint to be isolated for downstream analyses.}
+\item{modelTerm}{The model coefficient to be isolated for downstream analyses.}
 }
 \value{
 A \code{MArrayLM} object for downstream processing.

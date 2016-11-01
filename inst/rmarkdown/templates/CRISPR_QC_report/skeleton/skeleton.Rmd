@@ -38,6 +38,36 @@ ct.alignmentChart(aln = params$aln, sampleKey = params$sampleKey)
 <br/>
 <br/>
 
+#####The effect of filtering on read density
+
+Most pooled CRISPR screening experiments include gRNA cassettes whose abundance 
+is extremely low, either because of low-level sample contamination from other 
+libraries or because the corresponding cassettes are simply lowly abundant in the original 
+plasmid or lentiviral libraries. If a very large number of lowly abundant gRNAs are present 
+in a screen, they can distort the overall gRNA distributions and destabilize normalization 
+procedures. In the following images, the trimmed and scaled gRNA distributions are shown 
+for each sample; after trimming, the abundances in each sample should form a gaussian-like 
+distribution centered about the same median. If the medians are not well aligned or some of 
+the samples are not of the expected shape it may be necessary to rerun the filtering algorithm 
+with different parameter choices (see `ct.filterReads()` manual page for details). Note that 
+the subsequent analyses reported in this document are conducted after low-abundance gRNAs 
+have been omitted during this step. 
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=20, fig.width=10, fig.cap="Figure 2: gRNA Density Before and After Filtering with the Default Parameters"}
+filt.eset <- ct.filterReads(
+  eset = params$eset,
+  trim = params$trim,
+  log2.ratio = params$log2.ratio,
+  sampleKey = params$sampleKey,
+  plot.it = TRUE
+)
+```
+
+<br/>
+<br/>
+<br/>
+
 ####Raw gRNA Read Counts
 
 In most CRISPR libraries the majority of gRNA abundances will form a relatively
@@ -52,8 +82,8 @@ compromise normalization steps and subsequent estimation of gRNA levels, which
 is typically a problem in screens where identification of disproportionately
 depleted gRNAs is important.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 2: Raw gRNA Count Densities"}
-ct.rawCountDensities(eset = params$eset, sampleKey = params$sampleKey)
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 3: Raw gRNA Count Densities"}
+ct.rawCountDensities(eset = filt.eset, sampleKey = params$sampleKey)
 ```
 
 <br/>
@@ -62,16 +92,16 @@ ct.rawCountDensities(eset = params$eset, sampleKey = params$sampleKey)
 
 #####GC Content and gRNA Abundance
 
-GC content can influence PCR efficiency, and a strong relationshib between GC content and gRNA abundance may be evidence of poor viral library quality or sample preparation in CRISPR screens. Ideally, there should be no clear relationship between GC content and a gRNA's measured abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content (e.g., nontargeting controls) which may affect this.  
+GC content can influence PCR efficiency, and a strong relationship between GC content and gRNA abundance may be evidence of poor viral library quality or sample preparation in CRISPR screens. Ideally, there should be no clear relationship between GC content and a gRNA's measured abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content (e.g., nontargeting controls) which may affect this.  
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 3: GC content and gRNA Abundance"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 4: GC content and gRNA Abundance"}
 if (is.null(params$sampleKey)) {
-  ct.GCbias(data.obj = params$eset, 
+  ct.GCbias(data.obj = filt.eset, 
             ann = params$annotation, 
             lib.size = params$lib.size
             )
 } else {
-   ct.GCbias(data.obj = params$eset, 
+   ct.GCbias(data.obj = filt.eset, 
             ann = params$annotation, 
             lib.size = params$lib.size,
             sampleKey = params$sampleKey
@@ -107,9 +137,9 @@ may have failed if library-level distortion is not readily apparent. The
 locations of nontargeting control guides are indicated as diamonds along each
 distribution.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 4: Ranked gRNA Distributions by Replicate"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 5: Ranked gRNA Distributions by Replicate"}
 ct.gRNARankByReplicate(
-  eset = params$eset, 
+  eset = filt.eset, 
   sampleKey = params$sampleKey, 
   annotation = params$annotation, 
   geneSymb = params$geneSymb,
@@ -132,9 +162,9 @@ of reads that the top *N* targets represent (*Y* axis), we can tell if the
 treatment libraries essentially only contain cassettes targeting a small number
 of genes, or if most of the cells survive the selection step.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 5: Per-Replicate gRNA Cumulative Distributions"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap= "Figure 6: Per-Replicate gRNA Cumulative Distributions"}
 ct.guideCDF(
-  eset = params$eset,
+  eset = filt.eset,
   sampleKey = params$sampleKey,
   plotType = "Target",
   annotation = params$annotation
@@ -155,10 +185,10 @@ necessarily critical that the relative abundances of nontargeting gRNAs remain
 superficially identical across treatments, but extremely large changes may
 indicate that individual gRNA levels are not likely to be well estimated.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 6: Nontargeting Control Behavior Before and After Median Scaling"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 7: Nontargeting Control Behavior Before and After Median Scaling"}
 tryCatch(
   ct.viewControls(
-    eset = params$eset,
+    eset = filt.eset,
     annotation = params$annotation,
     geneSymb = params$geneSymb,
     sampleKey = params$sampleKey,
@@ -171,7 +201,7 @@ tryCatch(
 )
 tryCatch(
   ct.viewControls(
-    eset = params$eset,
+    eset = filt.eset,
     annotation = params$annotation,
     geneSymb = params$geneSymbol,
     sampleKey = params$sampleKey,
@@ -185,26 +215,3 @@ tryCatch(
 ```
 
 
-#####The effect of filtering on read density
-
-Most pooled CRISPR screening experiments include gRNA cassettes whose abundance 
-is extremely low, either because of low-level sample contamination from other 
-libraries or because the corresponding cassettes are simply lowly abundant in the original 
-plasmid or lentiviral libraries. If a very large number of lowly abundant gRNAs are present 
-in a screen, they can distort the overall gRNA distributions and destabilize normalization 
-procedures. In the following images, the trimmed and scaled gRNA distributions are shown 
-for each sample; after trimming, the abundances in each sample should form a gaussian-like 
-distribution centered about the same median. If the medians are not well aligned or some of 
-the samples are not of the expected shape it may be necessary to rerun the filtering algorithm 
-with different parameter choices (see `ct.filterReads()` manual page for details). 
-
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=20, fig.width=10, fig.cap="Figure 7: gRNA Density Before and After Filtering with the Default Parameters"}
-filt.eset <- ct.filterReads(
-  eset = params$eset,
-  trim = params$trim,
-  log2.ratio = params$log2.ratio,
-  sampleKey = params$sampleKey,
-  plot.it = TRUE
-)
-```

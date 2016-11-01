@@ -39,7 +39,7 @@ ct.generateResults <- function(fit,
                                contrast.term = NULL,
                                scoring = c("combined", "pvalue", "fc"),
                                permutation.seed = NULL) {
-  
+
   #figure out the scoring method
   methods <- c("combined", "pvalue", "fc")
   scoring <- match.arg(scoring, methods, several.ok = FALSE)
@@ -166,8 +166,11 @@ ct.generateResults <- function(fit,
   #Add a column for the median FC for each target: 
   targets <- unique(summaryDF$geneSymbol)
   medianfc <- vapply(targets, 
-                     function(x){median(summaryDF[(summaryDF$geneSymbol == x),"gRNA Log2 Fold Change"], 
-                                        na.rm = TRUE)}, 
+                     function(x){
+                         median(
+                             summaryDF[(summaryDF$geneSymbol == x),"gRNA Log2 Fold Change"], 
+                             na.rm = TRUE)
+                     }, 
                      numeric(1), 
                      USE.NAMES = TRUE)
   summaryDF["Median log2 Fold Change"] <- vapply(summaryDF$geneSymbol, 
@@ -181,26 +184,3 @@ ct.generateResults <- function(fit,
   summaryDF <- summaryDF[order(summaryDF[,"Target-level Enrichment P"], decreasing = FALSE),]
   return(summaryDF)
 }
-  
-  
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-

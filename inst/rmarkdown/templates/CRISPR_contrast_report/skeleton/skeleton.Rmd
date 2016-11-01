@@ -15,7 +15,7 @@ params:
 
 #Contrast: `r params$comparison.id`
 
-This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the fucntions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during the analysis of a CRISPR screen. 
+This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the functions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during the analysis of a CRISPR screen. 
 
 #####GC Content and Estimated Model Effects
 

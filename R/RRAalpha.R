@@ -36,18 +36,12 @@ ct.numcores <- function()  {
 ##' library(RobustRankAggreg)
 ##' testp <- runif(20)
 ##'
-##' betaScores((testp))
+##' min(betaScores(testp))
 ##' ct.alphaBeta(testp)  
 ##' @export
 ct.alphaBeta <- function(p.in){ 
-  p.in <- na.omit(p.in)
   n <- length(p.in)  
-  if(n == 0){
-    return(1)
-  } else {
-    p.in <- sort(p.in)
-    return(min(pbeta(p.in, 1:n, n - 1:n + 1)))
-  }
+  return(min(pbeta(p.in, 1:n, n - (1:n) + 1)))
 }
 
 
@@ -73,17 +67,17 @@ ct.alphaBeta <- function(p.in){
 ##' @export
 
 ct.RRAalpha <- function(p, g.key, alpha, shuffle = FALSE, return.obj = TRUE){
-  
+    stopifnot(identical(rownames(p),rownames(g.key)))
   #determine the input format and convert to a logical as needed. 
   if(length(alpha) == 1){
 
     ##tally the significant genes
     pass <- p[,1] <= alpha
 
-    }else{
-      if((sum(alpha %in% c(TRUE, FALSE)) != nrow(p))){stop('When provided as a vector, alpha values must only be TRUE or FALSE 
-                                                           and exactly match the rows of the provided rank statistic.')}
-      pass <- alpha  
+    } else {
+        if((sum(alpha %in% c(TRUE, FALSE)) != nrow(p)))
+            stop('When provided as a vector, alpha values must only be TRUE or FALSE and exactly match the rows of the provided rank statistic.')
+        pass <- alpha  
     }
   
   #nonsignificant gRNAs are set to 1. Implicitly, this means that the significance 
@@ -94,9 +88,17 @@ ct.RRAalpha <- function(p, g.key, alpha, shuffle = FALSE, return.obj = TRUE){
     p <- sample(p, nrow(p))
   }
 
-  p.collect <- split(p, g.key$geneSymbol)
+  if (anyNA(p)) {
+      notna = ! is.na(p)
+      p = p[ notna ]
+      g.key = g.key[ notna, ]
+  }
+
+  symbol = g.key$geneSymbol
+  ord = order( symbol, p )
+  p.collect <- split(p[ord], symbol[ord])
   rhoscores <- vapply(p.collect, ct.alphaBeta, numeric(1))
-  
+
   if(!is.environment(return.obj) | deparse(substitute(return.obj)) %in% 'none'){
     return(rhoscores)
   } else {
@@ -107,8 +109,6 @@ ct.RRAalpha <- function(p, g.key, alpha, shuffle = FALSE, return.obj = TRUE){
      invisible()
   }
 }  
-
-
 
 ##' @title gRNA signal aggregation via RRAa, optionally using multiple cores. 
 ##' @description This is a wrapper function implementing the RRAalpha p-value aggregation algorithm. Takes in a set of gRNA rank scores (formatted as a single-column 
@@ -247,18 +247,16 @@ ct.RRAaPvals <- function(p,
 ##' passed <- ct.RRAalphaBatch(fit$p.value, ann, alpha = 0.1, result.environment = env, batch.size = batch.size)
 ##' hist(passed/batch.size, main = 'Empirical P-value', xlab = 'P')
 ##' @export
-
 ct.RRAalphaBatch <- function(p, g.key, alpha, result.environment, batch.size = 100, 
                              permutation.seed = NULL){
   
-  #make a batch environment
-  batch.env <- new.env()
-  batch.env$obs <- result.environment$obs
-  batch.env$target.positive.iterations <- rep.int(0, result.environment$ngenes)
-  
-  #run permutations and increment as needed
-  set.seed(permutation.seed) # default NULL will have no effect
-  invisible(replicate(batch.size, ct.RRAalpha(p, g.key, alpha, shuffle = TRUE, return.obj = batch.env))) 
+    ##make a batch environment
+    batch.env <- new.env()
+    batch.env$obs <- result.environment$obs
+    batch.env$target.positive.iterations <- rep.int(0, result.environment$ngenes)
+    ## run permutations and increment as needed
+    set.seed(permutation.seed) # default NULL will have no effect
+    invisible(replicate(batch.size, ct.RRAalpha(p, g.key, alpha, shuffle = TRUE, return.obj = batch.env))) 
   
   return(batch.env$target.positive.iterations)
 }

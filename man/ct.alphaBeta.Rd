@@ -21,7 +21,7 @@ returned is the smallest p-value identified in this way across all scores. Shoul
 library(RobustRankAggreg)
 testp <- runif(20)
 
-betaScores((testp))
+min(betaScores(testp))
 ct.alphaBeta(testp)  
 }
 \author{

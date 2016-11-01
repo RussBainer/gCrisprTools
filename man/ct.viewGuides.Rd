@@ -4,7 +4,8 @@
 \alias{ct.viewGuides}
 \title{Generate a Plot of individual gRNA Pair Data in a Crispr Screen}
 \usage{
-ct.viewGuides(gene, fit, ann, type = "geneSymbol", contrast.term = NULL)
+ct.viewGuides(gene, fit, ann, type = "geneSymbol", contrast.term = NULL,
+  ylims = NULL)
 }
 \arguments{
 \item{gene}{the name of the target element of interest, contained within the "type" column of the annotation file.}
@@ -18,6 +19,8 @@ At mimimum, it should have a column with the name specified by the \code{type} a
 \item{type}{A character string indicating the column in ann containing the target of interest.}
 
 \item{contrast.term}{If a fit object with multiple coefficients is passed in, a string indiating the coefficient of interest.}
+
+\item{ylims}{An optional numeric vector of length 2 indicating the extremes of the y-axis scale.}
 }
 \value{
 An image summarizing gRNA behavior within the specifed gene on the default device.

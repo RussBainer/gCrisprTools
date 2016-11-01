@@ -60,6 +60,7 @@ ct.drawColorLegend <- function(dens, colorscale){
 ##' At mimimum, it should have a column with the name specified by the \code{type} argument, containing the element targeted by each guide. 
 ##' @param type A character string indicating the column in ann containing the target of interest. 
 ##' @param contrast.term If a fit object with multiple coefficients is passed in, a string indiating the coefficient of interest.   
+##' @param ylims An optional numeric vector of length 2 indicating the extremes of the y-axis scale. 
 ##' @return An image summarizing gRNA behavior within the specifed gene on the default device. 
 ##' @author Russell Bainer
 ##' @examples
@@ -68,7 +69,7 @@ ct.drawColorLegend <- function(dens, colorscale){
 ##' ct.viewGuides('Target1633', fit, ann)
 ##' @export
 
-ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = NULL){
+ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = NULL, ylims = NULL){
   current.graphic.params <- par(no.readonly = TRUE)
   on.exit(suppressWarnings(par(current.graphic.params)))
   
@@ -98,10 +99,17 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
 
   #Set up the color palette and the legend first: 
   day3Density <- density(fit$coefficients)
-  ylimit <- max(fit$coefficients)  
-  ylims <- range(c(min(0,(fit$coefficients[grna.inx,1]-fit$stdev.unscaled[grna.inx,1])), 
-                   max(0,(fit$coefficients[grna.inx,1]+fit$stdev.unscaled[grna.inx,1]))))
 
+  if(is.null(ylims)){
+    ylimit <- max(fit$coefficients)  
+    ylims <- range(c(min(0,(fit$coefficients[grna.inx,1]-fit$stdev.unscaled[grna.inx,1])), 
+                   max(0,(fit$coefficients[grna.inx,1]+fit$stdev.unscaled[grna.inx,1]))))
+  }else{
+    if(any(length(na.omit(ylims)) != 2, !is.numeric(ylims), sum(is.infinite(ylims)) > 0)){
+      stop('ylims must be a numeric vector of length 2 containing finite values.')
+    }
+  }
+  
   #Set up the guide colors based on their overall expression
   cols <- colorRampPalette(c("red", "orange", "white", "blue", "purple"))(1000)
   rankexprscolors <- seq(from = max(fit$Amean), to = min(fit$Amean), length.out = 1000)
@@ -113,7 +121,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
   plot(1:length(grna.inx), 
        fit$coefficients[grna.inx,1],
        ylab = "Log2(Fold Change)", 
-       main = gene, xlab = "", ylim = ylims,
+       main = gene, xlab = "", ylim = sort(ylims),
        col = vapply(fit$coefficients[grna.inx,1], ct.exprsColor, character(1), rankedexprs = rankexprscolors, colors = cols), 
        xaxt = "n", pch = 18)
   segments(seq_len(length(grna.inx)), 

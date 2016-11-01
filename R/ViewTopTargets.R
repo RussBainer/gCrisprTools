@@ -108,7 +108,7 @@ ct.topTargets <- function(fit, summaryDF, annotation, targets = 10, enrich = TRU
     
     #make the plot
     plot(xloc, lfc, xaxt='n', main = plottitle, ylim = ylimit, xlab = "", ylab = "Log2 gRNA Abundance Change", pch = 18, col = "darkred")
-    suppress <- apply(sddf, 1, function(x){lines(c(x[1], x[1]), c(x[2], x[3]), col = rgb(0,0,1,0.3), lwd = 4)})
+    suppress <- apply(sddf, 1, function(x){lines(c(x[1], x[1]), c(x[2], x[3]), col = rgb(1,1,1,0.3), lwd = 4)})
     points(xloc, lfc, pch = 18, col = "darkred")
     suppress <- capture.output(lapply(seq(2.5, by = 2, length.out = (ntargets - 1)), function(x){abline(v = x, lty = "dotted", col= "gray")}))
     abline(h = 0)

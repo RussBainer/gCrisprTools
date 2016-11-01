@@ -2,7 +2,7 @@
 ##' @description This function preprocesses a fit object returned from eBayes to include only the values relevant to the
 ##' \code{modelTerm} specified.  
 ##' @param fit An object of class MArrayLM to be processed. 
-##' @param modelTerm The model coefficeint to be isolated for downstream analyses. 
+##' @param modelTerm The model coefficient to be isolated for downstream analyses. 
 ##' @return A \code{MArrayLM} object for downstream processing. 
 ##' @author Russell Bainer
 ##' @import limma
@@ -44,8 +44,10 @@ ct.preprocessFit <- function(fit, modelTerm){
   colnames(fit$t) <- modelTerm
   fit$p.value <- as.matrix(fit$p.value[,modelTerm])
   colnames(fit$p.value) <- modelTerm
-  fit$lods <- as.matrix(fit$lods[,modelTerm])
-  colnames(fit$lods) <- modelTerm
+  if ("lods" %in% names(fit)) {
+      fit$lods <- as.matrix(fit$lods[,modelTerm])
+      colnames(fit$lods) <- modelTerm
+  }
   
   return(fit)
 }
