@@ -1,5 +1,8 @@
 Version 0.99.0: 
 Initial bioconductor submission. 
 
+Version 1.0.0: 
+First official release to Bioconductor. 
+
 Version 1.1.0: 
-Miscellaneous bugfixes, performance upgrades. Peter Haverty designated as official maintainer. 
+Miscellaneous minor report edits, cosmetic bugfixes, and performance upgrades. Peter Haverty designated as official maintainer. 
