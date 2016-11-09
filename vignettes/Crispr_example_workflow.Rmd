@@ -4,14 +4,14 @@ author: "Russell Bainer"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{gCrisprTools_Vignette}
+  %\VignetteIndexEntry{Example Workflow_gCrisprTools}
   %\VignetteEngine{rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 ### Example Workflow
 This is an example workflow for processing a pooled CRISPR-based screen using the provided sample data. See the various manpages for additional visualization options and algorithmic details. 
 
-#####Load dependencies and data
+Load dependencies and data
 ```{r, eval = FALSE}
 library(Biobase)
 library(limma)
@@ -22,25 +22,25 @@ data("ann", package = "gCrisprTools")
 data("aln", package = "gCrisprTools")
 ```
 
-#####Make a sample key, structured as a factor with control samples in the first level
+Make a sample key, structured as a factor with control samples in the first level
 ```{r, eval = FALSE}
 sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
 names(sk) <- row.names(pData(es))
 ```
 
-#####Generate a contrast of interest using voom/limma; pairing replicates is a good idea if that information is available. 
+Generate a contrast of interest using voom/limma; pairing replicates is a good idea if that information is available. 
 ```{r, eval = FALSE}
 design <- model.matrix(~ 0 + REPLICATE_POOL + TREATMENT_NAME, pData(es))
 colnames(design) <- gsub('TREATMENT_NAME', '', colnames(design))
 contrasts <-makeContrasts(DeathExpansion - ControlExpansion, levels = design)
 ```
 
-#####Optionally, trim of trace reads from the unnormalized object (see man page for details)
+Optionally, trim of trace reads from the unnormalized object (see man page for details)
 ```{r, eval = FALSE}
 es <- ct.filterReads(es, trim = 1000, sampleKey = sk)
 ```
 
-#####Normalize, convert to a voom object, and generate a contrast
+Normalize, convert to a voom object, and generate a contrast
 ```{r, eval = FALSE}
 es <- ct.normalizeGuides(es, method = "scale", plot.it = TRUE) #See man page for other options
 vm <- voom(exprs(es), design)
@@ -50,12 +50,12 @@ fit <- contrasts.fit(fit, contrasts)
 fit <- eBayes(fit)
 ```
 
-#####Edit the annotation file if you used `ct.filterReads` above
+Edit the annotation file if you used `ct.filterReads` above
 ```{r, eval = FALSE}
 ann <- ct.prepareAnnotation(ann, fit, controls = "NoTarget")
 ```
 
-#####Summarize gRNA signals to identify target genes of interest
+Summarize gRNA signals to identify target genes of interest
 ```{r, eval = FALSE}
 resultsDF <-
   ct.generateResults(
@@ -69,7 +69,7 @@ resultsDF <-
 ```
 
 
-#####Optionally, just load an example results object for testing purposes (trimming out reads as necessary)
+Optionally, just load an example results object for testing purposes (trimming out reads as necessary)
 ```{r, eval = FALSE}
 data("fit", package = "gCrisprTools")
 data("resultsDF", package = "gCrisprTools")
@@ -78,31 +78,31 @@ fit <- fit[(row.names(fit) %in% row.names(ann)),]
 resultsDF <- resultsDF[(row.names(resultsDF) %in% row.names(ann)),]
 ```
 
-#####Crispr-specific quality control and visualization tools (see man pages for details):
+Crispr-specific quality control and visualization tools (see man pages for details):
 ```{r, eval = FALSE}
 ct.alignmentChart(aln, sk)
 ct.rawCountDensities(es, sk)
 ```
 
-#####Visualize gRNA abundance distributions
+Visualize gRNA abundance distributions
 ```{r, eval = FALSE}
 ct.gRNARankByReplicate(es, sk) 
 ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "NoTarget")  #Show locations of NTC gRNAs
 ```
 
-#####Visualize control guide behavior across conditions
+Visualize control guide behavior across conditions
 ```{r, eval = FALSE}
 ct.viewControls(es, ann, sk, normalize = FALSE)
 ct.viewControls(es, ann, sk, normalize = TRUE)
 ```
 
-#####Visualize GC bias across samples, or within an experimental contrast
+Visualize GC bias across samples, or within an experimental contrast
 ```{r, eval = FALSE}
 ct.GCbias(es, ann, sk)
 ct.GCbias(fit, ann, sk)
 ```
 
-#####View most variable gRNAs/Genes (as % of sequencing library)
+View most variable gRNAs/Genes (as % of sequencing library)
 ```{r, eval = FALSE}
 ct.stackGuides(es,
                sk,
@@ -127,13 +127,13 @@ ct.stackGuides(es,
 ```
                
                
-#####View a CDF of genes/guides
+View a CDF of genes/guides
 ```{r, eval = FALSE}
 ct.guideCDF(es, sk, plotType = "gRNA")
 ct.guideCDF(es, sk, plotType = "Target", annotation = ann)
 ```
 
-#####View top enriched/depleted candidates
+View top enriched/depleted candidates
 ```{r, eval = FALSE}
 ct.topTargets(fit,
               resultsDF,
@@ -147,13 +147,13 @@ ct.topTargets(fit,
               enrich = FALSE)
 ```
 
-#####View the gRNA behavior of gRNAs targeting a particular gene of interest
+View the gRNA behavior of gRNAs targeting a particular gene of interest
 ```{r, eval = FALSE}
 ct.viewGuides("Target1633", fit, ann)
 ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "Target1633")
 ```
 
-#####View ontological enrichment within the depleted/enriched targets
+View ontological enrichment within the depleted/enriched targets
 ```{r, eval = FALSE}
 enrichmentResults <-
   ct.PantherPathwayEnrichment(
@@ -164,14 +164,14 @@ enrichmentResults <-
   )
 ```
 
-#####Test a gene set for enrichment within target candidates
+Test a gene set for enrichment within target candidates
 ```{r, eval = FALSE}
 data("essential.genes", package = "gCrisprTools")
 ROCs <- ct.ROC(resultsDF, essential.genes, stat = "deplete.p")
 PRCs <- ct.PRC(resultsDF, essential.genes, stat = "deplete.p")
 ```
 
-#####Make reports in a directory of interest
+Make reports in a directory of interest
 ```{r, eval = FALSE}
 path2report <-      #Make a report of the whole experiment
   ct.makeReport(fit = fit, 
