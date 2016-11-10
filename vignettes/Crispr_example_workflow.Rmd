@@ -4,7 +4,7 @@ author: "Russell Bainer"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example Workflow_gCrisprTools}
+  %\VignetteIndexEntry{Example_Workflow_gCrisprTools}
   %\VignetteEngine{rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

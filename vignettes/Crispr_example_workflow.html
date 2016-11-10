@@ -12,7 +12,7 @@
 
 <meta name="author" content="Russell Bainer" />
 
-<meta name="date" content="2016-09-16" />
+<meta name="date" content="2016-11-10" />
 
 <title>Example Workflow For Processing a CRISPR-based Pooled Screen</title>
 
@@ -70,15 +70,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Example Workflow For Processing a CRISPR-based Pooled Screen</h1>
 <h4 class="author"><em>Russell Bainer</em></h4>
-<h4 class="date"><em>2016-09-16</em></h4>
+<h4 class="date"><em>2016-11-10</em></h4>
 
 
 
 <div id="example-workflow" class="section level3">
 <h3>Example Workflow</h3>
 <p>This is an example workflow for processing a pooled CRISPR-based screen using the provided sample data. See the various manpages for additional visualization options and algorithmic details.</p>
-<div id="load-dependencies-and-data" class="section level5">
-<h5>Load dependencies and data</h5>
+<p>Load dependencies and data</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(Biobase)
 <span class="kw">library</span>(limma)
 <span class="kw">library</span>(gCrisprTools)
@@ -86,37 +85,25 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">data</span>(<span class="st">&quot;es&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)
 <span class="kw">data</span>(<span class="st">&quot;ann&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)
 <span class="kw">data</span>(<span class="st">&quot;aln&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)</code></pre></div>
-</div>
-<div id="make-a-sample-key-structured-as-a-factor-with-control-samples-in-the-first-level" class="section level5">
-<h5>Make a sample key, structured as a factor with control samples in the first level</h5>
+<p>Make a sample key, structured as a factor with control samples in the first level</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sk &lt;-<span class="st"> </span><span class="kw">relevel</span>(<span class="kw">as.factor</span>(<span class="kw">pData</span>(es)$TREATMENT_NAME), <span class="st">&quot;ControlReference&quot;</span>)
 <span class="kw">names</span>(sk) &lt;-<span class="st"> </span><span class="kw">row.names</span>(<span class="kw">pData</span>(es))</code></pre></div>
-</div>
-<div id="generate-a-contrast-of-interest-using-voomlimma-pairing-replicates-is-a-good-idea-if-that-information-is-available." class="section level5">
-<h5>Generate a contrast of interest using voom/limma; pairing replicates is a good idea if that information is available.</h5>
+<p>Generate a contrast of interest using voom/limma; pairing replicates is a good idea if that information is available.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">design &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(~<span class="st"> </span><span class="dv">0</span> +<span class="st"> </span>REPLICATE_POOL +<span class="st"> </span>TREATMENT_NAME, <span class="kw">pData</span>(es))
 <span class="kw">colnames</span>(design) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">'TREATMENT_NAME'</span>, <span class="st">''</span>, <span class="kw">colnames</span>(design))
 contrasts &lt;-<span class="kw">makeContrasts</span>(DeathExpansion -<span class="st"> </span>ControlExpansion, <span class="dt">levels =</span> design)</code></pre></div>
-</div>
-<div id="optionally-trim-of-trace-reads-from-the-unnormalized-object-see-man-page-for-details" class="section level5">
-<h5>Optionally, trim of trace reads from the unnormalized object (see man page for details)</h5>
+<p>Optionally, trim of trace reads from the unnormalized object (see man page for details)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">es &lt;-<span class="st"> </span><span class="kw">ct.filterReads</span>(es, <span class="dt">trim =</span> <span class="dv">1000</span>, <span class="dt">sampleKey =</span> sk)</code></pre></div>
-</div>
-<div id="normalize-convert-to-a-voom-object-and-generate-a-contrast" class="section level5">
-<h5>Normalize, convert to a voom object, and generate a contrast</h5>
+<p>Normalize, convert to a voom object, and generate a contrast</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">es &lt;-<span class="st"> </span><span class="kw">ct.normalizeGuides</span>(es, <span class="dt">method =</span> <span class="st">&quot;scale&quot;</span>, <span class="dt">plot.it =</span> <span class="ot">TRUE</span>) <span class="co">#See man page for other options</span>
 vm &lt;-<span class="st"> </span><span class="kw">voom</span>(<span class="kw">exprs</span>(es), design)
 
 fit &lt;-<span class="st"> </span><span class="kw">lmFit</span>(vm, design)
 fit &lt;-<span class="st"> </span><span class="kw">contrasts.fit</span>(fit, contrasts)
 fit &lt;-<span class="st"> </span><span class="kw">eBayes</span>(fit)</code></pre></div>
-</div>
-<div id="edit-the-annotation-file-if-you-used-ct.filterreads-above" class="section level5">
-<h5>Edit the annotation file if you used <code>ct.filterReads</code> above</h5>
+<p>Edit the annotation file if you used <code>ct.filterReads</code> above</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ann &lt;-<span class="st"> </span><span class="kw">ct.prepareAnnotation</span>(ann, fit, <span class="dt">controls =</span> <span class="st">&quot;NoTarget&quot;</span>)</code></pre></div>
-</div>
-<div id="summarize-grna-signals-to-identify-target-genes-of-interest" class="section level5">
-<h5>Summarize gRNA signals to identify target genes of interest</h5>
+<p>Summarize gRNA signals to identify target genes of interest</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resultsDF &lt;-
 <span class="st">  </span><span class="kw">ct.generateResults</span>(
     fit,
@@ -126,37 +113,25 @@ fit &lt;-<span class="st"> </span><span class="kw">eBayes</span>(fit)</code></pr
     <span class="dt">scoring =</span> <span class="st">&quot;combined&quot;</span>, 
     <span class="dt">permutation.seed =</span> <span class="dv">2</span>
   )</code></pre></div>
-</div>
-<div id="optionally-just-load-an-example-results-object-for-testing-purposes-trimming-out-reads-as-necessary" class="section level5">
-<h5>Optionally, just load an example results object for testing purposes (trimming out reads as necessary)</h5>
+<p>Optionally, just load an example results object for testing purposes (trimming out reads as necessary)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;fit&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)
 <span class="kw">data</span>(<span class="st">&quot;resultsDF&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)
 
 fit &lt;-<span class="st"> </span>fit[(<span class="kw">row.names</span>(fit) %in%<span class="st"> </span><span class="kw">row.names</span>(ann)),]
 resultsDF &lt;-<span class="st"> </span>resultsDF[(<span class="kw">row.names</span>(resultsDF) %in%<span class="st"> </span><span class="kw">row.names</span>(ann)),]</code></pre></div>
-</div>
-<div id="crispr-specific-quality-control-and-visualization-tools-see-man-pages-for-details" class="section level5">
-<h5>Crispr-specific quality control and visualization tools (see man pages for details):</h5>
+<p>Crispr-specific quality control and visualization tools (see man pages for details):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.alignmentChart</span>(aln, sk)
 <span class="kw">ct.rawCountDensities</span>(es, sk)</code></pre></div>
-</div>
-<div id="visualize-grna-abundance-distributions" class="section level5">
-<h5>Visualize gRNA abundance distributions</h5>
+<p>Visualize gRNA abundance distributions</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.gRNARankByReplicate</span>(es, sk) 
 <span class="kw">ct.gRNARankByReplicate</span>(es, sk, <span class="dt">annotation =</span> ann, <span class="dt">geneSymb =</span> <span class="st">&quot;NoTarget&quot;</span>)  <span class="co">#Show locations of NTC gRNAs</span></code></pre></div>
-</div>
-<div id="visualize-control-guide-behavior-across-conditions" class="section level5">
-<h5>Visualize control guide behavior across conditions</h5>
+<p>Visualize control guide behavior across conditions</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.viewControls</span>(es, ann, sk, <span class="dt">normalize =</span> <span class="ot">FALSE</span>)
 <span class="kw">ct.viewControls</span>(es, ann, sk, <span class="dt">normalize =</span> <span class="ot">TRUE</span>)</code></pre></div>
-</div>
-<div id="visualize-gc-bias-across-samples-or-within-an-experimental-contrast" class="section level5">
-<h5>Visualize GC bias across samples, or within an experimental contrast</h5>
+<p>Visualize GC bias across samples, or within an experimental contrast</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.GCbias</span>(es, ann, sk)
 <span class="kw">ct.GCbias</span>(fit, ann, sk)</code></pre></div>
-</div>
-<div id="view-most-variable-grnasgenes-as-of-sequencing-library" class="section level5">
-<h5>View most variable gRNAs/Genes (as % of sequencing library)</h5>
+<p>View most variable gRNAs/Genes (as % of sequencing library)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.stackGuides</span>(es,
                sk,
                <span class="dt">plotType =</span> <span class="st">&quot;gRNA&quot;</span>,
@@ -171,14 +146,10 @@ resultsDF &lt;-<span class="st"> </span>resultsDF[(<span class="kw">row.names</s
                <span class="dt">plotType =</span> <span class="st">&quot;Target&quot;</span>,
                <span class="dt">annotation =</span> ann,
                <span class="dt">subset =</span> <span class="kw">names</span>(sk)[<span class="kw">grep</span>(<span class="st">'Expansion'</span>, sk)])</code></pre></div>
-</div>
-<div id="view-a-cdf-of-genesguides" class="section level5">
-<h5>View a CDF of genes/guides</h5>
+<p>View a CDF of genes/guides</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.guideCDF</span>(es, sk, <span class="dt">plotType =</span> <span class="st">&quot;gRNA&quot;</span>)
 <span class="kw">ct.guideCDF</span>(es, sk, <span class="dt">plotType =</span> <span class="st">&quot;Target&quot;</span>, <span class="dt">annotation =</span> ann)</code></pre></div>
-</div>
-<div id="view-top-enricheddepleted-candidates" class="section level5">
-<h5>View top enriched/depleted candidates</h5>
+<p>View top enriched/depleted candidates</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.topTargets</span>(fit,
               resultsDF,
               ann,
@@ -189,14 +160,10 @@ resultsDF &lt;-<span class="st"> </span>resultsDF[(<span class="kw">row.names</s
               ann,
               <span class="dt">targets =</span> <span class="dv">10</span>,
               <span class="dt">enrich =</span> <span class="ot">FALSE</span>)</code></pre></div>
-</div>
-<div id="view-the-grna-behavior-of-grnas-targeting-a-particular-gene-of-interest" class="section level5">
-<h5>View the gRNA behavior of gRNAs targeting a particular gene of interest</h5>
+<p>View the gRNA behavior of gRNAs targeting a particular gene of interest</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ct.viewGuides</span>(<span class="st">&quot;Target1633&quot;</span>, fit, ann)
 <span class="kw">ct.gRNARankByReplicate</span>(es, sk, <span class="dt">annotation =</span> ann, <span class="dt">geneSymb =</span> <span class="st">&quot;Target1633&quot;</span>)</code></pre></div>
-</div>
-<div id="view-ontological-enrichment-within-the-depletedenriched-targets" class="section level5">
-<h5>View ontological enrichment within the depleted/enriched targets</h5>
+<p>View ontological enrichment within the depleted/enriched targets</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enrichmentResults &lt;-
 <span class="st">  </span><span class="kw">ct.PantherPathwayEnrichment</span>(
     resultsDF,
@@ -204,15 +171,11 @@ resultsDF &lt;-<span class="st"> </span>resultsDF[(<span class="kw">row.names</s
     <span class="dt">enrich =</span> <span class="ot">TRUE</span>,
     <span class="dt">organism =</span> <span class="st">'mouse'</span>
   )</code></pre></div>
-</div>
-<div id="test-a-gene-set-for-enrichment-within-target-candidates" class="section level5">
-<h5>Test a gene set for enrichment within target candidates</h5>
+<p>Test a gene set for enrichment within target candidates</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;essential.genes&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gCrisprTools&quot;</span>)
 ROCs &lt;-<span class="st"> </span><span class="kw">ct.ROC</span>(resultsDF, essential.genes, <span class="dt">stat =</span> <span class="st">&quot;deplete.p&quot;</span>)
 PRCs &lt;-<span class="st"> </span><span class="kw">ct.PRC</span>(resultsDF, essential.genes, <span class="dt">stat =</span> <span class="st">&quot;deplete.p&quot;</span>)</code></pre></div>
-</div>
-<div id="make-reports-in-a-directory-of-interest" class="section level5">
-<h5>Make reports in a directory of interest</h5>
+<p>Make reports in a directory of interest</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">path2report &lt;-<span class="st">      </span><span class="co">#Make a report of the whole experiment</span>
 <span class="st">  </span><span class="kw">ct.makeReport</span>(<span class="dt">fit =</span> fit, 
                 <span class="dt">eset =</span> es, 
@@ -241,7 +204,6 @@ path2Contrast &lt;-<span class="st">    </span><span class="co">#Or Contrast-spe
                         <span class="dt">annotation =</span> ann, 
                         <span class="dt">comparison.id =</span> <span class="ot">NULL</span>, 
                         <span class="dt">identifier =</span> <span class="st">'Crispr_Contrast_Report'</span>)            </code></pre></div>
-</div>
 </div>
 
 
