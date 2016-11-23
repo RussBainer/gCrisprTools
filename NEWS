@@ -5,7 +5,4 @@ Version 1.0.0:
 First official release to Bioconductor. 
 
 Version 1.1.0: 
-Miscellaneous minor report edits, cosmetic bugfixes, and performance upgrades. Peter Haverty designated as official maintainer. 
-
-Version 1.1.01: 
-Minor vignette formatting update for interdace with Bioc website.
+Miscellaneous minor report edits and performance upgrades. Bugfix to P-value based scoring algorithm. Peter Haverty designated as official maintainer. 

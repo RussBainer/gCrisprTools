@@ -4,7 +4,7 @@ Title: Suite of Functions for Pooled Crispr Screen QC and Analysis
 Version: 1.1.2
 Date: 2016-11-23
 Author: Russell Bainer, Dariusz Ratman, Pete Haverty, Steve Lianoglou
-Maintainer: Peter Haverty <haverty.peter@gene.com>
+Maintainer: Russell Bainer <haverty.peter@gene.com>
 Description: Set of tools for evaluating pooled high-throughput screening experiments, 
     typically employing CRISPR/Cas9 or shRNA expression cassettes. Contains methods for interrogating 
     library and cassette behavior within an experiment, identifying differentially abundant
@@ -14,7 +14,7 @@ License: Artistic-2.0
 Imports: Biobase, limma, RobustRankAggreg, ggplot2, parallel,
         PANTHER.db, BiocParallel, rmarkdown, grDevices, graphics,
         stats, utils
-Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, RUnit, RobustRankAggreg
+Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, RUnit, BiocGenerics
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
 biocViews: CRISPR, PooledScreens, ExperimentalDesign,

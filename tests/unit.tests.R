@@ -1,1 +1,2 @@
-AnalysisPageServer::test.package(package = "gCrisprToolsGNE")
+#require("BiocGenerics", quietly = TRUE)
+BiocGenerics:::testPackage("gCrisprTools")
