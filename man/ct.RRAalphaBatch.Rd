@@ -4,17 +4,13 @@
 \alias{ct.RRAalphaBatch}
 \title{Create Batches of Null Permutations for a Crispr Screen}
 \usage{
-ct.RRAalphaBatch(p, g.key, alpha, result.environment, batch.size = 100,
+ct.RRAalphaBatch(p, g.key, result.environment, batch.size = 100,
   permutation.seed = NULL)
 }
 \arguments{
 \item{p}{A single column matrix of rank statistics, with row.names indicating the gRNA labels.}
 
 \item{g.key}{data.frame with guide and gene names}
-
-\item{alpha}{The alpha cutoff parameter, corresponding to the P-value threshold or fold change proportion at which gRNAs should no longer be considered to be 
-differentially expressed. Alternatively, this can be provided as a logical vector of the same length as the number of rows in \code{p}, 
-containing only \code{TRUE} and \code{FALSE} elements indicating whether the element should be included during the aggeregation step.}
 
 \item{result.environment}{The target environment containing the quasi-global variables incremented during the permutations in the child functions.}
 
@@ -34,9 +30,9 @@ data('fit')
 data('ann')
 batch.size <- 50
 env <- new.env()
-env$obs <- ct.RRAalpha(fit$p.value, ann, alpha = 0.1, return.obj = 'none')
+env$obs <- ct.RRAalpha(fit$p.value, ann, return.obj = 'none')
 env$ngenes <- length(levels(ann$geneSymbol))
-passed <- ct.RRAalphaBatch(fit$p.value, ann, alpha = 0.1, result.environment = env, batch.size = batch.size)
+passed <- ct.RRAalphaBatch(fit$p.value, ann, result.environment = env, batch.size = batch.size)
 hist(passed/batch.size, main = 'Empirical P-value', xlab = 'P')
 }
 \author{

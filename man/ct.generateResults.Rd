@@ -15,11 +15,17 @@ a \code{df.residual} slot with the corresponding residuals fo the model fits, an
 \item{annotation}{An annotation file for the experiment. gRNAs are annotated by 
 row, and must minimally contain columns \code{geneSymbol} and \code{geneID}.}
 
-\item{RRAalphaCutoff}{A cutoff to use when defining gRNAs with significantly altered abundance during the RRAa aggregation step. If \code{scoring} is set 
+\item{RRAalphaCutoff}{A cutoff to use when defining gRNAs with significantly altered abundance during the RRAa aggregation step, which may be specified
+as a single numeric value on the unit interval or as a logical vector. When supplied as a logical vector (of length equal to \code{nrows(fit)}), 
+this parameter directly indicates the gRNAs to include during RRAa aggregation. Otherwise, if \code{scoring} is set 
 to \code{pvalue} or \code{combined}, this parameter is interpreted as the maximum nominal p-value required to consider a gRNA's abundance meaningfully 
 altered during the aggregation step. If \code{scoring} is \code{fc}, this parameter is interpreted as the proportion of the list to be considered 
 meaningfully altered in the experiment (e.g., if \code{RRAalphaCutoff} is set to 0.05, only consider the rankings of the 5% most upregulated 
-(or downregulated) gRNAs for the purposes of RRAa calculations).}
+(or downregulated) gRNAs for the purposes of RRAa calculations).
+
+Note that this function uses directional tests to identify enriched or depleted targets, and when RRAalphaCutoff is 
+provided as a logical vector, only one of these hypotheses is implicitly specified; this means that enrichment and 
+depletion cannot be .}
 
 \item{permutations}{The number of permutations to use during the RRAa aggregation step.}
 
@@ -42,6 +48,8 @@ A dataframe containing gRNA-level and target-level statistics. In addition to th
 the returned object indicates P-values and Q-values for the depletion and enrichment of each gRNA and associated target, the median log2 fold 
 change estimate among all gRNAs associated with the target, and Rho statistics that are calculated internally by the RRAa algorithm that may be 
 useful in ranking targets that are considered significant at a given alpha or false discovery threshold.
+
+A `resultsDF` formatted dataframe containing gene-level statistics.
 }
 \description{
 This is a wrapper function that enables direct generation of target-level p-values from a crispr screen.

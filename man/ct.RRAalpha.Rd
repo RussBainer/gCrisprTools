@@ -4,16 +4,12 @@
 \alias{ct.RRAalpha}
 \title{Aggregation of P-value Ranks using a Beta Distribution and Alpha Cutoff}
 \usage{
-ct.RRAalpha(p, g.key, alpha, shuffle = FALSE, return.obj = TRUE)
+ct.RRAalpha(p, g.key, shuffle = FALSE, return.obj = TRUE)
 }
 \arguments{
 \item{p}{A single column matrix of rank statistics, with \code{row.names} indicating the gRNA labels.}
 
 \item{g.key}{data.frame with guide and gene names}
-
-\item{alpha}{The alpha cutoff parameter, corresponding to the P-value threshold or fold change proportion at which gRNAs should no longer be considered to be 
-differentially expressed. Alternatively, this can be provided as a logical vector of the same length as the number of rows in \code{p}, 
-containing only \code{TRUE} and \code{FALSE} elements indicating whether the element should be included during the aggeregation step.}
 
 \item{shuffle}{Logical indicating whether to shuffle the rank statistics prior to calculating the rho statistics (useful for permutation).}
 
@@ -31,7 +27,7 @@ The expected input is a list of rank statistics, and a paired \code{alpha} argum
 \examples{
 data('fit')
 data('ann')
-geneScores <- ct.RRAalpha(fit$p.value, ann, alpha = 0.1, shuffle = FALSE, return.obj = TRUE)
+geneScores <- ct.RRAalpha(fit$p.value, ann, shuffle = FALSE, return.obj = TRUE)
 }
 \author{
 Russell Bainer
