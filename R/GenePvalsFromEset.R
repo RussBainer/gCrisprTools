@@ -46,91 +46,91 @@ ct.generateResults <- function(fit,
                                scoring = c("combined", "pvalue", "fc"),
                                permutation.seed = NULL) {
 
-  #figure out the scoring method
-  methods <- c("combined", "pvalue", "fc")
-  scoring <- match.arg(scoring, methods, several.ok = FALSE)
-  
-  if(ncol(fit$coefficients) > 1){
-    if(is.null(contrast.term)){
-      stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
-    }
-    fit <- ct.preprocessFit(fit, contrast.term)
-  }
-  
-  #filter the annotation file as necessary for downstream processes, and format it for pval generation
-  if(!setequal(row.names(fit), row.names(annotation))){
-    if(length(setdiff(row.names(fit), row.names(annotation))) > 0){
-      stop("fit contains elements not present in the annotation file.")
-      }
-    message("The annotation file contains elements not present in the fit object. They will be discarded for downstream analyses.")
-    annotation <- annotation[row.names(fit),]
-  }
-  key <- ct.prepareAnnotation(annotation, fit, throw.error = FALSE)
-
-  #Prepare the ranking values and calculate p-values
-  pvals <- ct.DirectionalTests(fit)
-  foldchange <- cbind(fit$coefficients[,1], -fit$coefficients[,1]) 
-
-  #RRAalphaCutoff format 
-  if(length(RRAalphaCutoff) == 1){
-    rra.logic <- FALSE    
-    if(!is.numeric(RRAalphaCutoff) | (RRAalphaCutoff < 0) | (RRAalphaCutoff > 1)){
-      stop('When provided as a single value, RRAalphaCutoff must be a numeric value equal to 0, 1, or something in between.')
-    }
+    ##figure out the scoring method
+    scoring <- match.arg(scoring)
     
-  } else {
-    rra.logic <- TRUE    
-    if((sum(RRAalphaCutoff %in% c(TRUE, FALSE)) != nrow(pvals)) | (length(RRAalphaCutoff) != nrow(pvals))){
-      stop('When provided as a vector, RRAalphaCutoff must be the exact length of the p-value vectors in the fit object and must only contain TRUE or FALSE values.')
-    }
-  }
-  
-  if(scoring %in% "fc"){
-    #Normalize values to rank scores
-    scores.deplete <- as.matrix(rank(foldchange[,1])/nrow(foldchange))
-    scores.enrich <- as.matrix(rank(foldchange[,2])/nrow(foldchange))
-
-    #determine the fold-change significance cutoffs
-    cut.deplete <- sort(scores.deplete[,1])[round(nrow(scores.deplete) * RRAalphaCutoff)]
-    cut.enrich <- sort(scores.enrich[,1])[round(nrow(scores.enrich) * RRAalphaCutoff)]    
-    
-    if(rra.logic){
-      cut.deplete <- RRAalphaCutoff
-      cut.enrich <- RRAalphaCutoff
-      }
-    
-    }else if(scoring %in% "pvalue"){
-          
-      #Normalize values to rank scores
-      scores.deplete <- as.matrix(rank(pvals[,'Depletion.P'])/nrow(pvals))
-      scores.enrich <- as.matrix(rank(pvals[,'Enrichment.P'])/nrow(pvals))
-      
-      #determine the significance cutoffs for the rank statistics on the basis of p-values
-      cut.deplete <- (pvals[,'Depletion.P'] <= RRAalphaCutoff)
-      cut.enrich <- (pvals[,'Enrichment.P'] <= RRAalphaCutoff)
-          
-      if(rra.logic){
-        cut.deplete <- RRAalphaCutoff
-        cut.enrich <- RRAalphaCutoff
+    if(ncol(fit$coefficients) > 1){
+        if(is.null(contrast.term)){
+            stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
         }
-      
+        fit <- ct.preprocessFit(fit, contrast.term)
+    }
+    
+    ##filter the annotation file as necessary for downstream processes, and format it for pval generation
+    if(!setequal(row.names(fit), row.names(annotation))){
+        if(length(setdiff(row.names(fit), row.names(annotation))) > 0){
+            stop("fit contains elements not present in the annotation file.")
+        }
+        message("The annotation file contains elements not present in the fit object. They will be discarded for downstream analyses.")
+        annotation <- annotation[row.names(fit),]
+    }
+    key <- ct.prepareAnnotation(annotation, fit, throw.error = FALSE)
+
+    ##Prepare the ranking values and calculate p-values
+    
+    pvals <- ct.DirectionalTests(fit)
+    foldchange <- cbind(fit$coefficients[,1], -fit$coefficients[,1]) 
+
+    ##RRAalphaCutoff format 
+    if(length(RRAalphaCutoff) == 1){
+        rra.logic <- FALSE    
+        if(!is.numeric(RRAalphaCutoff) | (RRAalphaCutoff < 0) | (RRAalphaCutoff > 1)){
+            stop('When provided as a single value, RRAalphaCutoff must be a numeric value equal to 0, 1, or something in between.')
+        }
+        
     } else {
-  
-      cut.deplete <- (pvals[,'Depletion.P'] <= RRAalphaCutoff)
-      is.na(cut.deplete) <- FALSE
-      scores.deplete <- as.matrix(rank(foldchange[,1])/nrow(foldchange))
-
-      cut.enrich <- (pvals[,'Enrichment.P'] <= RRAalphaCutoff)
-      is.na(cut.enrich) <- FALSE
-      scores.enrich <- as.matrix(rank(foldchange[,2])/nrow(foldchange))
-
-      if(rra.logic){
-        cut.deplete <- RRAalphaCutoff
-        cut.enrich <- RRAalphaCutoff
+        rra.logic <- TRUE    
+        if((sum(RRAalphaCutoff %in% c(TRUE, FALSE)) != nrow(pvals)) | (length(RRAalphaCutoff) != nrow(pvals))){
+            stop('When provided as a vector, RRAalphaCutoff must be the exact length of the p-value vectors in the fit object and must only contain TRUE or FALSE values.')
         }
-      }
-    ##nonsignificant gRNAs are set to 1. Implicitly, this means that the significance 
-    ##relative to alpha is treated as an inherent property of the gRNA.
+    }
+    
+    if(scoring %in% "fc"){
+        ##Normalize values to rank scores
+        scores.deplete <- as.matrix(rank(foldchange[,1])/nrow(foldchange))
+        scores.enrich <- as.matrix(rank(foldchange[,2])/nrow(foldchange))
+
+        ##determine the fold-change significance cutoffs
+        cut.deplete <- sort(scores.deplete[,1])[round(nrow(scores.deplete) * RRAalphaCutoff)]
+        cut.enrich <- sort(scores.enrich[,1])[round(nrow(scores.enrich) * RRAalphaCutoff)]    
+        
+        if(rra.logic){
+            cut.deplete <- RRAalphaCutoff
+            cut.enrich <- RRAalphaCutoff
+        }
+        
+    } else if(scoring %in% "pvalue"){
+        
+        ## Normalize values to rank scores
+        scores.deplete <- as.matrix(rank(pvals[,'Depletion.P'])/nrow(pvals))
+        scores.enrich <- as.matrix(rank(pvals[,'Enrichment.P'])/nrow(pvals))
+        
+        ## determine the significance cutoffs for the rank statistics on the basis of p-values
+        cut.deplete <- (pvals[,'Depletion.P'] <= RRAalphaCutoff)
+        cut.enrich <- (pvals[,'Enrichment.P'] <= RRAalphaCutoff)
+        
+        if(rra.logic){
+            cut.deplete <- RRAalphaCutoff
+            cut.enrich <- RRAalphaCutoff
+        }
+        
+    } else {
+        
+        cut.deplete <- (pvals[,'Depletion.P'] <= RRAalphaCutoff)
+        is.na(cut.deplete) <- FALSE
+        scores.deplete <- as.matrix(rank(foldchange[,1])/nrow(foldchange))
+
+        cut.enrich <- (pvals[,'Enrichment.P'] <= RRAalphaCutoff)
+        is.na(cut.enrich) <- FALSE
+        scores.enrich <- as.matrix(rank(foldchange[,2])/nrow(foldchange))
+
+        if(rra.logic){
+            cut.deplete <- RRAalphaCutoff
+            cut.enrich <- RRAalphaCutoff
+        }
+    }
+    ## nonsignificant gRNAs are set to 1. Implicitly, this means that the significance 
+    ## relative to alpha is treated as an inherent property of the gRNA.
 
     if(length(cut.deplete) == 1)
         pass <- scores.deplete[,1] <= cut.deplete
@@ -143,71 +143,71 @@ ct.generateResults <- function(fit,
         pass <- cut.enrich
     scores.enrich[!pass,1] <- 1
 
-  geneP.depletion <-
-    ct.RRAaPvals(
-      scores.deplete,
-      g.key = key,
-      multicore = multi.core,
-      permute = permutations,
-      core.perm = 100,
-      permutation.seed = permutation.seed
-    )
-  geneQ.depletion <- p.adjust(geneP.depletion, method = "fdr")
+    geneP.depletion <-
+        ct.RRAaPvals(
+            scores.deplete,
+            g.key = key,
+            multicore = multi.core,
+            permute = permutations,
+            core.perm = 100,
+            permutation.seed = permutation.seed
+        )
+    geneQ.depletion <- p.adjust(geneP.depletion, method = "fdr")
     
-  geneP.enrichment <-
-    ct.RRAaPvals(
-      scores.enrich,
-      g.key = key,
-      multicore = multi.core,
-      permute = permutations,
-      core.perm = 100,
-      permutation.seed = permutation.seed
-    )
-  geneQ.enrichment <- p.adjust(geneP.enrichment, method = "fdr")
+    geneP.enrichment <-
+        ct.RRAaPvals(
+            scores.enrich,
+            g.key = key,
+            multicore = multi.core,
+            permute = permutations,
+            core.perm = 100,
+            permutation.seed = permutation.seed
+        )
+    geneQ.enrichment <- p.adjust(geneP.enrichment, method = "fdr")
 
-    ##generate the Rho values and ranks:
+    ## generate the Rho values and ranks:
     ## These are redundant with work done in ct.RRAPvals ...
-  rhoEnrich <- ct.RRAalpha(scores.enrich, 
-                           g.key = key, 
-                           shuffle = FALSE, 
-                           return.obj = TRUE)
-  
-  rhoDeplete <- ct.RRAalpha(scores.deplete, 
-                           g.key = key, 
-                           shuffle = FALSE, 
-                           return.obj = TRUE)
-  
-  annotFields <- c("ID", "target", "geneID", "geneSymbol")  
-  if(!all(annotFields %in% names(annotation))){
-    message(paste("Some expected columns are not present in the supplied annotation file.", call. = FALSE))
-    annotFields <- intersect(annotFields, names(annotation))
-    if(!all(c('geneID', 'geneSymbol') %in% annotFields)){
-      stop('The supplied annotation object must contain geneSymbol and geneID columns. See Vignettes for further details.')
-     }
-    message(paste("Only the following information will be included in the output:", paste(annotFields, collapse = ',')))  
-  } 
+    rhoEnrich <- ct.RRAalpha(scores.enrich, 
+                             g.key = key, 
+                             shuffle = FALSE, 
+                             return.obj = TRUE)
+    
+    rhoDeplete <- ct.RRAalpha(scores.deplete, 
+                              g.key = key, 
+                              shuffle = FALSE, 
+                              return.obj = TRUE)
+    
+    annotFields <- c("ID", "target", "geneID", "geneSymbol")  
+    if(!all(annotFields %in% names(annotation))){
+        message(paste("Some expected columns are not present in the supplied annotation file.", call. = FALSE))
+        annotFields <- intersect(annotFields, names(annotation))
+        if(!all(c('geneID', 'geneSymbol') %in% annotFields)){
+            stop('The supplied annotation object must contain geneSymbol and geneID columns. See Vignettes for further details.')
+        }
+        message(paste("Only the following information will be included in the output:", paste(annotFields, collapse = ',')))  
+    } 
 
-  #make the DF
-  summaryDF <- annotation[,annotFields]
-  summaryDF$geneSymbol <- as.character(summaryDF$geneSymbol)
-  summaryDF["gRNA Log2 Fold Change"] <- fit$coefficients[row.names(summaryDF),1]
-  summaryDF["gRNA Depletion P"] <- signif(pvals[row.names(summaryDF),1], 5)
-  summaryDF["gRNA Depletion Q"] <- signif(p.adjust(pvals[,'Depletion.P'], "fdr")[row.names(summaryDF)], 5)
-  summaryDF["gRNA Enrichment P"] <- signif(pvals[row.names(summaryDF),2], 5)
-  summaryDF["gRNA Enrichment Q"] <- signif(p.adjust(pvals[,'Enrichment.P'], "fdr")[row.names(summaryDF)], 5)
-  summaryDF["Target-level Enrichment P"] <- geneP.enrichment[summaryDF$geneSymbol]
-  summaryDF["Target-level Enrichment Q"] <- geneQ.enrichment[summaryDF$geneSymbol]
-  summaryDF["Target-level Depletion P"] <- geneP.depletion[summaryDF$geneSymbol]
-  summaryDF["Target-level Depletion Q"] <- geneQ.depletion[summaryDF$geneSymbol]
+    ## make the DF
+    summaryDF <- annotation[,annotFields]
+    summaryDF$geneSymbol <- as.character(summaryDF$geneSymbol)
+    summaryDF["gRNA Log2 Fold Change"] <- fit$coefficients[row.names(summaryDF),1]
+    summaryDF["gRNA Depletion P"] <- signif(pvals[row.names(summaryDF),1], 5)
+    summaryDF["gRNA Depletion Q"] <- signif(p.adjust(pvals[,'Depletion.P'], "fdr")[row.names(summaryDF)], 5)
+    summaryDF["gRNA Enrichment P"] <- signif(pvals[row.names(summaryDF),2], 5)
+    summaryDF["gRNA Enrichment Q"] <- signif(p.adjust(pvals[,'Enrichment.P'], "fdr")[row.names(summaryDF)], 5)
+    summaryDF["Target-level Enrichment P"] <- geneP.enrichment[summaryDF$geneSymbol]
+    summaryDF["Target-level Enrichment Q"] <- geneQ.enrichment[summaryDF$geneSymbol]
+    summaryDF["Target-level Depletion P"] <- geneP.depletion[summaryDF$geneSymbol]
+    summaryDF["Target-level Depletion Q"] <- geneQ.depletion[summaryDF$geneSymbol]
 
-  ##Add a column for the median FC for each target:
-  medianfc <- tapply(summaryDF[,"gRNA Log2 Fold Change"], summaryDF[,"geneSymbol"], median, na.rm=TRUE)
-  summaryDF["Median log2 Fold Change"] <- as.numeric(medianfc[ summaryDF$geneSymbol ]) # One per gene rep'd out to one per guide
-  summaryDF["Rho_enrich"] <-rhoEnrich[summaryDF$geneSymbol]
-  summaryDF["Rho_deplete"] <- rhoDeplete[summaryDF$geneSymbol]
-  
-  #order them
-  summaryDF <- summaryDF[order(summaryDF[,"Rho_enrich"], decreasing = FALSE),]
-  summaryDF <- summaryDF[order(summaryDF[,"Target-level Enrichment P"], decreasing = FALSE),]
-  return(summaryDF)
+    ## Add a column for the median FC for each target:
+    medianfc <- tapply(summaryDF[,"gRNA Log2 Fold Change"], summaryDF[,"geneSymbol"], median, na.rm=TRUE)
+    summaryDF["Median log2 Fold Change"] <- as.numeric(medianfc[ summaryDF$geneSymbol ]) # One per gene rep'd out to one per guide
+    summaryDF["Rho_enrich"] <-rhoEnrich[summaryDF$geneSymbol]
+    summaryDF["Rho_deplete"] <- rhoDeplete[summaryDF$geneSymbol]
+    
+    ## order them
+    summaryDF <- summaryDF[order(summaryDF[,"Rho_enrich"], decreasing = FALSE),]
+    summaryDF <- summaryDF[order(summaryDF[,"Target-level Enrichment P"], decreasing = FALSE),]
+    return(summaryDF)
 }
