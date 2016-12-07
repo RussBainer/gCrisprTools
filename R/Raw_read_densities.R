@@ -40,10 +40,10 @@ ct.rawCountDensities <- function(eset, sampleKey = NULL){
   x <- c(0, max(ceiling(unlist(lapply(densities, function(dens){max(dens$x)})))));  
   plot(x[1], y[1], 
        xlim = x, ylim = y, 
-       xlab = "gRNA Read Counts (Raw)", 
+       xlab = "gRNA Read Counts (Log10 Scale)", 
        ylab = "Density", 
        pch = NA, 
-       main = "Raw gRNA Counts (Log Scale)", 
+       main = "Raw gRNA Count Density", 
        xaxt = "n")
   axis(1, at= 0:x[2], labels = 10^(0:x[2]))
  

@@ -74,7 +74,7 @@ library(Biobase)
 sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
 names(sk) <- row.names(pData(es))
 
-path2report <- ct.makeQCReport(es, trim = 1000, log2.ratio = 0.0625, sk, ann, aln, identifier = NULL, lib.size = NULL, outdir = ".") 
+path2report <- ct.makeQCReport(es, trim = 1000, log2.ratio = 0.0625, sk, ann, aln, identifier = NULL, lib.size = NULL, geneSymb = 'NoTarget', outdir = ".") 
 }
 \author{
 Russell Bainer, Dariusz Ratman

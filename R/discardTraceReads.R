@@ -75,7 +75,7 @@ ct.filterReads <- function(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL, 
     xr <- range(unlist(lapply(ds, function(d) {
       d$x
     })))
-    plot(ds[[1]], main = 'Raw gRNA Density',
+    plot(ds[[1]], main = 'Untrimmed gRNA Density',
          ylim = c(0, ymax), xlim = xr,
          xlab = "Raw Log2 gRNA Count",
          ylab = "Density")
@@ -92,7 +92,7 @@ ct.filterReads <- function(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL, 
     xr <- range(unlist(lapply(ds, function(d){d$x})))
     plot(
       ds[[1]],
-      main = 'Corrected gRNA Density',
+      main = 'Trimmed gRNA Density',
       ylim = c(0, ymax),
       xlim = xr,
       xlab = "Trimmed Log2 gRNA Count",
