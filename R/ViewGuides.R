@@ -68,7 +68,6 @@ ct.drawColorLegend <- function(dens, colorscale){
 ##' data('ann')
 ##' ct.viewGuides('Target1633', fit, ann)
 ##' @export
-
 ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = NULL, ylims = NULL){
   current.graphic.params <- par(no.readonly = TRUE)
   on.exit(suppressWarnings(par(current.graphic.params)))

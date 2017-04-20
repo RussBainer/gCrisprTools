@@ -1,4 +1,4 @@
-#This document contains functions for the RRAa algorithm. 
+                                        #This document contains functions for the RRAa algorithm. 
 
 ##' @title Checks and Possibly Sets the Number of Cores to be Used in Parallel Processing
 ##' @description This function determines the number of cores that the user is expecting to 
@@ -10,15 +10,15 @@
 ##' @keywords internal
 ##' @author Russell Bainer, Pete Haverty
 ct.numcores <- function()  {
-  if( .Platform$OS.type == "windows" ){
-    options(mc.cores = 1)
-  }
-  if(is.null(getOption('mc.cores'))){
-     numcores = detectCores()
-     options(mc.cores = numcores)
-   }
+    if( .Platform$OS.type == "windows" ){
+        options(mc.cores = 1)
+    }
+    if(is.null(getOption('mc.cores'))){
+        numcores = detectCores()
+        options(mc.cores = numcores)
+    }
     invisible()
-  }
+}
 
 ##' @title Aggregation of P-value Ranks using a Beta Distribution and Alpha Cutoff  
 ##' @description This function calculates an alpha-modified rho statistic from a set of normalized ranks by comparing them to a uniform distribution. 
@@ -40,8 +40,8 @@ ct.numcores <- function()  {
 ##' ct.alphaBeta(testp)  
 ##' @export
 ct.alphaBeta <- function(p.in){ 
-  n <- length(p.in)  
-  return(min(pbeta(p.in, 1:n, n - (1:n) + 1)))
+    n <- length(p.in)  
+    return(min(pbeta(p.in, 1:n, n - (1:n) + 1)))
 }
 
 
@@ -62,34 +62,33 @@ ct.alphaBeta <- function(p.in){
 ##' data('ann')
 ##' geneScores <- ct.RRAalpha(fit$p.value, ann, shuffle = FALSE, return.obj = TRUE)
 ##' @export
-
 ct.RRAalpha <- function(p, g.key, shuffle = FALSE, return.obj = TRUE){
     stopifnot(identical(rownames(p),rownames(g.key)))
 
-  if(shuffle){
-    p <- sample(p, nrow(p))
-  }
+    if(shuffle){
+        p <- sample(p, nrow(p))
+    }
 
-  if (anyNA(p)) {
-      notna = ! is.na(p)
-      p = p[ notna ]
-      g.key = g.key[ notna, ]
-  }
+    if (anyNA(p)) {
+        notna = ! is.na(p)
+        p = p[ notna ]
+        g.key = g.key[ notna, ]
+    }
 
-  symbol = g.key$geneSymbol
-  ord = order( symbol, p )
-  p.collect <- split(p[ord], symbol[ord])
-  rhoscores <- vapply(p.collect, ct.alphaBeta, numeric(1))
+    symbol = g.key$geneSymbol
+    ord = order( symbol, p )
+    p.collect <- split(p[ord], symbol[ord])
+    rhoscores <- vapply(p.collect, ct.alphaBeta, numeric(1))
 
-  if(!is.environment(return.obj) | deparse(substitute(return.obj)) %in% 'none'){
-    return(rhoscores)
-  } else {
-     observations <- return.obj[['obs']]
-     passcount <- return.obj[['target.positive.iterations']]
-     passcount[rhoscores <= observations] <- passcount[rhoscores <= observations] + 1
-     return.obj[['target.positive.iterations']] <- passcount
-     invisible()
-  }
+    if(!is.environment(return.obj) | deparse(substitute(return.obj)) %in% 'none'){
+        return(rhoscores)
+    } else {
+        observations <- return.obj[['obs']]
+        passcount <- return.obj[['target.positive.iterations']]
+        passcount[rhoscores <= observations] <- passcount[rhoscores <= observations] + 1
+        return.obj[['target.positive.iterations']] <- passcount
+        invisible()
+    }
 }  
 
 ##' @title gRNA signal aggregation via RRAa, optionally using multiple cores. 
@@ -119,73 +118,80 @@ ct.RRAaPvals <- function(p,
                          multicore = TRUE,
                          core.perm = 100,
                          permutation.seed = NULL) {
-  
-  #Input checks
-  if(class(p) != "matrix" | is.null(ncol(p))){
-    stop("P-values should be input as a single-column matrix with row names contained in the gs.list")}
-  if(ncol(p) > 1){
-    warning(paste('Multiple columns are present in the p-value matrix. Using the first column:', colnames(p)[1]))}
-  if(!is.numeric(core.perm) | length(core.perm) > 1){
-    stop('core.perm must be supplied as a single numeric value.')
-  }
-  
-  if(!is.data.frame(g.key)){stop("The annotation provided must be a data frame.")}
-  if(!("geneSymbol" %in% names(g.key))){stop("The provided annotation does not contain a geneSymbol column.")}
-  if(!setequal(row.names(g.key), row.names(p))){stop("Provided p-value list and annotation object contain different elements.")}
-  
-  is.null(permutation.seed) ||
-    is.numeric(permutation.seed) ||
-    stop("'permutation.seed' must be numeric or NULL.")
-  
-  #Everything apparently ok, generate P-values. 
-  result.environment <- new.env()
-
-  result.environment$obs <- ct.RRAalpha(p, g.key, return.obj = 'none')
-  nguides <- nrow(p)
-  resgenes <- levels(g.key$geneSymbol)
-  result.environment$ngenes <- length(resgenes)
-  result.environment$target.positive.iterations <- rep(0, result.environment$ngenes)
-
-  if(multicore){
-    #figure out the right number of jobs to send to each core
-    ct.numcores()
-    cores <- getOption('mc.cores')
-
-    jpc <- min(floor(permute/cores), core.perm)
-    if(jpc == 0){jpc <- 1}
-    njobs <- ceiling(permute/jpc)
-    permute <- jpc * njobs 
     
-    if (is.null(permutation.seed)) {
-      batch.perm.seeds <- NULL
+                                        #Input checks
+    if(class(p) != "matrix" | is.null(ncol(p))){
+        stop("P-values should be input as a single-column matrix with row names contained in the gs.list")}
+    if(ncol(p) > 1){
+        warning(paste('Multiple columns are present in the p-value matrix. Using the first column:', colnames(p)[1]))}
+    if(!is.numeric(core.perm) | length(core.perm) > 1){
+        stop('core.perm must be supplied as a single numeric value.')
+    }
+    
+    if(!is.data.frame(g.key)){stop("The annotation provided must be a data frame.")}
+    if(!("geneSymbol" %in% names(g.key))){stop("The provided annotation does not contain a geneSymbol column.")}
+    if(!setequal(row.names(g.key), row.names(p))){stop("Provided p-value list and annotation object contain different elements.")}
+    
+    is.null(permutation.seed) ||
+        is.numeric(permutation.seed) ||
+        stop("'permutation.seed' must be numeric or NULL.")
+    
+                                        #Everything apparently ok, generate P-values. 
+    result.environment <- new.env()
+
+    result.environment$obs <- ct.RRAalpha(p, g.key, return.obj = 'none')
+    nguides <- nrow(p)
+    resgenes <- levels(g.key$geneSymbol)
+    result.environment$ngenes <- length(resgenes)
+    result.environment$target.positive.iterations <- rep(0, result.environment$ngenes)
+
+    if(multicore){
+                                        #figure out the right number of jobs to send to each core
+        ct.numcores()
+        cores <- getOption('mc.cores')
+
+        jpc <- min(floor(permute/cores), core.perm)
+        if(jpc == 0){jpc <- 1}
+        njobs <- ceiling(permute/jpc)
+        permute <- jpc * njobs 
+        
+        if (is.null(permutation.seed)) {
+            batch.perm.seeds <- NULL
+        } else {
+                                        # generate a seed for each permutation batch
+            batch.perm.seeds <-
+                seq(from = permutation.seed, to = permutation.seed + njobs - 1)
+        } 
+        
+        message(paste("Permuting", permute, 'times, using', cores, 'cores.'))
+        out <-
+            mclapply(1:njobs, function(x) {
+                ct.RRAalphaBatch(
+                    p,
+                    g.key,
+                    result.environment,
+                    batch.size = jpc,
+                    permutation.seed = batch.perm.seeds[x] 
+                )
+            }, mc.preschedule = FALSE, mc.cores = cores)
+        result.environment$target.positive.iterations <- rowSums(as.data.frame(out))
     } else {
-      # generate a seed for each permutation batch
-      batch.perm.seeds <-
-        seq(from = permutation.seed, to = permutation.seed + njobs - 1)
-    } 
-    
-    message(paste("Permuting", permute, 'times, using', cores, 'cores.'))
-    out <-
-      mclapply(1:njobs, function(x) {
-        ct.RRAalphaBatch(
-          p,
-          g.key,
-          result.environment,
-          batch.size = jpc,
-          permutation.seed = batch.perm.seeds[x] 
+        set.seed(permutation.seed) # default NULL will have no effect
+        message(paste("Permuting", permute, 'times, this may take a while...'))
+        iter <- replicate(permute, ct.RRAalpha(p, g.key, shuffle = TRUE, return.obj = 'none'))
+        stopifnot( identical(rownames(iter),names(result.environment$obs)) )
+        browser()
+        result.environment$target.positive.iterations <- rowSums( iter <= result.environment$obs )
+        result.environment$target.positive.iterations <- unlist(
+            lapply(
+                1:nrow(iter),
+                function(x){sum(iter[x,] <= result.environment$obs[x])}
+            )
         )
-      }, mc.preschedule = FALSE, mc.cores = cores) 
-    result.environment$target.positive.iterations <- rowSums(as.data.frame(out))
-    } else {
-      set.seed(permutation.seed) # default NULL will have no effect
-      message(paste("Permuting", permute, 'times, this may take a while...'))
-      iter <- (replicate(permute, ct.RRAalpha(p, g.key, shuffle = TRUE, return.obj = 'none'))) 
-      result.environment$target.positive.iterations <- unlist(lapply(1:nrow(iter), function(x){sum(iter[x,] <= result.environment$obs[x])}))
-      }
-
+    }
     out <- result.environment$target.positive.iterations/permute
-  names(out) <- names(result.environment$obs)
-  return(out)
+    names(out) <- names(result.environment$obs)
+    return(out)
 }
 
 ##' @title Create Batches of Null Permutations for a Crispr Screen
@@ -211,7 +217,7 @@ ct.RRAaPvals <- function(p,
 ##' @export
 ct.RRAalphaBatch <- function(p, g.key, result.environment, batch.size = 100, 
                              permutation.seed = NULL){
-  
+    
     ##make a batch environment
     batch.env <- new.env()
     batch.env$obs <- result.environment$obs
@@ -220,6 +226,6 @@ ct.RRAalphaBatch <- function(p, g.key, result.environment, batch.size = 100,
     set.seed(permutation.seed) # default NULL will have no effect
 
     invisible(replicate(batch.size, ct.RRAalpha(p, g.key, shuffle = TRUE, return.obj = batch.env))) 
-  
-  return(batch.env$target.positive.iterations)
+    
+    return(batch.env$target.positive.iterations)
 }
