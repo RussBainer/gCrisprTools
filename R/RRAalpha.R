@@ -180,7 +180,6 @@ ct.RRAaPvals <- function(p,
         message(paste("Permuting", permute, 'times, this may take a while...'))
         iter <- replicate(permute, ct.RRAalpha(p, g.key, shuffle = TRUE, return.obj = 'none'))
         stopifnot( identical(rownames(iter),names(result.environment$obs)) )
-        browser()
         result.environment$target.positive.iterations <- rowSums( iter <= result.environment$obs )
         result.environment$target.positive.iterations <- unlist(
             lapply(
@@ -192,6 +191,17 @@ ct.RRAaPvals <- function(p,
     out <- result.environment$target.positive.iterations/permute
     names(out) <- names(result.environment$obs)
     return(out)
+}
+
+ct.makeRhoNull <- function(n,p,nperm) {
+    message(paste("Making Rho null distribution for",n,"guides per gene."))
+    vapply(1:nperm,
+           function(i) {
+               p.in = sample(p,n,replace=FALSE)
+               ct.alphaBeta(p.in)
+           },
+           numeric(1)
+           )
 }
 
 ##' @title Create Batches of Null Permutations for a Crispr Screen
