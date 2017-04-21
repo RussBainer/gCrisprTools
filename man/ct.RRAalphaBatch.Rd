@@ -25,16 +25,6 @@ An integer vector indicating the number of iterations in which each gene's score
 This is a wrapper function to partition batches of calls to \code{ct.RRAalpha()} for multicore processing. 
 It is called internally as a single instance of the beta aggregation step in RRAa. Users should not interact with it directly.
 }
-\examples{
-data('fit')
-data('ann')
-batch.size <- 50
-env <- new.env()
-env$obs <- ct.RRAalpha(fit$p.value, ann, return.obj = 'none')
-env$ngenes <- length(levels(ann$geneSymbol))
-passed <- ct.RRAalphaBatch(fit$p.value, ann, result.environment = env, batch.size = batch.size)
-hist(passed/batch.size, main = 'Empirical P-value', xlab = 'P')
-}
 \author{
 Russell Bainer
 }

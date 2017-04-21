@@ -4,7 +4,7 @@
 \alias{ct.RRAalpha}
 \title{Aggregation of P-value Ranks using a Beta Distribution and Alpha Cutoff}
 \usage{
-ct.RRAalpha(p, g.key, shuffle = FALSE, return.obj = TRUE)
+ct.RRAalpha(p, g.key, shuffle = FALSE)
 }
 \arguments{
 \item{p}{A single column matrix of rank statistics, with \code{row.names} indicating the gRNA labels.}
@@ -12,10 +12,6 @@ ct.RRAalpha(p, g.key, shuffle = FALSE, return.obj = TRUE)
 \item{g.key}{data.frame with guide and gene names}
 
 \item{shuffle}{Logical indicating whether to shuffle the rank statistics prior to calculating the rho statistics (useful for permutation).}
-
-\item{return.obj}{Name of the environment to record results in, or \code{TRUE} to return the RRAa results directly as a numeric vector of genewise rho statistics. 
-If an environment is supplied, the function will directly increment the \code{target.positive.iterations} variable within it on the basis of the \code{obs} 
-variable in the specified \code{environment}.}
 }
 \value{
 Nothing, or a named list of target-level P-values, which are treated as a rho statistic in the permutation step.
@@ -27,7 +23,7 @@ The expected input is a list of rank statistics, and a paired \code{alpha} argum
 \examples{
 data('fit')
 data('ann')
-geneScores <- ct.RRAalpha(fit$p.value, ann, shuffle = FALSE, return.obj = TRUE)
+geneScores <- ct.RRAalpha(fit$p.value, ann, shuffle = FALSE)
 }
 \author{
 Russell Bainer

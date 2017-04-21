@@ -16,7 +16,6 @@
 ##' provided as a logical vector, only one of these hypotheses is implicitly specified; this means that enrichment and 
 ##' depletion cannot be . 
 ##' @param permutations The number of permutations to use during the RRAa aggregation step.
-##' @param multi.core Logical indicating whether to attempt to parallelize the analysis on multiple cores. 
 ##' @param contrast.term If a fit object with multiple coefficients is passed in, a string indiating the coefficient of interest.   
 ##' @param scoring The gRNA ranking method to use in RRAa aggregation. May take one of three values: \code{pvalue}, \code{fc},
 ##' or '\code{combined}'. \code{pvalue} indicates that the gRNA ranking statistic should be created from the (one-sided) p-values in the 
@@ -41,7 +40,6 @@ ct.generateResults <- function(fit,
                                annotation,
                                RRAalphaCutoff = 0.1,
                                permutations = 1000,
-                               multi.core = TRUE,
                                contrast.term = NULL,
                                scoring = c("combined", "pvalue", "fc"),
                                permutation.seed = NULL) {
@@ -75,9 +73,7 @@ ct.generateResults <- function(fit,
         ct.RRAaPvals(
             rra.input[,"scores.deplete", drop=FALSE],
             g.key = key,
-            multicore = multi.core,
             permute = permutations,
-            core.perm = 100,
             permutation.seed = permutation.seed
         )
     
@@ -85,9 +81,7 @@ ct.generateResults <- function(fit,
         ct.RRAaPvals(
             rra.input[,"scores.enrich", drop=FALSE],
             g.key = key,
-            multicore = multi.core,
             permute = permutations,
-            core.perm = 100,
             permutation.seed = permutation.seed
         )
 
@@ -95,13 +89,11 @@ ct.generateResults <- function(fit,
     ## These are redundant with work done in ct.RRAPvals ...
     rhoEnrich <- ct.RRAalpha(rra.input[,"scores.enrich", drop=FALSE],
                              g.key = key, 
-                             shuffle = FALSE, 
-                             return.obj = TRUE)
+                             shuffle = FALSE)
     
     rhoDeplete <- ct.RRAalpha(rra.input[,"scores.deplete", drop=FALSE], 
                               g.key = key, 
-                              shuffle = FALSE, 
-                              return.obj = TRUE)
+                              shuffle = FALSE)
     
     annotFields <- c("ID", "target", "geneID", "geneSymbol")  
     if(!all(annotFields %in% names(annotation))){
