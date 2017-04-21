@@ -181,12 +181,6 @@ ct.RRAaPvals <- function(p,
         iter <- replicate(permute, ct.RRAalpha(p, g.key, shuffle = TRUE, return.obj = 'none'))
         stopifnot( identical(rownames(iter),names(result.environment$obs)) )
         result.environment$target.positive.iterations <- rowSums( iter <= result.environment$obs )
-        result.environment$target.positive.iterations <- unlist(
-            lapply(
-                1:nrow(iter),
-                function(x){sum(iter[x,] <= result.environment$obs[x])}
-            )
-        )
     }
     out <- result.environment$target.positive.iterations/permute
     names(out) <- names(result.environment$obs)
