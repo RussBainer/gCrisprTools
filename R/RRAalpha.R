@@ -176,7 +176,7 @@ ct.RRAalphaBatch <- function(p, g.key, result.environment, batch.size = 100,
     ## run permutations and increment as needed
     set.seed(permutation.seed) # default NULL will have no effect
 
-    invisible(replicate(batch.size, ct.RRAalpha(p, g.key, shuffle = TRUE, return.obj = batch.env))) 
+    invisible(replicate(batch.size, ct.RRAalpha(p, g.key, shuffle = TRUE)))
     
     return(batch.env$target.positive.iterations)
 }
