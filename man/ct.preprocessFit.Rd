@@ -46,4 +46,3 @@ ncol(fit2)
 Russell Bainer
 }
 \keyword{internal}
-

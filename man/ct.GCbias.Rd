@@ -45,4 +45,3 @@ ct.GCbias(fit, ann)
 \author{
 Russell Bainer
 }
-

@@ -24,4 +24,3 @@ ct.ecdf(v)
 Russell Bainer
 }
 \keyword{internal}
-

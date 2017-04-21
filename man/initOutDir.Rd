@@ -21,4 +21,3 @@ that creating plots is not possible.
 Steve Lianoglou, Russell Bainer
 }
 \keyword{internal}
-

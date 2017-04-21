@@ -18,4 +18,3 @@ head(ann)
 \seealso{
 Please see \file{vignettes/Crispr_example_workflow.R} for details.
 }
-

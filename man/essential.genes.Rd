@@ -19,4 +19,3 @@ essential.genes
 \seealso{
 Please see \file{vignettes/Crispr_example_workflow.R} for details.
 }
-

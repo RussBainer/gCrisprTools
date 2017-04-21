@@ -41,4 +41,3 @@ res <- ct.targetSetEnrichment(resultsDF, tar)
 \author{
 Russell Bainer
 }
-

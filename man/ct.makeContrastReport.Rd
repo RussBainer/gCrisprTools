@@ -68,4 +68,3 @@ path2report <- ct.makeContrastReport(es, fit, sk, resultsDF, ann, comparison.id 
 \author{
 Russell Bainer, Dariusz Ratman
 }
-

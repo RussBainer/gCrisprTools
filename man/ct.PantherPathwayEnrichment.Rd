@@ -45,4 +45,3 @@ ct.PantherPathwayEnrichment(resultsDF, organism = 'mouse')
 \author{
 Russell Bainer, Steve Lianoglou
 }
-

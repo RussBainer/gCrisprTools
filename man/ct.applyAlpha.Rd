@@ -37,4 +37,3 @@ The 'alpha' part of RRAalpha is used to consider only the top guide-level scores
 \author{
 Russell Bainer
 }
-

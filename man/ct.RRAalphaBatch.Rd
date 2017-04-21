@@ -39,4 +39,3 @@ hist(passed/batch.size, main = 'Empirical P-value', xlab = 'P')
 Russell Bainer
 }
 \keyword{internal}
-

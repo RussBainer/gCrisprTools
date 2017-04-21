@@ -37,4 +37,3 @@ ct.rawCountDensities(es, sk)
 \author{
 Russell Bainer
 }
-

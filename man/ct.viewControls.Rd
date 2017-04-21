@@ -50,4 +50,3 @@ ct.viewControls(es, ann, sk, geneSymb = NULL, normalize = TRUE)
 \author{
 Russell Bainer
 }
-

@@ -7,4 +7,3 @@
 \description{
 Pipeline for using CRISPR data at Genentech
 }
-

@@ -47,4 +47,3 @@ ct.stackGuides(es, nguides = 20, plotType = "Target", annotation = ann, ylimit =
 \author{
 Russell Bainer
 }
-

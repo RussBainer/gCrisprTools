@@ -36,4 +36,3 @@ ct.inputCheck(sk, es)
 \author{
 Russell Bainer
 }
-

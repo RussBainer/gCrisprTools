@@ -46,4 +46,3 @@ ct.gRNARankByReplicate(es, sk, ann, 'Ripk3')
 \author{
 Russell Bainer
 }
-

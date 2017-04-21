@@ -40,4 +40,3 @@ ct.viewGuides('Target1633', fit, ann)
 \author{
 Russell Bainer
 }
-

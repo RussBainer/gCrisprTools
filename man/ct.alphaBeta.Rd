@@ -31,4 +31,3 @@ Citation:
 Kolde, R. et al, Bioinformatics. 2012 Feb 15;28(4):573-80. doi: 10.1093/bioinformatics/btr709.
 }
 \keyword{internal}
-

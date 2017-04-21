@@ -19,4 +19,3 @@ processing should do so by invoking \code{options()} from the command line prior
 Russell Bainer, Pete Haverty
 }
 \keyword{internal}
-

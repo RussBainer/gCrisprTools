@@ -15,7 +15,7 @@ Imports: Biobase, limma, RobustRankAggreg, ggplot2, parallel,
         PANTHER.db, BiocParallel, rmarkdown, grDevices, graphics,
         stats, utils
 Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, RUnit, BiocGenerics
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 VignetteBuilder: knitr
 biocViews: CRISPR, PooledScreens, ExperimentalDesign,
         BiomedicalInformatics, CellBiology, FunctionalGenomics,

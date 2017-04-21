@@ -1,4 +1,4 @@
-                                        #This document contains functions for the RRAa algorithm. 
+## This document contains functions for the RRAa algorithm. 
 
 ##' @title Checks and Possibly Sets the Number of Cores to be Used in Parallel Processing
 ##' @description This function determines the number of cores that the user is expecting to 
@@ -69,12 +69,6 @@ ct.RRAalpha <- function(p, g.key, shuffle = FALSE, return.obj = TRUE){
         p <- sample(p, nrow(p))
     }
 
-    if (anyNA(p)) {
-        notna = ! is.na(p)
-        p = p[ notna ]
-        g.key = g.key[ notna, ]
-    }
-
     symbol = g.key$geneSymbol
     ord = order( symbol, p )
     p.collect <- split(p[ord], symbol[ord])
@@ -120,17 +114,25 @@ ct.RRAaPvals <- function(p,
                          permutation.seed = NULL) {
     
                                         #Input checks
-    if(class(p) != "matrix" | is.null(ncol(p))){
-        stop("P-values should be input as a single-column matrix with row names contained in the gs.list")}
-    if(ncol(p) > 1){
-        warning(paste('Multiple columns are present in the p-value matrix. Using the first column:', colnames(p)[1]))}
-    if(!is.numeric(core.perm) | length(core.perm) > 1){
+    if( ! (is.matrix(p) && ncol(p) == 1) ) {
+        stop("P-values should be input as a single-column matrix with row names contained in the gs.list")
+    }
+    if(ncol(p) > 1) {
+        p = p[,1,drop=FALSE]
+        warning(paste('Multiple columns are present in the p-value matrix. Using the first column:',colnames(p)))
+    }
+    if(!is.numeric(core.perm) || length(core.perm) > 1){
         stop('core.perm must be supplied as a single numeric value.')
     }
-    
     if(!is.data.frame(g.key)){stop("The annotation provided must be a data frame.")}
     if(!("geneSymbol" %in% names(g.key))){stop("The provided annotation does not contain a geneSymbol column.")}
-    if(!setequal(row.names(g.key), row.names(p))){stop("Provided p-value list and annotation object contain different elements.")}
+    if(!identical(row.names(g.key), row.names(p))){stop("Provided p-value list have mismatched names.")}
+
+    if (anyNA(p)) {
+        notna = ! is.na(p)
+        p = p[ notna ]
+        g.key = g.key[ notna, ]
+    }
     
     is.null(permutation.seed) ||
         is.numeric(permutation.seed) ||
@@ -174,24 +176,38 @@ ct.RRAaPvals <- function(p,
                     permutation.seed = batch.perm.seeds[x] 
                 )
             }, mc.preschedule = FALSE, mc.cores = cores)
-        result.environment$target.positive.iterations <- rowSums(as.data.frame(out))
+        out <- rowMeans(as.data.frame(out))
     } else {
         set.seed(permutation.seed) # default NULL will have no effect
         message(paste("Permuting", permute, 'times, this may take a while...'))
-        iter <- replicate(permute, ct.RRAalpha(p, g.key, shuffle = TRUE, return.obj = 'none'))
-        stopifnot( identical(rownames(iter),names(result.environment$obs)) )
-        result.environment$target.positive.iterations <- rowSums( iter <= result.environment$obs )
+
+        n.guides = table(g.key$geneSymbol)
+        n.guides.table = sort.int(unique(n.guides))
+        rho.nulls = lapply(n.guides.table,ct.makeRhoNull,p,permute)
+        names(rho.nulls) = as.character(n.guides.table)
+        stopifnot(identical( names(n.guides), names(result.environment$obs) ))
+        out = unlist(mapply(
+            result.environment$obs, as.character(n.guides),
+            FUN=function(x,y) {
+                mean( rho.nulls[[y]] <= x )
+            }, SIMPLIFY=FALSE),recursive=FALSE)
     }
-    out <- result.environment$target.positive.iterations/permute
-    names(out) <- names(result.environment$obs)
     return(out)
 }
 
+##' Make null distribution for RRAalpha tests
+##'
+##' Makes random distribution of Rho value by taking nperm random samples of n rank stats, p.
+##' @param n single integer, number of guides per gene
+##' @param p numeric vector of rank statistics
+##' @param nperm single integer, how many random samples to take.
+##' @return numeric vector of Rho values
+##' @export 
 ct.makeRhoNull <- function(n,p,nperm) {
     message(paste("Making Rho null distribution for",n,"guides per gene."))
     vapply(1:nperm,
            function(i) {
-               p.in = sample(p,n,replace=FALSE)
+               p.in = sort.int(sample(p,n,replace=FALSE))
                ct.alphaBeta(p.in)
            },
            numeric(1)

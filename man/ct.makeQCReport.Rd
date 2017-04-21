@@ -79,4 +79,3 @@ path2report <- ct.makeQCReport(es, trim = 1000, log2.ratio = 0.0625, sk, ann, al
 \author{
 Russell Bainer, Dariusz Ratman
 }
-

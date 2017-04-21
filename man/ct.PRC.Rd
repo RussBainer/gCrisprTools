@@ -40,4 +40,3 @@ str(pr)
 \author{
 Russell Bainer
 }
-

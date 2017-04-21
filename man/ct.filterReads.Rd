@@ -43,4 +43,3 @@ ct.filterReads(es)
 \author{
 Russell Bainer
 }
-

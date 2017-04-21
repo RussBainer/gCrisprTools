@@ -63,4 +63,3 @@ head(output)
 \author{
 Russell Bainer
 }
-

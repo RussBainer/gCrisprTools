@@ -28,4 +28,3 @@ ct.resultCheck(resultsDF)
 \author{
 Russell Bainer
 }
-

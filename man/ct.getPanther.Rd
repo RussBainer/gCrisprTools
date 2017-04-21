@@ -22,4 +22,3 @@ Entrez IDs. Users should not generally call this function directly as it is invo
 Russell Bainer, Steve Lianoglou.
 }
 \keyword{internal}
-

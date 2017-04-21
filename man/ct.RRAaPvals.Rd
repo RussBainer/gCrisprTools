@@ -40,4 +40,3 @@ genePvals <- ct.RRAaPvals(fit$p.value, ann, permute = 100, multicore = TRUE, cor
 Russell Bainer
 }
 \keyword{internal}
-

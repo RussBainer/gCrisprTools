@@ -47,4 +47,3 @@ ct.topTargets(fit, resultsDF, ann)
 \author{
 Russell Bainer
 }
-

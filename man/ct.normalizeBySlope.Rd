@@ -44,4 +44,3 @@ ct.gRNARankByReplicate(es.norm, sk, lib.size= ls)
 \author{
 Russell Bainer
 }
-

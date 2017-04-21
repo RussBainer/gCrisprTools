@@ -21,4 +21,3 @@ This is a function called internally by ct.viewGuides to generate the color lege
 Russell Bainer
 }
 \keyword{internal}
-

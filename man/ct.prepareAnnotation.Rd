@@ -42,4 +42,3 @@ newann <- ct.prepareAnnotation(ann, es)
 \author{
 Russell Bainer
 }
-

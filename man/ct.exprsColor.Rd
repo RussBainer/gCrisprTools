@@ -24,4 +24,3 @@ Called internally by ct.viewGuides.
 Russell Bainer
 }
 \keyword{internal}
-

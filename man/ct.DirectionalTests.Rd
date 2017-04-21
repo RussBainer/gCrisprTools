@@ -24,4 +24,3 @@ ct.DirectionalTests(fit)
 \author{
 Russell Bainer
 }
-

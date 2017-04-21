@@ -53,10 +53,9 @@ es.norm <- ct.normalizeGuides(es, 'slope', annotation = ann, sampleKey = sk, plo
 es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 }
-\author{
-Russell Bainer
-}
 \seealso{
 \code{\link{ct.normalizeMedians}}, \code{\link{ct.normalizeBySlope}}, \code{\link{ct.normalizeNTC}}, \code{\link{ct.normalizeSpline}}
 }
-
+\author{
+Russell Bainer
+}

@@ -34,4 +34,3 @@ ct.guideCDF(es)
 \author{
 Russell Bainer
 }
-

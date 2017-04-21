@@ -27,4 +27,3 @@ ct.alignmentChart(aln)
 \author{
 Russell Bainer
 }
-

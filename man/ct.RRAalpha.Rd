@@ -33,4 +33,3 @@ geneScores <- ct.RRAalpha(fit$p.value, ann, shuffle = FALSE, return.obj = TRUE)
 Russell Bainer
 }
 \keyword{internal}
-

@@ -45,4 +45,3 @@ str(roc)
 \author{
 Russell Bainer
 }
-

@@ -62,4 +62,3 @@ path2report <- ct.makeReport(fit, es, sk, ann, resultsDF, aln, outdir = ".")
 \author{
 Russell Bainer
 }
-
