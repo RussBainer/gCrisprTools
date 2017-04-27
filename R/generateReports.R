@@ -254,13 +254,6 @@ ct.makeQCReport <-
       controls = ifelse(is.null(geneSymb), TRUE, geneSymb),
       throw.error = FALSE
     )
-    
-    if (!is.matrix(aln) |
-        !setequal(row.names(aln),
-                  c("targets", "nomatch", "rejections", "double_match"))) {
-      stop("I don't think that the provided alignment matrix is actually an alignment matrix.")
-    }
-    
 
     # prepare params
     if (missing(identifier) | is.null(identifier)) {
