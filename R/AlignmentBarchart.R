@@ -15,7 +15,7 @@
 ct.alignmentChart <- function(aln, sampleKey = NULL){
 
   #input checks
-  if(!is.matrix(aln) | !setequal(row.names(aln), c("targets", "nomatch", "rejections", "double_match"))){
+  if(!is.matrix(aln)) {
     stop("I don't think that the provided alignment matrix is actually an alignment matrix.")
   }  
   
