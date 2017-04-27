@@ -11,7 +11,6 @@
 ##' data('aln')
 ##' ct.alignmentChart(aln)
 ##' @export
-
 ct.alignmentChart <- function(aln, sampleKey = NULL){
 
   #input checks
@@ -30,10 +29,10 @@ ct.alignmentChart <- function(aln, sampleKey = NULL){
   
   current.graphic.params <- par(no.readonly = TRUE)
   on.exit(suppressWarnings(par(current.graphic.params)))
-  
+  barcolors <- colorRampPalette(c("darkblue", "darkred","grey", "purple"))(nrow(aln))
   par(mar = c(7, 5, 4, 2))
   barplot(aln, main="Read Alignment Statistics by Sample",
-          xlab="", ylab ="Reads", col=c("darkblue","darkred", "grey", "purple"), 
+          xlab="", ylab ="Reads", col=barcolors,
           names.arg = plotnames, legend= row.names(aln),
           beside=TRUE, las = 3, cex.names = 0.8, ylim = c(0, 1.3*max(aln)))
 
