@@ -83,6 +83,7 @@ ct.RRAalpha <- function(p, g.key, shuffle = FALSE) {
 ##' @param permute Number of permutations to be used during empirical p-value estimation.
 ##' @param permutation.seed numeric seed for permutation reproducibility.
 ##'   Default: \code{NULL} means to not set any seed.
+##' @param multi.core Deprecated, does nothing
 ##' @return A named list of target-level empirical P-values. 
 ##' @author Russell Bainer
 ##' @keywords internal
@@ -91,9 +92,12 @@ ct.RRAalpha <- function(p, g.key, shuffle = FALSE) {
 ##' data('ann')
 ##' genePvals <- ct.RRAaPvals(fit$p.value, ann, permute = 100)
 ##' @export
-ct.RRAaPvals <- function(p, g.key, permute, permutation.seed = NULL) {
+ct.RRAaPvals <- function(p, g.key, permute, permutation.seed = NULL, multi.core=NULL) {
     
     ##Input checks
+    if (!is.null(multi.core)) {
+        warning("The multi.core argument of ct.RRAaPvals is deprecated. This function is now sufficiently fast on one core.")
+    }
     if( ! (is.matrix(p) && ncol(p) == 1) ) {
         stop("P-values should be input as a single-column matrix with row names contained in the gs.list")
     }

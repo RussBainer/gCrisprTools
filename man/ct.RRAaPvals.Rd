@@ -4,7 +4,7 @@
 \alias{ct.RRAaPvals}
 \title{gRNA signal aggregation via RRAa}
 \usage{
-ct.RRAaPvals(p, g.key, permute, permutation.seed = NULL)
+ct.RRAaPvals(p, g.key, permute, permutation.seed = NULL, multi.core = NULL)
 }
 \arguments{
 \item{p}{A single column matrix of ranking scores, with row.names indicating the gRNA labels}
@@ -15,6 +15,8 @@ ct.RRAaPvals(p, g.key, permute, permutation.seed = NULL)
 
 \item{permutation.seed}{numeric seed for permutation reproducibility.
 Default: \code{NULL} means to not set any seed.}
+
+\item{multi.core}{Deprecated, does nothing}
 }
 \value{
 A named list of target-level empirical P-values.
