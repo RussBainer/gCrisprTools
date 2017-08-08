@@ -57,6 +57,16 @@ data('fit')
 data('ann')
 output <- ct.generateResults(fit, ann, permutations = 10)
 head(output)
+  p = seq(0, 1, length.out=20)
+  fc = seq(-3, 3, length.out=20)
+  fc[2] = NA
+  fc[3] = -20
+  stats = data.frame(
+    Depletion.P=p,
+    Enrichment.P=rev(p),
+    fc=fc
+  )
+  ct.applyAlpha(stats,scoring="combined")
 }
 \author{
 Russell Bainer

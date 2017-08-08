@@ -35,6 +35,17 @@
 ##' output <- ct.generateResults(fit, ann, permutations = 10)
 ##' head(output)
 ##' @return A `resultsDF` formatted dataframe containing gene-level statistics.
+##' @examples
+##'   p = seq(0, 1, length.out=20)
+##'   fc = seq(-3, 3, length.out=20)
+##'   fc[2] = NA
+##'   fc[3] = -20
+##'   stats = data.frame(
+##'     Depletion.P=p,
+##'     Enrichment.P=rev(p),
+##'     fc=fc
+##'   )
+##'   ct.applyAlpha(stats,scoring="combined")
 ##' @export 
 ct.generateResults <- function(fit,
                                annotation,
@@ -159,7 +170,7 @@ ct.applyAlpha <- function(stats, RRAalphaCutoff=0.1, scoring = c("combined", "pv
     foldchange <- cbind(stats[,3], -stats[,3])
 
     ##RRAalphaCutoff format 
-    if(length(RRAalphaCutoff) == 1){
+    if (length(RRAalphaCutoff) == 1) {
         rra.logic <- FALSE    
         if(!is.numeric(RRAalphaCutoff) | (RRAalphaCutoff < 0) | (RRAalphaCutoff > 1)){
             stop('When provided as a single value, RRAalphaCutoff must be a numeric value equal to 0, 1, or something in between.')
@@ -171,7 +182,7 @@ ct.applyAlpha <- function(stats, RRAalphaCutoff=0.1, scoring = c("combined", "pv
         }
     }
     
-    if (scoring %in% "fc"){
+    if (scoring %in% "fc") {
         ##Normalize values to rank scores
         scores.deplete <- as.matrix(rank(foldchange[,1])/nrow(foldchange))
         scores.enrich <- as.matrix(rank(foldchange[,2])/nrow(foldchange))
@@ -185,7 +196,7 @@ ct.applyAlpha <- function(stats, RRAalphaCutoff=0.1, scoring = c("combined", "pv
             cut.enrich <- RRAalphaCutoff
         }
         
-    } else if (scoring %in% "pvalue"){
+    } else if (scoring %in% "pvalue") {
         
         ## Normalize values to rank scores
         scores.deplete <- as.matrix(rank(pvals[,'Depletion.P'])/nrow(pvals))
@@ -195,7 +206,7 @@ ct.applyAlpha <- function(stats, RRAalphaCutoff=0.1, scoring = c("combined", "pv
         cut.deplete <- (pvals[,'Depletion.P'] <= RRAalphaCutoff)
         cut.enrich <- (pvals[,'Enrichment.P'] <= RRAalphaCutoff)
         
-        if(rra.logic){
+        if (rra.logic) {
             cut.deplete <- RRAalphaCutoff
             cut.enrich <- RRAalphaCutoff
         }
@@ -203,14 +214,14 @@ ct.applyAlpha <- function(stats, RRAalphaCutoff=0.1, scoring = c("combined", "pv
     } else {
         
         cut.deplete <- (pvals[,'Depletion.P'] <= RRAalphaCutoff)
-        is.na(cut.deplete) <- FALSE
+        cut.deplete[ is.na(cut.deplete) ] <- FALSE
         scores.deplete <- as.matrix(rank(foldchange[,1])/nrow(foldchange))
 
         cut.enrich <- (pvals[,'Enrichment.P'] <= RRAalphaCutoff)
-        is.na(cut.enrich) <- FALSE
+        cut.enrich[ is.na(cut.enrich) ] <- FALSE
         scores.enrich <- as.matrix(rank(foldchange[,2])/nrow(foldchange))
 
-        if(rra.logic){
+        if (rra.logic) {
             cut.deplete <- RRAalphaCutoff
             cut.enrich <- RRAalphaCutoff
         }

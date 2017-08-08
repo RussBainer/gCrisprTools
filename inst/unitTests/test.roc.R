@@ -14,7 +14,6 @@ test.RocPRC <- function() {
   checkIdentical(round(prc$P.values[,3], 9), unlist(rhp))
 
   checkIdentical(prc$recall, roc$sensitivity)
-  TRUE
 }
 
 
