@@ -15,19 +15,11 @@ params:
 
 #Contrast: `r params$comparison.id`
 
-<<<<<<< HEAD
 This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the fucntions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during the analysis of a Crispr screen. 
 
 #####GC Content and Estimated Model Effects
 
 GC content can influence PCR efficiency, and strong GC-related effects may be evidence of poor library quality in Crispr screens. Ideally, there should be no clear relationship between GC content and a gRNA's variance, fold change, or evidence for chances in differential abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content, however (e.g., nontargeting controls).  
-=======
-This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the functions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during the analysis of a CRISPR screen. 
-
-#####GC Content and Estimated Model Effects
-
-GC content can influence PCR efficiency, and strong GC-related effects may be evidence of poor library quality in CRISPR screens. Ideally, there should be no clear relationship between GC content and a gRNA's variance, fold change, or evidence for differential abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content, however (e.g., nontargeting controls).  
->>>>>>> upstream/master
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=10, fig.width=10, fig.cap="Figure 6: Stacked Barplot of the Most Variable Genes"}
 if (is.null(params$sampleKey)) {

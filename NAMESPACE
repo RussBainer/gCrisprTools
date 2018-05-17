@@ -10,10 +10,6 @@ export(ct.RRAalpha)
 export(ct.RRAalphaBatch)
 export(ct.alignmentChart)
 export(ct.alphaBeta)
-<<<<<<< HEAD
-=======
-export(ct.applyAlpha)
->>>>>>> upstream/master
 export(ct.ecdf)
 export(ct.filterReads)
 export(ct.gRNARankByReplicate)
@@ -23,10 +19,6 @@ export(ct.inputCheck)
 export(ct.makeContrastReport)
 export(ct.makeQCReport)
 export(ct.makeReport)
-<<<<<<< HEAD
-=======
-export(ct.makeRhoNull)
->>>>>>> upstream/master
 export(ct.normalizeBySlope)
 export(ct.normalizeGuides)
 export(ct.normalizeMedians)
@@ -42,10 +34,7 @@ export(ct.topTargets)
 export(ct.viewControls)
 export(ct.viewGuides)
 import(Biobase)
-<<<<<<< HEAD
 import(BiocParallel)
-=======
->>>>>>> upstream/master
 import(PANTHER.db)
 import(RobustRankAggreg)
 import(ggplot2)
