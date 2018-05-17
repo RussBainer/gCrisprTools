@@ -44,22 +44,28 @@ ct.generateResults <- function(fit,
   methods <- c("combined", "pvalue", "fc")
   scoring <- match.arg(scoring, methods, several.ok = FALSE)
   
+  #make sure that the Fit has P-values. 
+  if(!('p.value' %in% names(fit))){
+    stop('Evidence for differential gRNA abundance (p-values) has not been estimated for the provided fit object. Please do so using eBayes(), treat(), or similar method.')
+  }
+  
+  #Check/omit the extra coefficient columns as necessary. 
   if(ncol(fit$coefficients) > 1){
     if(is.null(contrast.term)){
       stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
     }
     fit <- ct.preprocessFit(fit, contrast.term)
   }
-  
+ 
 
-  #filter the annotation file as necessary for downstream processes, and format it for pval generation
-  if(!setequal(row.names(fit), row.names(annotation))){
-    if(length(setdiff(row.names(fit), row.names(annotation))) > 0){
-      stop("fit contains elements not present in the annotation file.")
-      }
-    message("The annotation file contains elements not present in the fit object. They will be discarded for downstream analyses.")
-    annotation <- annotation[row.names(fit),]
-  }
+  #The code below is now handled by the prepareAnnotation function but is retained here for legacy purposes. 
+  #if(!setequal(row.names(fit), row.names(annotation))){
+  #  if(length(setdiff(row.names(fit), row.names(annotation))) > 0){
+  #    stop("fit contains elements not present in the annotation file.")
+  #    }
+  #  message("The annotation file contains elements not present in the fit object. They will be discarded for downstream analyses.")
+  #  annotation <- annotation[row.names(fit),]
+  #}
   key <- ct.prepareAnnotation(annotation, fit, throw.error = FALSE)
 
   #Prepare the ranking values and calculate p-values
@@ -141,17 +147,14 @@ ct.generateResults <- function(fit,
   #names(rhoDeplete) <- names(rho)
   
   annotFields <- c("ID", "target", "geneID", "geneSymbol")  
-  if(!all(annotFields %in% names(annotation))){
+  if(!all(annotFields %in% names(key))){
     message(paste("Some expected columns are not present in the supplied annotation file.", call. = FALSE))
-    annotFields <- intersect(annotFields, names(annotation))
-    if(!all(c('geneID', 'geneSymbol') %in% annotFields)){
-      stop('The supplied annotation object must contain geneSymbol and geneID columns. See Vignettes for further details.')
-     }
+    annotFields <- intersect(annotFields, names(key))
     message(paste("Only the following information will be included in the output:", paste(annotFields, collapse = ',')))  
   } 
 
   #make the DF
-  summaryDF <- annotation[,annotFields]
+  summaryDF <- key[,annotFields]
   summaryDF$geneSymbol <- as.character(summaryDF$geneSymbol)
   summaryDF["gRNA Log2 Fold Change"] <- fit$coefficients[row.names(summaryDF),1]
   summaryDF["gRNA Depletion P"] <- signif(pvals[row.names(summaryDF),1], 5)
