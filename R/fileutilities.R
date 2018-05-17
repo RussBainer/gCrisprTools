@@ -134,11 +134,16 @@ ct.resultCheck <- function(summaryDF){
     return(FALSE)
     }
    
-  if(!all(c("geneID","geneSymbol","gRNA Log2 Fold Change","gRNA Depletion P",
-            "gRNA Depletion Q","gRNA Enrichment P","gRNA Enrichment Q", "Target-level Enrichment P",
-            "Target-level Enrichment Q", "Target-level Depletion P",  "Target-level Depletion Q",
-            "Median log2 Fold Change", "Rho_enrich", "Rho_deplete") %in% names(summaryDF))){
-    stop('The supplied result object seems to have some incorrect columns. Please supply a summaryDF object generated from ct.generateResults() in the gCrisprTools package.')
+  expectedNames <- c("geneID","geneSymbol","gRNA Log2 Fold Change","gRNA Depletion P",
+                     "gRNA Depletion Q","gRNA Enrichment P","gRNA Enrichment Q", "Target-level Enrichment P",
+                     "Target-level Enrichment Q", "Target-level Depletion P",  "Target-level Depletion Q",
+                     "Median log2 Fold Change", "Rho_enrich", "Rho_deplete")
+  
+  if(!all(expectedNames %in% names(summaryDF))){
+    missing <- setdiff(expectedNames, names(summaryDF))
+    warning('The supplied result object seems to have some incorrect columns. I was expecting: ')
+    print(missing)
+    stop('Please supply a summaryDF object generated from ct.generateResults() in the gCrisprTools package.')
     return(FALSE)
   } 
   
