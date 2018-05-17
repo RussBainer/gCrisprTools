@@ -30,6 +30,11 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
   }
   
   exception <- ifelse(throw.error, stop, warning)
+
+  #Convert the geneID column to a charvec if it isn't already.
+  if(!is.character(ann$geneID)){
+    ann$geneID <- as.character(ann$geneID)
+  }
   
   #If supplied, trim out the gRNAs not present in the object. 
   if(!is.null(object)){
