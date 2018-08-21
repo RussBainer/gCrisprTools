@@ -18,10 +18,10 @@ ct.DirectionalTests <- function(fit, contrast.term = NULL){
   
   if(class(fit) != "MArrayLM"){stop(paste(deparse(substitute(fit)), "is not an MArrayLM object."))}
   if(!("t" %in% names(fit))){stop("No t statistics are present in the specified object.")}
-  if(!("df.residual" %in% names(fit))){stop("No t statistics are present in the specified object.")}
+  if(!("df.total" %in% names(fit))){stop('Cannot find the appropriate degrees of freedom (df.total) in the specified object.')}
 
-  out <- cbind(pt(fit$t, df = fit$df.residual[1], lower.tail = TRUE), 
-                      pt(fit$t, df = fit$df.residual[1], lower.tail = FALSE))
+  out <- cbind(pt(fit$t, df = fit$df.total[1], lower.tail = TRUE), 
+                      pt(fit$t, df = fit$df.total[1], lower.tail = FALSE))
   colnames(out) <- c("Depletion.P", "Enrichment.P")
   row.names(out) <- row.names(fit$t)
   return(out)
