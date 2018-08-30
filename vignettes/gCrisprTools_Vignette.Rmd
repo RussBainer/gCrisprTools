@@ -18,8 +18,9 @@ Competitive screening experiments, in which bulk cell cultures infected with a h
 Install gCrisprTools in the usual way: 
 
 ```{r, eval = FALSE}
-source("https://bioconductor.org/biocLite.R")
-biocLite("gCrisprTools")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("gCrisprTools")
 ```
 
 ####1.2 Citing gCrisprTools
