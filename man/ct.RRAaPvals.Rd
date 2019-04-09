@@ -4,7 +4,8 @@
 \alias{ct.RRAaPvals}
 \title{gRNA signal aggregation via RRAa}
 \usage{
-ct.RRAaPvals(p, g.key, permute, permutation.seed = NULL, multi.core = NULL)
+ct.RRAaPvals(p, g.key, permute, permutation.seed = NULL,
+  multi.core = NULL)
 }
 \arguments{
 \item{p}{A single column matrix of ranking scores, with row.names indicating the gRNA labels}

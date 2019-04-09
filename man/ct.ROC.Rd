@@ -4,20 +4,20 @@
 \alias{ct.ROC}
 \title{Generate a Receiver-Operator Characteristic (ROC) Curve from a CRISPR screen}
 \usage{
-ct.ROC(summaryDF, target.list, stat = c("enrich.p", "deplete.p", "enrich.fc",
-  "deplete.fc", "enrich.rho", "deplete.rho"), condense = TRUE,
-  plot.it = TRUE)
+ct.ROC(summaryDF, target.list, stat = c("enrich.p", "deplete.p",
+  "enrich.fc", "deplete.fc", "enrich.rho", "deplete.rho"),
+  condense = TRUE, plot.it = TRUE)
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
 
-\item{target.list}{A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneID} 
+\item{target.list}{A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneID}
 column of the provided \code{summaryDF} are considered.}
 
-\item{stat}{The statistic to use when ordering the genes. Must be one of \code{"enrich.p"}, \code{"deplete.p"}, \code{"enrich.fc"}, 
+\item{stat}{The statistic to use when ordering the genes. Must be one of \code{"enrich.p"}, \code{"deplete.p"}, \code{"enrich.fc"},
 \code{"deplete.fc"}, \code{"enrich.rho"}, or \code{"deplete.rho"}.}
 
-\item{condense}{Logical indicating whether the returned x and y coordinates should be "condensed", returning only the points at which 
+\item{condense}{Logical indicating whether the returned x and y coordinates should be "condensed", returning only the points at which
 the detected proportion of \code{target.list} changes. If set to \code{FALSE}, the returned \code{x} and \code{y} vectors will explicitly
 indicate the curve value at every position (useful for performing curve arithmetic downstream).}
 
@@ -27,12 +27,12 @@ indicate the curve value at every position (useful for performing curve arithmet
 A list containing the the x and y coordinates of the curve, and the AUC statistic.
 }
 \description{
-Given a set of targets of interest, this function generates a ROC curve and associated statistics from the results of 
+Given a set of targets of interest, this function generates a ROC curve and associated statistics from the results of
 a CRISPR screen. Specifically, it orders the elements targeted in the screen by the specified statistic, and then plots the cumulative
 proportion of positive hits on the y-axis. The corresponding vextors and Area Under the Curve (AUC) statistic are returned as a list.
 
-Note that ranking statistics in CRISPR screens are (usually) permutation-based, and so some granularity is expected. This 
-function does a little extra work to ensure that hits are counted as soon as the requisite value of the ranking statistic is reached 
+Note that ranking statistics in CRISPR screens are (usually) permutation-based, and so some granularity is expected. This
+function does a little extra work to ensure that hits are counted as soon as the requisite value of the ranking statistic is reached
 regardless of where the gene is located within the block of equally-significant genes. Functionally, this means that the drawn curve is
 somewhat anticonservative in cases where the gene ranks are not well differentiated.
 }

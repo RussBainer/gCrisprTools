@@ -179,8 +179,7 @@ ct.getPanther <- function (species = c("human", "mouse")){
 ##' res <- ct.targetSetEnrichment(resultsDF, tar)
 ##' @author Russell Bainer
 ##' @export
-
-ct.targetSetEnrichment <- function(summaryDF, targets, enrich = c(TRUE, FALSE), ignore = NULL){
+ct.targetSetEnrichment <- function(summaryDF, targets, enrich = TRUE, ignore = NULL){
 
   #input checks
 
@@ -188,7 +187,9 @@ ct.targetSetEnrichment <- function(summaryDF, targets, enrich = c(TRUE, FALSE), 
     stop("Execution halted.")
   }
 
-  enrich <- match.arg(enrich)
+  if(!(enrich %in% c(TRUE, FALSE))){
+      stop('enrich must be either TRUE or FALSE.')
+  }
 
   valid <- intersect(targets, summaryDF$geneID)
 

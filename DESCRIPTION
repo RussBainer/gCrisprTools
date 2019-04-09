@@ -1,8 +1,8 @@
 Package: gCrisprTools
 Type: Package
 Title: Suite of Functions for Pooled Crispr Screen QC and Analysis
-Version: 1.11.3
-Date: 2019-04-08
+Version: 1.11.4
+Date: 2019-04-09
 Author: Russell Bainer, Dariusz Ratman, Steve Lianoglou, Peter Haverty
 Maintainer: Peter Haverty <haverty.peter@gene.com>
 Description: Set of tools for evaluating pooled high-throughput screening experiments,
@@ -15,7 +15,7 @@ Imports: Biobase, limma, RobustRankAggreg, ggplot2,
         PANTHER.db, rmarkdown, grDevices, graphics,
         stats, utils, parallel
 Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, RUnit, BiocGenerics
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
         BiomedicalInformatics, CellBiology, FunctionalGenomics,

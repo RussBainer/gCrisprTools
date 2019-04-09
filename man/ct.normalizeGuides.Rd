@@ -5,8 +5,8 @@
 \title{Normalize an ExpressionSet Containing a Crispr Screen}
 \usage{
 ct.normalizeGuides(eset, method = c("scale", "slope", "controlScale",
-  "controlSpline"), annotation = NULL, sampleKey = NULL, lib.size = NULL,
-  plot.it = FALSE, ...)
+  "controlSpline"), annotation = NULL, sampleKey = NULL,
+  lib.size = NULL, plot.it = FALSE, ...)
 }
 \arguments{
 \item{eset}{An ExpressionSet object with integer count data extractable with \code{exprs()}.}

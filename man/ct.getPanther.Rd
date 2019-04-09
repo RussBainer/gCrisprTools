@@ -15,7 +15,7 @@ A named list of pathways from \code{PANTHER.db}.
 \description{
 This is a function that invokes the \link[PANTHER.db]{PANTHER.db} Bioconductor library to extract a list of pathway mappings
 to be used in gene set enrichment tests. Specifically, the function returns a named list of pathways, where each element contains
-Entrez IDs. Users should not generally call this function directly as it is invoked internally by the higher-level 
+Entrez IDs. Users should not generally call this function directly as it is invoked internally by the higher-level
 \code{ct.PantherPathwayEnrichment()} function.
 }
 \author{

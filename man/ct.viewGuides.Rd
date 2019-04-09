@@ -4,8 +4,8 @@
 \alias{ct.viewGuides}
 \title{Generate a Plot of individual gRNA Pair Data in a Crispr Screen}
 \usage{
-ct.viewGuides(gene, fit, ann, type = "geneSymbol", contrast.term = NULL,
-  ylims = NULL)
+ct.viewGuides(gene, fit, ann, type = "geneSymbol",
+  contrast.term = NULL, ylims = NULL)
 }
 \arguments{
 \item{gene}{the name of the target element of interest, contained within the "type" column of the annotation file.}

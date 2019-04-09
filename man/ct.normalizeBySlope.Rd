@@ -4,7 +4,8 @@
 \alias{ct.normalizeBySlope}
 \title{Normalize sample abundance estimates by the slope of the values in the a central range}
 \usage{
-ct.normalizeBySlope(ExpressionObject, trim = 0.25, lib.size = NULL, ...)
+ct.normalizeBySlope(ExpressionObject, trim = 0.25, lib.size = NULL,
+  ...)
 }
 \arguments{
 \item{ExpressionObject}{An ExpressionSet containing, at minimum, count data accessible by \code{exprs}, or an EList object with count data in the $E 
