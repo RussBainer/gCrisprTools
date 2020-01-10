@@ -16,9 +16,9 @@ params:
 
 This is a report detailing experiment-level properties of a pooled CRISPR screening experiment. For information about individual contrasts, please consult the dedicated contrast report. 
 
-###Section 1: Experiment Overview 
+### Section 1: Experiment Overview 
 
-####gRNA Alignment
+#### gRNA Alignment
 
 In a high-quality library the overwhelming majority of reads will contain valid
 gRNA target sequences (>80%). Reads not matching the gRNA library may correspond
@@ -38,7 +38,7 @@ ct.alignmentChart(aln = params$aln, sampleKey = params$sampleKey)
 <br/>
 <br/>
 
-####Raw gRNA Read Counts
+#### Raw gRNA Read Counts
 
 In most CRISPR libraries the majority of gRNA abundances will form a relatively
 smooth distribution about the median count, often with a long tail.
@@ -60,7 +60,7 @@ ct.rawCountDensities(eset = params$eset, sampleKey = params$sampleKey)
 <br/>
 <br/>
 
-####The Effect of Filtering on Read Density
+#### The Effect of Filtering on Read Density
 
 Most pooled CRISPR screening experiments include gRNA cassettes whose abundance 
 is extremely low, either because of low-level sample contamination from other 
@@ -90,7 +90,7 @@ filt.eset <- ct.filterReads(
 <br/>
 <br/>
 
-#####The Effect of Normalization on Read Density
+##### The Effect of Normalization on Read Density
 
 The $\alpha$-RRA algorithm estimates the significance of a target's enrichment or depletion 
 on the basis of the experiment-level ranks of the associated gRNA-level signals.
@@ -127,7 +127,7 @@ slope.eset <- ct.normalizeGuides(
 <br/>
 
 
-#####GC Content and gRNA Abundance
+##### GC Content and gRNA Abundance
 
 GC content can influence PCR efficiency, and a strong relationship between GC content and gRNA abundance may be evidence of poor viral library quality or sample preparation in CRISPR screens. Ideally, there should be no clear relationship between GC content and a gRNA's measured abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content (e.g., nontargeting controls) which may affect this.  
 
@@ -150,7 +150,7 @@ if (is.null(params$sampleKey)) {
 <br/>
 <br/>
 
-###Section 2: Library-level Distortion of gRNA Abundances
+### Section 2: Library-level Distortion of gRNA Abundances
 
 Pooled CRISPR screens are fundamentally dynamic experiments, in which the
 measured abundance of a particular gRNA is fundamentally dependent on the scale
@@ -163,7 +163,7 @@ a small subset of gRNAs of extremely high abundance. The primary goal of this
 section is to determine the extent to which selection has distorted your gRNA
 library to guide downstream analyses.
 
-#####Ranked and Scaled gRNA Abundance Distributions 
+##### Ranked and Scaled gRNA Abundance Distributions 
 Strong selection in a CRISPR screen will distort the gRNAs such that the "slope"
 of the middle of the distribution changes relative to what is observed in the
 control samples. This can lead to spurious inferences of gRNA depletion in some
@@ -188,7 +188,7 @@ ct.gRNARankByReplicate(
 <br/>
 <br/>
 
-#####Cumulative Target-level Read Abundance
+##### Cumulative Target-level Read Abundance
 A simple way to quantify the extent of distortion in a CRISPR screen is to
 observe the proportion of reads within each library that are derived from gRNA
 cassettes targeting each genomic element. By ranking the targets by their
@@ -211,7 +211,7 @@ ct.guideCDF(
 <br/>
 <br/>
 
-#####Nontargeting Control Guides
+##### Nontargeting Control Guides
 
 The behavior of nontargeting control guides can give some sense of the
 consistency of the gRNA abundances within experimental cultures and the likely

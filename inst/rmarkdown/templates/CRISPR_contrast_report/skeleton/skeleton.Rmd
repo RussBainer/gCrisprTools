@@ -17,7 +17,7 @@ params:
 
 This is a report visualizing the overall dynamics of a single contrast in a pooled CRISPR-based screening experiment. See the vignettes folder of the `gCrisprTools` R package for further discussion of the proper analysis and interpretation of these experiments. For analysts, the manual pages of the various functions provide further detail about the analytical approaches employed and computational considerations relevant to their interpretation; most of the functions used in this report can also be extended in various ways to clarify more specific experimental questions that may arise during the analysis of a CRISPR screen. 
 
-#####GC Content and Estimated Model Effects
+##### GC Content and Estimated Model Effects
 
 GC content can influence PCR efficiency, and strong GC-related effects may be evidence of poor library quality in CRISPR screens. Ideally, there should be no clear relationship between GC content and a gRNA's variance, fold change, or evidence for differential abundance. Keep in mind that some libraries may contain important subsets of gRNAs that have systematic differences in GC content, however (e.g., nontargeting controls).  
 
@@ -38,7 +38,7 @@ if (is.null(params$sampleKey)) {
 <br/>
 <br/>
 
-#####Most Variable Genes and gRNAs as a Proportion of the Libraries
+##### Most Variable Genes and gRNAs as a Proportion of the Libraries
 
 In experiments that include highly distorted libraries, it can be useful to identify the genes or gRNAs that change the most across the experiment as a heuristic way of identifying gRNAs of interest in situations where standard statistical approaches are not likely to function well. 
 
@@ -89,7 +89,7 @@ if (is.null(params$sampleKey)) {
 
 
 
-###Top Signals of Target Enrichment and Depletion
+### Top Signals of Target Enrichment and Depletion
 
 Below are plots indicating the targets with the most evidence for enrichment and depletion within the indicated contrast. Genes are ranked by aggregating the signal for depletion or enrichment across all gRNAs targeting the corresponding element according to the method specified in the call to `ct.generateResults()`. Within each plot, candidates are ordered by the evidence for enrichment or depletion. Each gRNA targeting the gene is plotted as a point, with the estimated log2 fold change within the contrast indicated on the *Y*-axis and the standard deviation of the estimate shown as a blue bar. 
 
