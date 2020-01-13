@@ -18,9 +18,14 @@
 ##' @return A summary plot on the current device. 
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
-##' data('essential.genes') #Note that this is an artificial example.
-##' pr <- ct.PRC(resultsDF, essential.genes, 'enrich.p')
-##' str(pr)
+##' ct.signalSummary(resultsDF, list('CandidateA' = 'Target229', 'Pathway3' = resultsDF$geneSymbol[c(42,116,1138,5508)]), 'enrich')
+##' @examples 
+##' data('es')
+##' data('ann')
+##' data('fit')
+##' 
+##' ct.GCbias(es, ann)
+##' ct.GCbias(fit, ann)
 ##' @export
 ct.signalSummary <-
   function(summaryDF,
@@ -89,10 +94,10 @@ ct.signalSummary <-
     text(0.7, 3*(maxval/4), '-log10P', srt = 90, adj = c(0.7, -0.5), cex = 0.7)
     
     #add annotation
-    t.col <- colorRampPalette(c('white', 
-                              rgb(218/255, 111/255, 90/255), 
-                              rgb(100/255, 190/255, 203/255), 
-                              rgb(127/255, 47/255, 105/255)))(length(targets))
+    t.col <- colorRampPalette(c(rgb(218/255, 111/255, 90/255), 
+                                'white', 
+                                rgb(100/255, 190/255, 203/255), 
+                                rgb(127/255, 47/255, 105/255)))(length(targets))
 
     
     #Optionally add annotations
@@ -124,7 +129,7 @@ ct.signalSummary <-
                        gw.ranks <- vapply(summaryDF$geneSymbol[all.targ], 
                                           function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
                                           integer(1))
-                       points(inset.x[selected], inset.y[selected], col = rgb(14/255,41/255,56/255), bg = t.col[x], pch = 21, cex = 0.6)
-                       points(exes[gw.ranks], gwp[gw.ranks], pch = 21, bg = t.col[x], cex = 1)
+                       points(inset.x[selected], inset.y[selected], col = rgb(14/255,41/255,56/255), bg = t.col[x], pch = 21, cex = 0.6, lwd = 1.2)
+                       points(exes[gw.ranks], gwp[gw.ranks], pch = 21, bg = t.col[x], cex = 1, lwd = 1.2)
                      }))
   }
