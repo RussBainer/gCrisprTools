@@ -22,14 +22,13 @@
 ##' pr <- ct.PRC(resultsDF, essential.genes, 'enrich.p')
 ##' str(pr)
 ##' @export
-
 ct.signalSummary <-
   function(summaryDF,
            targets,
            direction = c("enrich", "deplete")) {
 
     #Check the input: 
-    direction <- 
+    direction <- match.arg(direction)
     if(!ct.resultCheck(summaryDF)){
       stop("Execution halted.")
     }
@@ -50,22 +49,23 @@ ct.signalSummary <-
     }
     
     #Prep data
-    summaryDF <- switch(match.arg(direction), 
+    summaryDF <- switch(direction, 
                         'enrich' = summaryDF[order(summaryDF$`Target-level Enrichment P`, decreasing = FALSE),], 
                         'deplete' = summaryDF[order(summaryDF$`Target-level Depletion P`, decreasing = FALSE),])
     
-    p <- switch(match.arg(direction), 
+    p <- switch(direction, 
                    'enrich' = -log10(summaryDF$`Target-level Enrichment P`), 
                    'deplete' = -log10(summaryDF$`Target-level Depletion P`))
     p[is.infinite(p)] <- max(p[is.finite(p)]) + 0.5
 
     genewise <- !duplicated(summaryDF$geneSymbol)
     gwp <- p[genewise]
-    exes <- order(gwp, decreasing = TRUE)/length(gwp)
+    names(gwp) <- summaryDF$geneSymbol[genewise]
+    exes <- (1:length(gwp))/length(gwp)
     
-    qcut <- min(p[switch(match.arg(direction), 
+    qcut <- min(p[switch(direction, 
                               'enrich' = summaryDF$`Target-level Enrichment Q`[genewise] < 0.1, 
-                              'deplete' = sumamryDF$`Target-level Depletion Q`[genewise] < 0.1)])
+                              'deplete' = summaryDF$`Target-level Depletion Q`[genewise] < 0.1)])
     
     #Compose Plot
     plot(exes, gwp, 
@@ -74,95 +74,57 @@ ct.signalSummary <-
     #inset
     maxval <- max(gwp)
     glfc <- summaryDF$`gRNA Log2 Fold Change`
-    gp <- switch(match.arg(direction), 
+    gp <- switch(direction, 
                  'enrich' = -log10(summaryDF$`gRNA Enrichment P`), 
-                 'deplete' = -log10(summaryDF$`gRNA Enrichment P`))
-    g.big <-  switch(match.arg(direction), 
-                     'enrich' = glfc > 0.1, 
-                     'deplete' = glfc < 0.1)
-    inset.x <- ((0.29/(max(glfc))) * (glfc)) + 0.7
-    inset.y <- ((((maxval - 0.05) - (maxval/2))/(max(gp) - min(gp))) * (gp - min(gp))) + (maxval/2)
+                 'deplete' = -log10(summaryDF$`gRNA Depletion P`))
+    inset.x <- ((0.29/(max(glfc) - min(glfc))) * (glfc - min(glfc))) + 0.7
+    inset.y <- ((((maxval - 0.1) - ((maxval)/2))/(max(gp) - min(gp))) * (gp - min(gp))) + ((maxval + 0.05)/2)
+    inset.zero <- inset.x[which(abs(glfc) == min(abs(glfc), na.rm = TRUE))][1]
     
     polygon(x = c(0.7,1,1,0.7), y = (rep(maxval, 4) - rep(c(maxval/2, 0), each = 2)), col = 'white') 
-    points(inset.x[g.big], inset.y[g.big], pch = 19, cex = 0.2, col= rgb(14/255,41/255,56/255))
-    text(0.7, maxval, 'gRNA', adj = c(-0.2,1.5), cex = 0.5)
-    text(0.85, (maxval/2), 'Log2 Fold Change', pos = 1, cex = 0.7)
+    lines(rep(inset.zero, 2), c(maxval/2, maxval), lty = 2, col = 'lightgrey')
+    points(inset.x, inset.y, pch = 19, cex = 0.2, col= rgb(14/255,41/255,56/255))
+    text(0.85, maxval, 'gRNA', adj = c(0.5,1.5), cex = 1)
+    text(0.85, (maxval/2), 'Log2 Fold Change', adj = c(0.5, 1.5), cex = 0.7)
     text(0.7, 3*(maxval/4), '-log10P', srt = 90, adj = c(0.7, -0.5), cex = 0.7)
     
     #add annotation
-    
+    t.col <- colorRampPalette(c('white', 
+                              rgb(218/255, 111/255, 90/255), 
+                              rgb(100/255, 190/255, 203/255), 
+                              rgb(127/255, 47/255, 105/255)))(length(targets))
 
     
-        
-    
-    #Convert to gene-level stats
-    summaryDF <- summaryDF[!duplicated(summaryDF$geneID),]
-    row.names(summaryDF) <- summaryDF$geneID
-    
-    if(!is.character(target.list)){
-      warning("Supplied target.list is not a character vector. Coercing.")
-      target.list <- as.character(target.list)
+    #Optionally add annotations
+    if(length(targets) <= 5){ 
+      ylocs <- seq((maxval * 0.95), (maxval/2), length.out = 5) 
+      ybuff <- (maxval/20)/2
+      
+      invisible(
+        lapply(1:length(targets),
+               function(x){
+                 selected <- (summaryDF$geneSymbol %in% targets[[x]])
+                 all.targ <- (selected & genewise) 
+                 gw.ranks <- vapply(summaryDF$geneSymbol[all.targ], 
+                                    function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
+                                    integer(1))
+                 
+                 segments(exes[gw.ranks], gwp[gw.ranks], 0.3, ylocs[x], col = rgb(78/255, 78/255, 76/255, 0.4))
+                 text(0.3, ylocs[x], names(targets)[x], pos = 4)
+                 points(0.3, ylocs[x], pch = 22, cex = 2, bg = t.col[x])
+               })
+      )
     }
-    present <- intersect(target.list, summaryDF$geneID)
-    if(length(present) != length(target.list)){
-      if(length(present) < 1){
-        stop("None of the genes in the input list are present in the geneSymbol column of the input data.frame.")
-        }
-      warning(paste(length(present), "of", length(target.list), "genes are present in the supplied results data.frame. Ignoring the remainder of the target.list."))
-    }
     
-    #Gather the values for the targets: 
-    stat <- match.arg(stat)
-    targvals <- switch(stat, 
-         enrich.p = (summaryDF[(summaryDF$geneID %in% present),"Target-level Enrichment P"]), 
-         deplete.p = (summaryDF[(summaryDF$geneID %in% present),"Target-level Depletion P"]), 
-         enrich.fc = (-summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"]), 
-         deplete.fc = (summaryDF[(summaryDF$geneID %in% present),"Median log2 Fold Change"]),
-         enrich.rho = (summaryDF[(summaryDF$geneID %in% present),"Rho_enrich"]),
-         deplete.rho = (summaryDF[(summaryDF$geneID %in% present),"Rho_deplete"])
-    )   
-    #Extract the appropriate stat. 
-    values <- switch(stat, 
-        enrich.p = sort(summaryDF[,"Target-level Enrichment P"]), 
-        deplete.p = sort(summaryDF[,"Target-level Depletion P"]), 
-        enrich.fc = sort(-summaryDF[,"Median log2 Fold Change"]), 
-        deplete.fc = sort(summaryDF[,"Median log2 Fold Change"]),
-        enrich.rho = sort(summaryDF[,"Rho_enrich"]), 
-        deplete.rho = sort(summaryDF[,"Rho_deplete"])
-    )
-
-    out <- list()
-    out$precision <- c(1, unlist(lapply(unique(values), function(x){sum(targvals <= x, na.rm = TRUE)/sum(values <= x, na.rm= TRUE)})), 0)
-    out$recall <- c(0, unlist(lapply(unique(values), function(x){sum(targvals <= x, na.rm = TRUE)/length(targvals)})), 1)
-    
-    enrich <- switch(stat, 
-                     enrich.p = ct.targetSetEnrichment(summaryDF, target.list, enrich = TRUE),
-                     deplete.p =  ct.targetSetEnrichment(summaryDF, target.list, enrich = FALSE),
-                     enrich.fc =  ct.targetSetEnrichment(summaryDF, target.list, enrich = TRUE),
-                     deplete.fc =  ct.targetSetEnrichment(summaryDF, target.list, enrich = FALSE),
-                     enrich.rho = ct.targetSetEnrichment(summaryDF, target.list, enrich = TRUE),
-                     deplete.rho = ct.targetSetEnrichment(summaryDF, target.list, enrich = FALSE)
-    )
-    out <- c(out, enrich)
-    
-    #Plot it?
-    if(plot.it){
-      plot(out$recall, out$precision, xlim = c(0, 1), ylim = c(0,1), 
-           type = "l", ylab = "Precision", xlab = "Recall", 
-           main = paste("Precision and Recall of", deparse(substitute(target.list))), col = "blue", lwd = 3)
-      }
-    return(out)
-    }
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-
+    #Highlight Points
+    invisible(lapply(1:length(targets), 
+                     function(x){
+                       selected <- (summaryDF$geneSymbol %in% targets[[x]])
+                       all.targ <- (selected & genewise) 
+                       gw.ranks <- vapply(summaryDF$geneSymbol[all.targ], 
+                                          function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
+                                          integer(1))
+                       points(inset.x[selected], inset.y[selected], col = rgb(14/255,41/255,56/255), bg = t.col[x], pch = 21, cex = 0.6)
+                       points(exes[gw.ranks], gwp[gw.ranks], pch = 21, bg = t.col[x], cex = 1)
+                     }))
+  }
