@@ -74,7 +74,7 @@ ct.signalSummary <-
     
     #Compose Plot
     plot(exes, gwp, 
-         ylab = '-log10 P', xaxt = 'n', xlab = 'Signal Rank', 
+         ylab = 'Target -log10 P', xaxt = 'n', xlab = 'Signal Rank', 
          pch = 19, cex = 0.5, col = rgb(14/255,41/255,56/255))
     #inset
     maxval <- max(gwp)
