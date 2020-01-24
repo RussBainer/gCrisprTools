@@ -1,4 +1,4 @@
-##' @title Normalize sample abundance estimates by the slope of the values in the a central range
+##' @title Normalize sample abundance estimates by the slope of the values in the central range
 ##' @description This function normalizes Crispr gRNA abundance estimates by equalizing the slopes of the middle (logged) values of the
 ##' distribution across samples. Specifically, the algorithm ranks the gRNA abundance estimates within each sample and determines a relationship between
 ##' rank change and gRNA within a trimmed region of the distribution via a linear fit. It then adjusts each sample such that the center of the logged
