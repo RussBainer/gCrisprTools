@@ -10,11 +10,11 @@
 ##' - If a list is provided, the `names` element is used as the annotation. This is similarly constrained to a total of 5 annotated elements. 
 ##' 
 ##' @param summaryDF A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}. 
-##' @param targets A list or character vector containing the names of the targets to be displayed. 
-##' 
-##' Only targets contained in the \code{geneSymbol} 
-##' column of the provided \code{summaryDF} are considered.
+##' @param targets A list or character vector containing the names of the targets to be displayed. Only targets contained in the \code{geneSymbol} 
+##' column of the provided \code{summaryDF} are considered. Plotting priority (e.g., the points to plot last in the case 
+##' of overlapping signals) is given to earlier elements in the list. 
 ##' @param direction Should enrichment or depletion be considered? Must be one of \code{"enrich"} or \code{"deplete"}.
+##' @param callout Logical indicating whether lines should be plotted indicating individual gene sets to augment the point highlighting.
 ##' @return A summary plot on the current device. 
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
@@ -30,7 +30,8 @@
 ct.signalSummary <-
   function(summaryDF,
            targets,
-           direction = c("enrich", "deplete")) {
+           direction = c("enrich", "deplete"), 
+           callout = FALSE) {
 
     #Check the input: 
     direction <- match.arg(direction)
@@ -47,6 +48,7 @@ ct.signalSummary <-
       stop('Too many targets specified; suppressing annotation.')
       targets <- list(unique(unlist(targets)))
     }
+    targets <- rev(targets)
     
     bad <- setdiff(unlist(targets), summaryDF$geneSymbol)
     if(length(bad) > 0){
@@ -94,15 +96,15 @@ ct.signalSummary <-
     text(0.7, 3*(maxval/4), '-log10P', srt = 90, adj = c(0.7, -0.5), cex = 0.7)
     
     #add annotation
-    t.col <- colorRampPalette(c(rgb(218/255, 111/255, 90/255), 
-                                'white', 
-                                rgb(100/255, 190/255, 203/255), 
-                                rgb(127/255, 47/255, 105/255)))(length(targets))
-
-    
+    t.col <- c(rgb(218/255, 111/255, 90/255), 
+               'white', 
+               rgb(111/255, 130/255, 138/255), 
+               rgb(100/255, 190/255, 203/255),
+               rgb(127/255, 47/255, 105/255))
+   
     #Optionally add annotations
     if(length(targets) <= 5){ 
-      ylocs <- seq((maxval * 0.95), (maxval/2), length.out = 5) 
+      ylocs <- rev(seq((maxval * 0.95), (maxval/2), length.out = 5)[1:length(targets)]) 
       ybuff <- (maxval/20)/2
       
       invisible(
@@ -111,10 +113,13 @@ ct.signalSummary <-
                  selected <- (summaryDF$geneSymbol %in% targets[[x]])
                  all.targ <- (selected & genewise) 
                  gw.ranks <- vapply(summaryDF$geneSymbol[all.targ], 
-                                    function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
+                                    #function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
+                                    function(x){which(summaryDF$geneSymbol[genewise] == x)},
                                     integer(1))
                  
-                 segments(exes[gw.ranks], gwp[gw.ranks], 0.3, ylocs[x], col = rgb(78/255, 78/255, 76/255, 0.4))
+                 if(callout){
+                   segments(exes[gw.ranks], gwp[gw.ranks], 0.3, ylocs[x], col = rgb(78/255, 78/255, 76/255, 0.4))
+                 }
                  text(0.3, ylocs[x], names(targets)[x], pos = 4)
                  points(0.3, ylocs[x], pch = 22, cex = 2, bg = t.col[x])
                })
@@ -127,9 +132,10 @@ ct.signalSummary <-
                        selected <- (summaryDF$geneSymbol %in% targets[[x]])
                        all.targ <- (selected & genewise) 
                        gw.ranks <- vapply(summaryDF$geneSymbol[all.targ], 
-                                          function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
+                                          #function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
+                                          function(x){which(summaryDF$geneSymbol[genewise] == x)},
                                           integer(1))
-                       points(inset.x[selected], inset.y[selected], col = rgb(14/255,41/255,56/255), bg = t.col[x], pch = 21, cex = 0.6, lwd = 1.2)
-                       points(exes[gw.ranks], gwp[gw.ranks], pch = 21, bg = t.col[x], cex = 1, lwd = 1.2)
+                       points(inset.x[selected], inset.y[selected], col = rgb(14/255,41/255,56/255), bg = t.col[x], pch = 21, cex = 0.7, lwd = 1.2)
+                       points(exes[gw.ranks], gwp[gw.ranks], pch = 21, bg = t.col[x], cex = 1.2, lwd = 1.2)
                      }))
   }
