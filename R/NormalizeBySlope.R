@@ -88,7 +88,8 @@ ct.normalizeBySlope <-
 ##' @param annotation The annotation object for the library, required for the methods employing nontargeting controls.
 ##' @param sampleKey An (optional) sample key, supplied as an ordered factor linking the samples to experimental
 ##' variables. The \code{names} attribute should exactly match those present in \code{eset}, and the control set is assumed to be
-##' the first \code{level}.
+##' the first \code{level}. If `method` = `FQ`, the sampleKey is taken as the `sets` argument (and its format requirements are similarly 
+##' relaxed; see `?ct.normalizeFC`).
 ##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
 ##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
 ##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
@@ -112,12 +113,12 @@ ct.normalizeBySlope <-
 ##' es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 ##' es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 ##' @export
-ct.normalizeGuides <- function(eset, method = c("scale", "slope", "controlScale", "controlSpline"), annotation = NULL, sampleKey = NULL, lib.size = NULL, plot.it = FALSE, ...){
+ct.normalizeGuides <- function(eset, method = c("scale", 'FQ', "slope", "controlScale", "controlSpline"), annotation = NULL, sampleKey = NULL, lib.size = NULL, plot.it = FALSE, ...){
   if(class(eset) != "ExpressionSet"){
     stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
   }
 
-  choices <- c("scale", "slope", "controlScale", "controlSpline")
+  choices <- c("scale", 'FQ', "slope", "controlScale", "controlSpline")
   method <- match.arg(method, choices)
 
   if(method %in% c("controlScale", "controlSpline")){
@@ -135,12 +136,13 @@ ct.normalizeGuides <- function(eset, method = c("scale", "slope", "controlScale"
   if(is.null(lib.size)){
     lib.size <- colSums(exprs(eset))
   } else if(!is.numeric(lib.size) | (length(lib.size) != ncol(eset))){
-    stop('If specified, lib.size must be a numeric vector of length equal to the numebr of samples.')
+    stop('If specified, lib.size must be a numeric vector of length equal to the number of samples.')
   }
   
   
   new.eset <- switch(method, 
                      scale = ct.normalizeMedians(eset, lib.size = lib.size), 
+                     FQ = ct.normalizeFQ(eset, sets = sampleKey, lib.size = lib.size),
                      slope = ct.normalizeBySlope(eset, lib.size = lib.size, ...), 
                      controlScale = ct.normalizeNTC(eset, annotation, lib.size = lib.size, ...), 
                      controlSpline = ct.normalizeSpline(eset, annotation, lib.size = lib.size, ...)

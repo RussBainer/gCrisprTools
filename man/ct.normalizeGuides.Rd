@@ -4,9 +4,9 @@
 \alias{ct.normalizeGuides}
 \title{Normalize an ExpressionSet Containing a Crispr Screen}
 \usage{
-ct.normalizeGuides(eset, method = c("scale", "slope", "controlScale",
-  "controlSpline"), annotation = NULL, sampleKey = NULL,
-  lib.size = NULL, plot.it = FALSE, ...)
+ct.normalizeGuides(eset, method = c("scale", "FQ", "slope",
+  "controlScale", "controlSpline"), annotation = NULL,
+  sampleKey = NULL, lib.size = NULL, plot.it = FALSE, ...)
 }
 \arguments{
 \item{eset}{An ExpressionSet object with integer count data extractable with \code{exprs()}.}
@@ -17,7 +17,8 @@ ct.normalizeGuides(eset, method = c("scale", "slope", "controlScale",
 
 \item{sampleKey}{An (optional) sample key, supplied as an ordered factor linking the samples to experimental
 variables. The \code{names} attribute should exactly match those present in \code{eset}, and the control set is assumed to be
-the first \code{level}.}
+the first \code{level}. If `method` = `FQ`, the sampleKey is taken as the `sets` argument (and its format requirements are similarly 
+relaxed; see `?ct.normalizeFC`).}
 
 \item{lib.size}{An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
 and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
