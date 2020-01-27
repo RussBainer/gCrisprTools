@@ -26,7 +26,6 @@
 ##' ct.gRNARankByReplicate(es, sk, lib.size= ls)
 ##' ct.gRNARankByReplicate(es.norm, sk, lib.size= ls)
 ##' @export
-
 ct.normalizeBySlope <-
   function(ExpressionObject,
            trim = 0.25,
@@ -211,4 +210,64 @@ ct.normalizeMedians <- function(eset, lib.size = NULL){
   return(eset)
   }
 
+##' @title Factored Quantile Normalization
+##' @description This function applies quantile normalization to subsets of samples defined by a provided factor, correcting for library size. 
+##' It does this by converting raw count values to log2 counts per million and optionally adjusting further in 
+##' the usual way by dividing these values by user-specified library size factors; then this matrix is split into groups according to the 
+##' provided factor that are quantile normalized, and then the groups are median scaled to each other before conversion back into 
+##' raw counts. This method is best used in comparisons for long timecourse screens, where groupwise differences in growth rate 
+##' cause uneven intrinsic dialation of construct distributions.
+##' 
+##' Note that this normalization strategy is not appropriate for experiments where significant distortion of the libraries is expected as a 
+##' consequence of the screening strategy (e.g., strong selection screens). 
+##' @param eset An \code{ExpressionSet} containing, at minimum, count data accessible by \code{exprs}.
+##' @param sets A character or factor object delineating which samples shoudl be grouped together during the normalization step. Must 
+##' be the same length as the number of columns in the provided eset, and cannot contain `NA` or `NULL` values. 
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
+##' @return A renormalized ExpressionSet object of the same type as the provided object.
+##' @author Russell Bainer
+##' @import limma
+##' @examples data('es')
+##' 
+##' #Build the sample key and library sizes for visualization
+##' library(Biobase)
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' names(sk) <- row.names(pData(es))
+##' ls <- colSums(exprs(es))
+##' 
+##' es.norm <- ct.normalizeFQ(es, sets = gsub('(Death|Control)', '', pData(es)$TREATMENT_NAME), lib.size= ls)
+##' ct.gRNARankByReplicate(es, sampleKey = sk, lib.size= ls)
+##' ct.gRNARankByReplicate(es.norm, sampleKey = sk, lib.size= ls)
+##' @export
+ct.normalizeFQ <- function(eset, sets, lib.size = NULL){
+  if(!class(eset) == 'ExpressionSet'){
+    stop("Please provide an ExpressionSet object for normalization.")
+  }
+  
+  stopifnot(length(na.omit(sets)) == ncol(eset), !any(vapply(sets, is.null, logical(1))))
+  
+  counts <- exprs(eset)
+  
+  if (is.null(lib.size)){
+    lib.size <- colSums(counts)
+  }else if(!is.numeric(lib.size) | length(lib.size) != ncol(counts)){
+    stop('If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.')
+  } 
+  
+  y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+  
+  #Apply Factored Quantiles
+  quant <- lapply(unique(sets), function(x){limma::normalizeQuantiles(y[,(sets == x)])})
+  y <- do.call('cbind', quant)
+  
+  cmed <- apply(y, 2, median, na.rm = TRUE)
+  cmed <- cmed - mean(cmed)
+  correctedCounts <- 2^t(t(y) - cmed)
+  correctedCounts <- (t(t(correctedCounts) * ((lib.size + 1) / 1e+06)) - 0.5)
+  
+  exprs(eset) <- round(correctedCounts)
+  return(eset)
+}
 

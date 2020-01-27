@@ -4,17 +4,19 @@
 \alias{ct.signalSummary}
 \title{Generate a Figure Summarizing Overall Signal for One or More Targets}
 \usage{
-ct.signalSummary(summaryDF, targets, direction = c("enrich", "deplete"))
+ct.signalSummary(summaryDF, targets, direction = c("enrich", "deplete"),
+  callout = FALSE)
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
 
-\item{targets}{A list or character vector containing the names of the targets to be displayed. 
-
-Only targets contained in the \code{geneSymbol} 
-column of the provided \code{summaryDF} are considered.}
+\item{targets}{A list or character vector containing the names of the targets to be displayed. Only targets contained in the \code{geneSymbol} 
+column of the provided \code{summaryDF} are considered. Plotting priority (e.g., the points to plot last in the case 
+of overlapping signals) is given to earlier elements in the list.}
 
 \item{direction}{Should enrichment or depletion be considered? Must be one of \code{"enrich"} or \code{"deplete"}.}
+
+\item{callout}{Logical indicating whether lines should be plotted indicating individual gene sets to augment the point highlighting.}
 }
 \value{
 A summary plot on the current device.
