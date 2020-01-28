@@ -4,8 +4,12 @@
 \alias{ct.signalSummary}
 \title{Generate a Figure Summarizing Overall Signal for One or More Targets}
 \usage{
-ct.signalSummary(summaryDF, targets, direction = c("enrich", "deplete"),
-  callout = FALSE)
+ct.signalSummary(
+  summaryDF,
+  targets,
+  direction = c("enrich", "deplete"),
+  callout = FALSE
+)
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}

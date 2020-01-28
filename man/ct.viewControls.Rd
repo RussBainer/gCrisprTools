@@ -4,8 +4,14 @@
 \alias{ct.viewControls}
 \title{View nontargeting guides within an experiment}
 \usage{
-ct.viewControls(eset, annotation, sampleKey, geneSymb = NULL,
-  normalize = TRUE, lib.size = NULL)
+ct.viewControls(
+  eset,
+  annotation,
+  sampleKey,
+  geneSymb = NULL,
+  normalize = TRUE,
+  lib.size = NULL
+)
 }
 \arguments{
 \item{eset}{An ExpressionSet  object containing, at minimum, a matrix of gRNA abundances extractable with the \code{exprs} function.}

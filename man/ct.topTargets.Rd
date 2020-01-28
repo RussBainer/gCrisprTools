@@ -5,8 +5,14 @@
 \title{Display the log2 fold change estimates and associated standard deviations of the guides targeting the top 
 candidates in a crispr screen}
 \usage{
-ct.topTargets(fit, summaryDF, annotation, targets = 10, enrich = TRUE,
-  contrast.term = NULL)
+ct.topTargets(
+  fit,
+  summaryDF,
+  annotation,
+  targets = 10,
+  enrich = TRUE,
+  contrast.term = NULL
+)
 }
 \arguments{
 \item{fit}{An object of class \code{MArrayLM} containing, at minimum, a \code{coefficents} slot with coefficients from the comparison, 

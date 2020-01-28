@@ -4,8 +4,13 @@
 \alias{ct.RRAalphaBatch}
 \title{Create Batches of Null Permutations for a Crispr Screen}
 \usage{
-ct.RRAalphaBatch(p, g.key, result.environment, batch.size = 100,
-  permutation.seed = NULL)
+ct.RRAalphaBatch(
+  p,
+  g.key,
+  result.environment,
+  batch.size = 100,
+  permutation.seed = NULL
+)
 }
 \arguments{
 \item{p}{A single column matrix of rank statistics, with row.names indicating the gRNA labels.}

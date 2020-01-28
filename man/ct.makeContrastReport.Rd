@@ -4,9 +4,17 @@
 \alias{ct.makeContrastReport}
 \title{Generate a Contrast report from a pooled CRISPR screen}
 \usage{
-ct.makeContrastReport(eset, fit, sampleKey, results, annotation,
-  comparison.id, identifier, contrast.subset = colnames(eset),
-  outdir = NULL)
+ct.makeContrastReport(
+  eset,
+  fit,
+  sampleKey,
+  results,
+  annotation,
+  comparison.id,
+  identifier,
+  contrast.subset = colnames(eset),
+  outdir = NULL
+)
 }
 \arguments{
 \item{eset}{An ExpressionSet object containing, at minimum, a matrix of gRNA

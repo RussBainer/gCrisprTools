@@ -4,8 +4,13 @@
 \alias{ct.PantherPathwayEnrichment}
 \title{Run a (limited) Pathway Enrichment Analysis on the results of a Crispr experiment.}
 \usage{
-ct.PantherPathwayEnrichment(summaryDF, pvalue.cutoff = 0.01,
-  enrich = TRUE, organism = "human", db.cut = 10)
+ct.PantherPathwayEnrichment(
+  summaryDF,
+  pvalue.cutoff = 0.01,
+  enrich = TRUE,
+  organism = "human",
+  db.cut = 10
+)
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}

@@ -4,8 +4,13 @@
 \alias{ct.gRNARankByReplicate}
 \title{Visualization of Ranked gRNA Abundances by Replicate}
 \usage{
-ct.gRNARankByReplicate(eset, sampleKey, annotation = NULL,
-  geneSymb = NULL, lib.size = NULL)
+ct.gRNARankByReplicate(
+  eset,
+  sampleKey,
+  annotation = NULL,
+  geneSymb = NULL,
+  lib.size = NULL
+)
 }
 \arguments{
 \item{eset}{An ExpressionSet object containing, at minimum, count data accessible by exprs() and some phenoData.}

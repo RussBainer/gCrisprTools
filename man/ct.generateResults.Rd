@@ -4,9 +4,15 @@
 \alias{ct.generateResults}
 \title{Calculate results of a crispr screen from a contrast}
 \usage{
-ct.generateResults(fit, annotation, RRAalphaCutoff = 0.1,
-  permutations = 1000, contrast.term = NULL, scoring = c("combined",
-  "pvalue", "fc"), permutation.seed = NULL)
+ct.generateResults(
+  fit,
+  annotation,
+  RRAalphaCutoff = 0.1,
+  permutations = 1000,
+  contrast.term = NULL,
+  scoring = c("combined", "pvalue", "fc"),
+  permutation.seed = NULL
+)
 }
 \arguments{
 \item{fit}{An object of class \code{MArrayLM} containing, at minimum, a \code{t} slot with t-statistics from the comparison, 

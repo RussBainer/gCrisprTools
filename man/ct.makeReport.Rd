@@ -4,8 +4,17 @@
 \alias{ct.makeReport}
 \title{Generate a full experimental report from a pooled CRISPR screen}
 \usage{
-ct.makeReport(fit, eset, sampleKey, annotation, results, aln,
-  outdir = NULL, contrast.term = NULL, identifier = NULL)
+ct.makeReport(
+  fit,
+  eset,
+  sampleKey,
+  annotation,
+  results,
+  aln,
+  outdir = NULL,
+  contrast.term = NULL,
+  identifier = NULL
+)
 }
 \arguments{
 \item{fit}{An object of class \code{MArrayLM} containing, at minimum, a \code{coefficents} slot with coefficients from the comparison,

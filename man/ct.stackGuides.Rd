@@ -5,9 +5,15 @@
 \title{View a stacked representation of the most variable targets or individual guides within an experiment, 
 as a percentage of the total aligned reads}
 \usage{
-ct.stackGuides(eset, sampleKey = NULL, nguides = 20,
-  plotType = "gRNA", annotation = NULL, ylimit = NULL,
-  subset = NULL)
+ct.stackGuides(
+  eset,
+  sampleKey = NULL,
+  nguides = 20,
+  plotType = "gRNA",
+  annotation = NULL,
+  ylimit = NULL,
+  subset = NULL
+)
 }
 \arguments{
 \item{eset}{An ExpressionSet  object containing, at minimum, a matrix of gRNA abundances extractable with the exprs() function, and a metadata 

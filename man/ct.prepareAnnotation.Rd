@@ -4,8 +4,7 @@
 \alias{ct.prepareAnnotation}
 \title{Check and optionally subset an annotation file for use in a Crispr Screen}
 \usage{
-ct.prepareAnnotation(ann, object = NULL, controls = TRUE,
-  throw.error = TRUE)
+ct.prepareAnnotation(ann, object = NULL, controls = TRUE, throw.error = TRUE)
 }
 \arguments{
 \item{ann}{A \code{data.frame} containing an annotation object with gRNA-level information encoded as rows. The 

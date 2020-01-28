@@ -4,8 +4,7 @@
 \alias{ct.targetSetEnrichment}
 \title{Test Whether a Specified Target Set is Enriched Within a Pooled Screen}
 \usage{
-ct.targetSetEnrichment(summaryDF, targets, enrich = TRUE,
-  ignore = NULL)
+ct.targetSetEnrichment(summaryDF, targets, enrich = TRUE, ignore = NULL)
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}

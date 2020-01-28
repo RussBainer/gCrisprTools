@@ -4,8 +4,14 @@
 \alias{ct.filterReads}
 \title{Remove low-abundance elements from an ExpressionSet object}
 \usage{
-ct.filterReads(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL,
-  plot.it = TRUE, read.floor = NULL)
+ct.filterReads(
+  eset,
+  trim = 1000,
+  log2.ratio = 4,
+  sampleKey = NULL,
+  plot.it = TRUE,
+  read.floor = NULL
+)
 }
 \arguments{
 \item{eset}{An unnormalized \code{ExpressionSet} object containing, at minimum, a matrix of gRNA counts accessible with \code{exprs()}.}

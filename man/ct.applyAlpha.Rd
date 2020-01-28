@@ -4,8 +4,11 @@
 \alias{ct.applyAlpha}
 \title{Apply RRA 'alpha' cutoff to RRAalpha input}
 \usage{
-ct.applyAlpha(stats, RRAalphaCutoff = 0.1, scoring = c("combined",
-  "pvalue", "fc"))
+ct.applyAlpha(
+  stats,
+  RRAalphaCutoff = 0.1,
+  scoring = c("combined", "pvalue", "fc")
+)
 }
 \arguments{
 \item{stats}{three-column numeric matrix with pvalues for down and up one-sided test with guide-level fold

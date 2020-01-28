@@ -4,9 +4,14 @@
 \alias{ct.ROC}
 \title{Generate a Receiver-Operator Characteristic (ROC) Curve from a CRISPR screen}
 \usage{
-ct.ROC(summaryDF, target.list, stat = c("enrich.p", "deplete.p",
-  "enrich.fc", "deplete.fc", "enrich.rho", "deplete.rho"),
-  condense = TRUE, plot.it = TRUE)
+ct.ROC(
+  summaryDF,
+  target.list,
+  stat = c("enrich.p", "deplete.p", "enrich.fc", "deplete.fc", "enrich.rho",
+    "deplete.rho"),
+  condense = TRUE,
+  plot.it = TRUE
+)
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}

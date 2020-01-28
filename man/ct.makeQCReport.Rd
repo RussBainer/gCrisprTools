@@ -4,8 +4,18 @@
 \alias{ct.makeQCReport}
 \title{Generate a QC report from a pooled CRISPR screen}
 \usage{
-ct.makeQCReport(eset, trim, log2.ratio, sampleKey, annotation, aln,
-  identifier = NULL, lib.size, geneSymb = NULL, outdir = NULL)
+ct.makeQCReport(
+  eset,
+  trim,
+  log2.ratio,
+  sampleKey,
+  annotation,
+  aln,
+  identifier = NULL,
+  lib.size,
+  geneSymb = NULL,
+  outdir = NULL
+)
 }
 \arguments{
 \item{eset}{An ExpressionSet object containing, at minimum, a matrix of gRNA

@@ -4,8 +4,7 @@
 \alias{ct.guideCDF}
 \title{View CDFs of the ranked gRNAs or Targets present in a crispr screen}
 \usage{
-ct.guideCDF(eset, sampleKey = NULL, plotType = "gRNA",
-  annotation = NULL)
+ct.guideCDF(eset, sampleKey = NULL, plotType = "gRNA", annotation = NULL)
 }
 \arguments{
 \item{eset}{An ExpressionSet  object containing, at minimum, a matrix of gRNA abundances extractable with the exprs() function.}

@@ -155,12 +155,78 @@ ct.resultCheck <- function(summaryDF){
   return(TRUE)
 }
   
+##' @title Package Screen Data into a `SummarizedExperiment` Object 
+##' @description Convenience function to package major components of a screen into a `SummarizedExperiment` container
+##' for downstream visualization and analysis. All arguments are optional except for `es`. 
+##' @param es An `ExpressionSet` of screen data. Required. 
+##' @param sampleKey a gCrisprTools `sampleKey` object, to be added to the `colData`. 
+##' @param ann Annotation object to be packaged into the `rowData`
+##' @param vm A `voom`-derived normalized object
+##' @param fit a `MArrayLM` object containing the contrast information and model results
+##' @param summaryList A named list of \code{data.frame}s, returned by \code{ct.generateResults}. 
+##' if you need to generate one of these by hand for some reason, see the example 
+##' \code{resultsDF} object loaded in the example below. 
+##' @return A `SummarizedExperiment` object. 
+##' @importFrom SummarizedExperiment SummarizedExperiment
+##' @author Russell Bainer
+##' @examples 
+##' data('ann', 'es', 'fit', 'resultsDF')
+##' ct.buildSE(es, ann = ann, fit = 'fit', summaryList = list('resA' = resultsDF, 'resB' = resultsDF))
+##' 
+##' @export
+ct.buildSE <- function(es, 
+                       sampleKey = NULL, 
+                       ann = NULL, 
+                       vm = NULL,
+                       fit = NULL, 
+                       summaryList = NULL){
+  library(SummarizedExperiment, quietly = TRUE)
+  
+  stopifnot(class(es) %in% 'ExpressionSet')
+  
+  asy <- list('counts' = exprs(es))
+  met <- list()
+  rd <- fData(es)
+  cd <- pData(es)
+  
+  if(!is.null(sampleKey)){
+    cd$sampleKey <- sampleKey[row.names(cd)]
+ }
+  
+  if(!is.null(vm)){
+    stopifnot(setequal(colnames(vm), colnames(es)), 
+              class(vm) %in% 'EList', 
+              setequal(row.names(vm), row.names(es)))
+      asy['voom'] <- vm$E
+      asy['weights'] <- vm$weights
+      met['design'] <- vm$design
+      
+      newCols <- (ncol(cd) + 1):(ncol(cd) + ncol(vm$targets))
+      cd <- cbind(cd, vm$targets[row.names(cd),])
+      colnames(cd)[newCols] <- colnames(vm$targets) 
+    }
 
+  if(!is.null(fit)){
+    met['fit'] <- fit
+  }
+  
+  if(!is.null(summaryList)){
+    if((class(summaryList) != 'list') | (is.null(names(summaryList)))){
+      stop('When supplied, results dataframes must be provided as a named list.')
+      }
+    invisible(lapply(summaryList, ct.resultCheck))
+    met$results <- summaryList
+  }
+  
+  if(!is.null(ann)){
+    ann <- ct.prepareAnnotation(ann, es)
+    rd <- cbind(rd, ann[row.names(rd),])
+  }
+ 
+  se <- SummarizedExperiment(assays = asy, 
+                             rowData = rd, 
+                             colData = cd, 
+                             metadata = met)
 
-
-
-
-
-
-
-
+  return(se)
+}
