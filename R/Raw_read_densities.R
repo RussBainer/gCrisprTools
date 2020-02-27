@@ -9,6 +9,7 @@
 ##' @param sampleKey A sample key, supplied as a (possibly ordered) factor linking the samples to experimental 
 ##' variables. The \code{names} attribute should exactly match those present in \code{eset}, and the control set 
 ##' is assumed to be the first \code{level}.
+##' @param lib.size Optional named vector of library sizes (total reads within the library) to enable normalization
 ##' @return A density plot as specified on the default device. 
 ##' @author Russell Bainer
 ##' @examples 
@@ -21,7 +22,7 @@
 ##' 
 ##' ct.rawCountDensities(es, sk)
 ##' @export
-ct.rawCountDensities <- function(eset, sampleKey = NULL){
+ct.rawCountDensities <- function(eset, sampleKey = NULL, lib.size = NULL){
 
   if(class(eset) != "ExpressionSet"){stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))}
   
@@ -32,8 +33,15 @@ ct.rawCountDensities <- function(eset, sampleKey = NULL){
     ct.inputCheck(sampleKey, eset)
     sampleKey <- sampleKey[order(sampleKey)]
   }
-    
-  e.dat <- log10(exprs(eset) + 1)
+  counts <- exprs(eset) 
+  if(!is.null(lib.size)){
+    stopifnot(setequal(names(lib.size), colnames(counts)), all(is.numeric(lib.size)))
+    counts <- t(t(counts)/(lib.size[colnames(counts)]/1000000))
+    message('Valid lib.sizes provided. Results will be in CPM.')
+  }
+  e.dat <- log10(counts + 1)
+  
+  
   densities <- apply(e.dat, 2, density)
   
   y <- c(0, max(unlist(lapply(densities, function(dens){max(dens$y)}))))
@@ -56,7 +64,7 @@ ct.rawCountDensities <- function(eset, sampleKey = NULL){
                                      col = colors[as.numeric(sampleKey[colnames(e.dat)[x]])])}
                    )
             )
-  legend("topleft", legend = levels(sampleKey), fill = colors)
+  legend("topright", legend = levels(sampleKey), fill = colors)
 
 }
 

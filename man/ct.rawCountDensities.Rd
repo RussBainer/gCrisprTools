@@ -4,7 +4,7 @@
 \alias{ct.rawCountDensities}
 \title{Visualization of Raw gRNA Count Densities}
 \usage{
-ct.rawCountDensities(eset, sampleKey = NULL)
+ct.rawCountDensities(eset, sampleKey = NULL, lib.size = NULL)
 }
 \arguments{
 \item{eset}{An ExpressionSet object containing, at minimum, count data accessible by exprs() and some phenoData.}
@@ -12,6 +12,8 @@ ct.rawCountDensities(eset, sampleKey = NULL)
 \item{sampleKey}{A sample key, supplied as a (possibly ordered) factor linking the samples to experimental 
 variables. The \code{names} attribute should exactly match those present in \code{eset}, and the control set 
 is assumed to be the first \code{level}.}
+
+\item{lib.size}{Optional named vector of library sizes (total reads within the library) to enable normalization}
 }
 \value{
 A density plot as specified on the default device.
