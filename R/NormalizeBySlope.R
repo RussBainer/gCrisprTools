@@ -1,4 +1,4 @@
-##' @title Normalize sample abundance estimates by the slope of the values in the a central range
+##' @title Normalize sample abundance estimates by the slope of the values in the central range
 ##' @description This function normalizes Crispr gRNA abundance estimates by equalizing the slopes of the middle (logged) values of the
 ##' distribution across samples. Specifically, the algorithm ranks the gRNA abundance estimates within each sample and determines a relationship between
 ##' rank change and gRNA within a trimmed region of the distribution via a linear fit. It then adjusts each sample such that the center of the logged
@@ -272,4 +272,55 @@ ct.normalizeFQ <- function(eset, sets, lib.size = NULL){
   exprs(eset) <- round(correctedCounts)
   return(eset)
 }
+
+##' @title Apply Factored Quantile Normalization to gRNA counts
+##' @description This function normalizes Crispr gRNA abundance estimates by equalizing the median gRNA abundance values after
+##' correcting for library size. It does this by converting raw count values to log2 counts per million and optionally adjusting further in 
+##' the usual way by dividing these values by user-specified library size factors. THis method should be more stable than the endogenous 
+##' scaling functions used in \code{voom} in th especific case of Crispr screens or other cases where the median number of observed counts may be low. 
+##' @param eset An \code{ExpressionSet} containing, at minimum, count data accessible by \code{exprs}.
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
+##' @return A renormalized ExpressionSet object of the same type as the provided object.
+##' @author Russell Bainer
+##' @import limma
+##' @examples data('es')
+##' 
+##' #Build the sample key and library sizes for visualization
+##' library(Biobase)
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' names(sk) <- row.names(pData(es))
+##' ls <- colSums(exprs(es))
+##' 
+##' es.norm <- ct.normalizeMedians(es, lib.size= ls)
+##' ct.gRNARankByReplicate(es, sampleKey = sk, lib.size= ls)
+##' ct.gRNARankByReplicate(es.norm, sampleKey = sk, lib.size= ls)
+##' @export
+ct.normalizeFactoredQuantiles <- function(eset, lib.size = NULL){
+  if(!class(eset) == 'ExpressionSet'){
+    stop("Please provide an ExpressionSet object for normalization.")
+  }
+  
+  counts <- exprs(eset)
+  
+  if (is.null(lib.size)){
+    lib.size <- colSums(counts)
+  }else if(!is.numeric(lib.size) | length(lib.size) != ncol(counts)){
+    stop('If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.')
+  } 
+  
+  y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+  cmed <- apply(y, 2, median, na.rm = TRUE)
+  cmed <- cmed - mean(cmed)
+  correctedCounts <- 2^t(t(y) - cmed)
+  correctedCounts <- (t(t(correctedCounts) * ((lib.size + 1) / 1e+06)) - 0.5)
+  
+  exprs(eset) <- round(correctedCounts)
+  return(eset)
+}
+
+
+
+
 
