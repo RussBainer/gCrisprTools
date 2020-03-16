@@ -2,7 +2,7 @@
 % Please edit documentation in R/NormalizeBySlope.R
 \name{ct.normalizeBySlope}
 \alias{ct.normalizeBySlope}
-\title{Normalize sample abundance estimates by the slope of the values in the a central range}
+\title{Normalize sample abundance estimates by the slope of the values in the central range}
 \usage{
 ct.normalizeBySlope(ExpressionObject, trim = 0.25, lib.size = NULL, ...)
 }
