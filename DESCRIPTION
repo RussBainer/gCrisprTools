@@ -15,8 +15,9 @@ Imports: Biobase, limma, RobustRankAggreg, ggplot2,
         PANTHER.db, rmarkdown, grDevices, graphics,
         stats, utils, parallel, SummarizedExperiment
 Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, RUnit, BiocGenerics
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 VignetteBuilder: knitr
+Encoding: UTF-8
 biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
         BiomedicalInformatics, CellBiology, FunctionalGenomics,
         Pharmacogenomics, Pharmacogenetics, SystemsBiology,
@@ -24,5 +25,4 @@ biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
         MultipleComparison, Normalization, Preprocessing,
         QualityControl, RNASeq, Regression, Software, Visualization
 NeedsCompilation: no
-VignetteBuilder: knitr
 Depends: R (>= 3.3)
