@@ -180,8 +180,7 @@ ct.buildSE <- function(es,
                        vm = NULL,
                        fit = NULL, 
                        summaryList = NULL){
-  library(SummarizedExperiment, quietly = TRUE)
-  
+
   stopifnot(class(es) %in% 'ExpressionSet')
   
   asy <- list('counts' = exprs(es))
@@ -223,10 +222,10 @@ ct.buildSE <- function(es,
     rd <- cbind(rd, ann[row.names(rd),])
   }
  
-  se <- SummarizedExperiment(assays = asy, 
-                             rowData = rd, 
-                             colData = cd, 
-                             metadata = met)
+  se <- SummarizedExperiment::SummarizedExperiment(assays = asy, 
+                                                   rowData = rd, 
+                                                   colData = cd, 
+                                                   metadata = met)
 
   return(se)
 }

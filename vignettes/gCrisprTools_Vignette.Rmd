@@ -8,7 +8,7 @@ output:
     depth: 3
 vignette: >
   %\VignetteIndexEntry{gCrisprTools_Vignette}
-  %\VignetteEngine{rmarkdown}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 ###1. Overview of gCrisprTools

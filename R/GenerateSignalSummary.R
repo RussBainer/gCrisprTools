@@ -91,9 +91,9 @@ ct.signalSummary <-
     polygon(x = c(0.7,1,1,0.7), y = (rep(maxval, 4) - rep(c(maxval/2, 0), each = 2)), col = 'white') 
     lines(rep(inset.zero, 2), c(maxval/2, maxval), lty = 2, col = 'lightgrey')
     points(inset.x, inset.y, pch = 19, cex = 0.2, col= rgb(14/255,41/255,56/255))
-    text(0.85, maxval, 'gRNA', adj = c(0.5,1.5), cex = 1)
-    text(0.85, (maxval/2), 'Log2 Fold Change', adj = c(0.5, 1.5), cex = 0.7)
-    text(0.7, 3*(maxval/4), '-log10P', srt = 90, adj = c(0.7, -0.5), cex = 0.7)
+    graphics::text(0.85, maxval, 'gRNA', adj = c(0.5,1.5), cex = 1)
+    graphics::text(0.85, (maxval/2), 'Log2 Fold Change', adj = c(0.5, 1.5), cex = 0.7)
+    graphics::text(0.7, 3*(maxval/4), '-log10P', srt = 90, adj = c(0.7, -0.5), cex = 0.7)
     
     #add annotation
     t.col <- c(rgb(218/255, 111/255, 90/255), 
@@ -120,7 +120,7 @@ ct.signalSummary <-
                  if(callout){
                    segments(exes[gw.ranks], gwp[gw.ranks], 0.3, ylocs[x], col = rgb(78/255, 78/255, 76/255, 0.4))
                  }
-                 text(0.3, ylocs[x], names(targets)[x], pos = 4)
+                 graphics::text(0.3, ylocs[x], names(targets)[x], pos = 4)
                  points(0.3, ylocs[x], pch = 22, cex = 2, bg = t.col[x])
                })
       )

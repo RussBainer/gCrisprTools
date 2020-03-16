@@ -13,7 +13,7 @@ Description: Set of tools for evaluating pooled high-throughput screening experi
 License: Artistic-2.0
 Imports: Biobase, limma, RobustRankAggreg, ggplot2,
         PANTHER.db, rmarkdown, grDevices, graphics,
-        stats, utils, parallel
+        stats, utils, parallel, SummarizedExperiment
 Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, RUnit, BiocGenerics
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr
@@ -24,4 +24,5 @@ biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
         MultipleComparison, Normalization, Preprocessing,
         QualityControl, RNASeq, Regression, Software, Visualization
 NeedsCompilation: no
+VignetteBuilder: knitr
 Depends: R (>= 3.3)
