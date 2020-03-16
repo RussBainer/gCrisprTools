@@ -4,7 +4,7 @@ Title: Suite of Functions for Pooled Crispr Screen QC and Analysis
 Version: 1.15.2
 Date: 2019-04-09
 Author: Russell Bainer, Dariusz Ratman, Steve Lianoglou, Peter Haverty
-Maintainer: Russell Bainer <rbainer@mazetx.com>
+Maintainer: Russell Bainer <russ.bainer@gmail.com>
 Description: Set of tools for evaluating pooled high-throughput screening experiments,
     typically employing CRISPR/Cas9 or shRNA expression cassettes. Contains methods for interrogating
     library and cassette behavior within an experiment, identifying differentially abundant
@@ -25,4 +25,4 @@ biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
         MultipleComparison, Normalization, Preprocessing,
         QualityControl, RNASeq, Regression, Software, Visualization
 NeedsCompilation: no
-Depends: R (>= 3.3)
+Depends: R (>= 3.6)
