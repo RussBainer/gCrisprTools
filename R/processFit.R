@@ -33,7 +33,7 @@
 ##' @export 
 
 ct.preprocessFit <- function(fit, modelTerm){
-  if(class(fit) != "MArrayLM"){stop(paste(deparse(substitute(fit)), "is not an MArrayLM object."))}
+  if(!is(fit, "MArrayLM")){stop(paste(deparse(substitute(fit)), "is not an MArrayLM object."))}
   if(!(modelTerm %in% colnames(fit$coefficients))){stop("Specified coefficient is not present in the fit object.")}
   if(!('p.value' %in% names(fit))){warning(paste(deparse(substitute(fit)), ' does not contain p-values quantifying the evidence for differential gRNA abundance. Eventually, you will need to process it with eBayes(), treat(), or a similar function.'))}
   

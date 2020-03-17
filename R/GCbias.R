@@ -31,7 +31,7 @@
 ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL){
 
   #check inputs
-  if(class(data.obj) == 'ExpressionSet'){
+  if(is(data.obj, 'ExpressionSet')){
       is.fit <- FALSE
       d <- exprs(data.obj)
       
@@ -52,7 +52,7 @@ ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL){
     invisible(ct.inputCheck(sampleKey, data.obj))
     ann <- ct.prepareAnnotation(ann, object = data.obj, throw.error = FALSE)
         
-    } else if(class(data.obj) == 'MArrayLM'){
+    } else if(is(data.obj, 'MArrayLM')){
 
       is.fit <- TRUE
       ann <- ct.prepareAnnotation(ann, object = data.obj, throw.error = FALSE)

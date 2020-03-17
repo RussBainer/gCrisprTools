@@ -97,9 +97,9 @@ ct.inputCheck <- function(sampleKey, object){
   if(is.null(names(sampleKey))){stop(paste(deparse(substitute(sampleKey)), "must have a names attribute, specifying the sample assignments in", deparse(substitute(object)), "."))}
   
   #Check to see if the names match properly
-  if(class(object) == "EList"){
+  if(is(object, "EList")){
     dat <- object$E
-  }else if(class(object) == "ExpressionSet"){
+  }else if(is(object, "ExpressionSet")){
     dat <- exprs(object)
   }else{
     dat <- object
@@ -181,7 +181,7 @@ ct.buildSE <- function(es,
                        fit = NULL, 
                        summaryList = NULL){
 
-  stopifnot(class(es) %in% 'ExpressionSet')
+  stopifnot(is(es, 'ExpressionSet'))
   
   asy <- list('counts' = exprs(es))
   met <- list()
@@ -194,7 +194,7 @@ ct.buildSE <- function(es,
   
   if(!is.null(vm)){
     stopifnot(setequal(colnames(vm), colnames(es)), 
-              class(vm) %in% 'EList', 
+              is(vm, 'EList'), 
               setequal(row.names(vm), row.names(es)))
       asy['voom'] <- vm$E
       asy['weights'] <- vm$weights
@@ -210,7 +210,7 @@ ct.buildSE <- function(es,
   }
   
   if(!is.null(summaryList)){
-    if((class(summaryList) != 'list') | (is.null(names(summaryList)))){
+    if((!is(summaryList, 'list')) | (is.null(names(summaryList)))){
       stop('When supplied, results dataframes must be provided as a named list.')
       }
     invisible(lapply(summaryList, ct.resultCheck))

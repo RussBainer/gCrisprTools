@@ -16,7 +16,7 @@ ct.DirectionalTests <- function(fit, contrast.term = NULL){
     fit <- ct.preprocessFit(fit, contrast.term)
   }
   
-  if(class(fit) != "MArrayLM"){stop(paste(deparse(substitute(fit)), "is not an MArrayLM object."))}
+  if(!is(fit, "MArrayLM")){stop(paste(deparse(substitute(fit)), "is not an MArrayLM object."))}
   if(!("t" %in% names(fit))){stop("No t statistics are present in the specified object.")}
   if(!("df.total" %in% names(fit))){stop('Cannot find the appropriate degrees of freedom (df.total) in the specified object.')}
 

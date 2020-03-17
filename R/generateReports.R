@@ -107,7 +107,7 @@ renderReport <- function(reportNameBase,
 
 ct.makeReport <- function(fit, eset, sampleKey, annotation, results, aln, outdir = NULL, contrast.term = NULL, identifier = NULL){
 
-  if(class(fit) != "MArrayLM"){
+  if(!is(fit, "MArrayLM")){
     stop("the provided fit does not appear to be a MArrayLM object.")
     }
 

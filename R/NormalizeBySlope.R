@@ -35,7 +35,7 @@ ct.normalizeBySlope <-
   if(!(class(ExpressionObject) %in% c("ExpressionSet", "EList"))){stop(paste(deparse(substitute(ExpressionObject)), "is not an ExpressionSet or Elist."))}
 
   #log them
-  if(class(ExpressionObject) == "EList"){
+  if(is(ExpressionObject, "EList")){
     e.dat <- ExpressionObject$E
   }else{
     counts <- exprs(ExpressionObject)
@@ -64,7 +64,7 @@ ct.normalizeBySlope <-
   correctedCounts <- round(t(t(correctedCounts) * ((lib.size + 1) / 1e+06)) - 0.5)
   
   #update and return the object
-  if(class(ExpressionObject) == "ExpressionSet"){
+  if(is(ExpressionObject, "ExpressionSet")){
     exprs(ExpressionObject) <- correctedCounts
     ExpressionObject <- ct.normalizeMedians(ExpressionObject, lib.size)
     return(ExpressionObject)
@@ -114,7 +114,7 @@ ct.normalizeBySlope <-
 ##' es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 ##' @export
 ct.normalizeGuides <- function(eset, method = c("scale", 'FQ', "slope", "controlScale", "controlSpline"), annotation = NULL, sampleKey = NULL, lib.size = NULL, plot.it = FALSE, ...){
-  if(class(eset) != "ExpressionSet"){
+  if(!is(eset, "ExpressionSet")){
     stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
   }
 
@@ -190,7 +190,7 @@ ct.normalizeGuides <- function(eset, method = c("scale", 'FQ', "slope", "control
 ##' ct.gRNARankByReplicate(es.norm, sampleKey = sk, lib.size= ls)
 ##' @export
 ct.normalizeMedians <- function(eset, lib.size = NULL){
-  if(!class(eset) == 'ExpressionSet'){
+  if(!is(eset, 'ExpressionSet')){
     stop("Please provide an ExpressionSet object for normalization.")
   }
   
@@ -244,7 +244,7 @@ ct.normalizeMedians <- function(eset, lib.size = NULL){
 ##' ct.gRNARankByReplicate(es.norm, sampleKey = sk, lib.size= ls)
 ##' @export
 ct.normalizeFQ <- function(eset, sets, lib.size = NULL){
-  if(!class(eset) == 'ExpressionSet'){
+  if(!is(eset, 'ExpressionSet')){
     stop("Please provide an ExpressionSet object for normalization.")
   }
   
@@ -298,7 +298,7 @@ ct.normalizeFQ <- function(eset, sets, lib.size = NULL){
 ##' ct.gRNARankByReplicate(es.norm, sampleKey = sk, lib.size= ls)
 ##' @export
 ct.normalizeFactoredQuantiles <- function(eset, lib.size = NULL){
-  if(!class(eset) == 'ExpressionSet'){
+  if(!is(eset, 'ExpressionSet')){
     stop("Please provide an ExpressionSet object for normalization.")
   }
   
