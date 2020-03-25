@@ -11,10 +11,12 @@ vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
-###1. Overview of gCrisprTools
+### 1.0 Overview of gCrisprTools
+
 Competitive screening experiments, in which bulk cell cultures infected with a heterogeneous viral library are experimentally manipulated to identify guide RNAs or shRNAs that influence cell viability, are conceptually straightforward but often challenging to implement. Here, we present gCrisprTools, an R/Bioconductor analysis suite facilitating quality assessment, target prioritization, and interpretation of arbitrarily complex competitive screening experiments. gCrisprTools provides functionalities for detailed and principled analysis of diverse aspects of these experiments both as a standalone pipeline or as an extension to alternative analytical approaches.
 
-####1.1 Installation
+#### 1.1 Installation
+
 Install gCrisprTools in the usual way:
 
 ```{r, eval = FALSE}
@@ -23,15 +25,12 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("gCrisprTools")
 ```
 
-####1.2 Citing gCrisprTools
-If you use gCrisprTools while developing a publication, please cite the following paper:
+#### 1.4 Explore the Vignettes Folder
 
-> [Bioinformatics App Note Citation, to be updated later]
-
-####1.3 Explore the Vignettes Folder
 This vignette is only one of the resources provided in `gCrisprTools` to help you understand, analyse, and explore pooled screening data. As appropriate, please see the `/vignettes` subdirectory for additional documentation describing example code, and the `/inst` directory for more information about algorithm implementation and package layout.
 
-####1.4 Dependencies
+#### 1.3 Dependencies
+
 `gCrisprTools` uses the existing `Biobase` framework for data storage and manipulation and consequently depends heavily on the `Biobase` and `limma` packages.
 
 ```{r, message=FALSE, warning=FALSE}
@@ -41,12 +40,14 @@ library(gCrisprTools)
 ```
 
 
-###2. Inputs
+### 2.0 Inputs
 
-####2.1 Counting Cassettes from Sequencing Data
+#### 2.1 Counting Cassettes from Sequencing Data
+
 To use the various methods available in this package, you will first need to conform your screen data into an `ExpressionSet` object containing cassette abundance counts in the assayData slot, retrievable with `exprs()`. This package assumes that end users are familiar enough with the R/Bioconductor framework and their own sequencing pipelines to extract raw cassette counts from FASTQ files and to compose them into an `ExpressionSet`. For newer users read counting may be facilitated with [cutadapt](https://cutadapt.readthedocs.io/en/stable/) or other software designed for these purposes; details about composition of `ExpressionSet` objects can be found in the  [Biobase](http://bioconductor.org/packages/release/bioc/manuals/Biobase/man/Biobase.pdf) vignette.
 
-#####2.2 An ExpressionSet of Cassette Counts
+##### 2.2 An ExpressionSet of Cassette Counts
+
 Raw cassette counts should be contained within an `ExpressionSet` object, with the counts retrievable with`exprs()`. The column names (`colnames()`) should correspond to unique sample identifiers, and the row names (`row.names()`) should correspond to identifiers uniquely specifying each cassette of interest.
 ```{r}
 data("es", package = "gCrisprTools")
@@ -54,7 +55,8 @@ es
 head(exprs(es))
 ```
 
-#####2.3 An Annotation Object
+##### 2.3 An Annotation Object
+
 gCrisprTools requires an annotation object mapping the individual cassettes to genes or other genomic features for most applications. The annotation object should be provided as a named `data.frame`, with columns describing the '`geneID`' and '`geneSymbol`' of the target elements to which each cassette is annotated. These columns should contain character vectors with elements that uniquely describe the targets in the screen; by convention, the `geneID` field contains an official identifier that unambiguously describes each target element in a manner suitable for external software (e.g., an Entrez ID). The `geneSymbol` column indicates a more human-readable descriptor, such as a gene symbol.
 
 The annotation object may optionally contain other columns with additional information about the corresponding cassettes.
@@ -64,7 +66,8 @@ data("ann", package = "gCrisprTools")
 head(ann)
 ```
 
-####2.4 A Sample Key
+#### 2.4 A Sample Key
+
 Many `gCrisprTools` functions require or are enhanced by a sample key detailing the experimental groups of the functions included in the study. This key should be provided as a named factor, with `names` perfectly matching the `colnames` of the ExpressionSet. The first level of the sample key should correspond to the 'control' condition, indexing samples whose cassette distributions are expected to be the minimally distorted by experimental treatments.
 
 ```{r}
@@ -73,7 +76,8 @@ names(sk) <- row.names(pData(es))
 sk
 ```
 
-####2.5 Alignment Statistics
+#### 2.5 Alignment Statistics
+
 Users may provide a matrix of alignment statistics to enhance some applications, including QC reporting. These should be provided as a numeric matrix in which rows correspond to `targets` (reads containing a target cassette), `nomatch` (reads containing a cassette sequence but not a known target sequence), `rejections` (reads not containg a cassette sequence), and `double_match` (reads derived from multiple cassettes). The column names should exactly match the `colnames()` of the ExpressionSet object. Simple charting functionality is also provided to inspect the alignment rates of each sample.
 
 ```{r, fig.width = 7, fig.height = 5}
@@ -82,10 +86,12 @@ head(aln)
 ct.alignmentChart(aln, sk)
 ```
 
-###3. Preprocess Raw Data
+### 3.0 Preprocess Raw Data
+
 `gCrisprTools` provides tools for common data preprocessing steps, including eliminating underinfected or contaminant cassettes and sample-level normalization.
 
-#####3.1 ct.filterReads
+##### 3.1 ct.filterReads
+
 Low abundance cassettes can be removed by specifying a minimum number of counts or a level relative to the trimmed distribution maximum.
 
 ```{r, fig.width=6, fig.height = 8}
@@ -96,7 +102,7 @@ es <- ct.filterReads(es, trim = 1000, log2.ratio = 4, sampleKey = sk)
 ann <- ct.prepareAnnotation(ann, es, controls = "NoTarget")
 ```
 
-#####3.2 ct.normalizeGuides
+##### 3.2 ct.normalizeGuides
 
 A suite of normalization tools are provided with the `ct.normalizeGuides()` wrapper function; see the relevant manual pages for further details about these methods.
 
@@ -107,7 +113,7 @@ es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = 
 es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 ```
 
-#####3.3 ct.makeQCReport
+##### 3.3 ct.makeQCReport
 
 For convenience, experiment-level dynamics and the effects of various preprocessing steps may be automatically summarized in the form of a report. The following code isn't run as part of this vignette, but if run from the terminal `path2QC` will indicate the path to an html Quality Control report.
 
@@ -124,17 +130,20 @@ path2QC <- ct.makeQCReport(es,
                  )
 ```
 
-###4. Quality Assessment
+### 4.0 Quality Assessment
+
 The `gCrisprTools` package provides a series of functions for assessing distributional and technical properties of sequencing libraries. Please see additional details about all of these methods on their respective manual pages.
 
-#####4.1 ct.rawCountDensities
+##### 4.1 ct.rawCountDensities
+
 The raw cassette count distributions can be visualized to determine whether samples were inadequately sequenced or if PCR amplification artifacts might be present.
 
 ```{r, fig.width=6, fig.height=6}
 ct.rawCountDensities(es, sk)
 ```
 
-#####4.2 ct.gRNARankByReplicate
+##### 4.2 ct.gRNARankByReplicate
+
 Aspects of cassette distributions are often better visualized with a 'waterfall' plot than a standard density estimate, which can clarify the ranking relationships in specific parts of the distribution.
 
 ```{r, fig.width=6, fig.height = 6}
@@ -147,14 +156,16 @@ These plots also enable explicit visualization of cassettes of interest in the c
 ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "Target1633")
 ```
 
-#####4.3 ct.viewControls
+##### 4.3 ct.viewControls
+
 `gCrisprTools` provides tools for visualizing the behavior of control gRNAs across experimental conditions.
 
 ```{r, fig.width=6, fig.height = 6}
 ct.viewControls(es, ann, sk, normalize = FALSE, geneSymb = 'NoTarget')
 ```
 
-#####4.4 ct.guideCDF
+##### 4.4 ct.guideCDF
+
 Depending on the screen in question, it can be useful to quantify the extent to which experimental libraries have been distorted by experimental treatments. `gCrisprTools` provides tools to estimate an empirical cumulative distribution function describing the cassettes or (targets) within a screen.
 
 ```{r, fig.width=6, fig.height = 4}
@@ -162,7 +173,7 @@ ct.guideCDF(es, sk, plotType = "gRNA")
 ```
 
 
-###5. Identifying Candidate Targets
+### 5.0 Identifying Candidate Targets
 
 The core analytical machinery of gCrisprTools is built on the linear modelling framework implemented in the `limma` package. Specifically, users employ `limma/voom` to generate an experimental contrast of interest at the gRNA level. The model coefficent and P-value estimates may be subsequently processed with the infrastructure provided by `gCrisprTools`.
 
@@ -178,7 +189,7 @@ fit <- contrasts.fit(fit, contrasts)
 fit <- eBayes(fit)
 ```
 
-#####5.1 ct.generateResults
+##### 5.1 ct.generateResults
 
 After generating a fit object (class `MArrayLM`) for a contrast of interest, we may summarize the signals from the various cassettes annotated to each target via RRA$\alpha$ aggregation. The core algorithm is described in detail in the original publication on Robust Rank Aggregation[^1] and has been implemented according to the $\alpha$ thresholding modification proposed by Li et al.[^2] Briefly, gRNA signals contained in the specified fit object are ranked and normalized, and these ranks are grouped by the associated target and assigned a score ($\rho$) on the basis of the skewness of the gRNA signal ranks. The statistical significance of each target-level score is then assessed by permutation of the gRNA target assignments. *Q*-values are computed directly from the resulting *P*-value distributions using the FDR approach described by Benjamini and Hochberg.[^3]
 
@@ -197,11 +208,11 @@ resultsDF <-
 
 The resulting dataframe contains columns passing some of the information from the fit and annotation objects, as well as a number of statistics describing the evidence for a target's depletion or enrichment within the context of the screen. These include the Target-level *P* and *Q* values quantifying the evidence for enrichment or depletion, the median log2 fold change of all of the gRNAs associated with each target, and the rankings of the target-level $/rho$ statistics (gene-level scores may be useful for ranking targets with equivalent *P*-values).
 
-###6. Visualization of Results
+### 6.0 Visualization of Results
 
 After identifying candidate targets, various aspects of the contrast may be visualized with `gCrisprTools`.
 
-#####6.1 ct.topTargets
+##### 6.1 ct.topTargets
 
 The `ct.topTargets` function enables simple visualization of the model effect estimates (log2 fold changes) and associated uncertainties of all cassettes associated with the top-ranking targets.
 
@@ -213,7 +224,7 @@ ct.topTargets(fit,
               enrich = TRUE)
 ```
 
-#####6.2 ct.stackGuides
+##### 6.2 ct.stackGuides
 
 In some screens it can be useful to visualize the degree of library distortion associated with the strongest signals. Such an approach can supply additional confidence in a particular candidate of interest by showing that clear differences are evident outside of the linear modeling framework (which may be inaccurate in heavily distorted libraries).
 
@@ -227,7 +238,7 @@ ct.stackGuides(
 )
 ```
 
-#####6.3 ct.viewGuides
+##### 6.3 ct.viewGuides
 
 `gCrisprTools` provides methods to visualize the behavior of individual cassettes annotated to target of interest, and positions these within the observed distribution of effect sizes across all cassettes within the experiment.
 
@@ -235,7 +246,7 @@ ct.stackGuides(
 ct.viewGuides("Target1633", fit, ann)
 ```
 
-####6.4 ct.makeContrastReport and ct.makeReport
+#### 6.4 ct.makeContrastReport and ct.makeReport
 As with the Quality Control components of an individual screen, `gCrisprTools` provides functionality to automatically generate contrast-level reports.
 
 ```{r, eval= FALSE}
@@ -264,11 +275,11 @@ path2report <-
                 outdir = ".")
 ```
 
-###7 Hypothesis Testing
+### 7.0 Hypothesis Testing
 
 In addition to identifying targets of interest within a screen, it may be worthwhile to ask more comprehensive questions about the targets identified. `gCrisprTools` provides a series of basic functions for determining the enrichment of known or unknown target groups within the context of a screen.
 
-#####7.1 ct.PantherPathwayEnrichment
+##### 7.1 ct.PantherPathwayEnrichment
 
 If a screen was performed with a library targeting genes, `gCrisprTools` can provide basic ontological enrichment testing. This function annotates Entrez gene IDs contained in the `geneID` column of the annotation object to pathways contained in the PANTHER database, and then checks for significant enrichment or depletion of these pathways using a hypergeometric test.
 
@@ -292,7 +303,7 @@ enrichmentResults <-
 6              B cell activation    204       11 5.336192 2.368705 0.0146442541 0.20272465
 ```
 
-#####7.2 ct.targetSetEnrichment, ct.ROC, and ct.PRC
+##### 7.2 ct.targetSetEnrichment, ct.ROC, and ct.PRC
 
 In some cases, it may be useful to ask whether a set of known targets is disproportionately enriched or depleted within a screen. `gCrisprTools` provides functions for answering these sorts of questions with `ct.ROC()`, which generates Reciever-Operator Characteristics for a specified gene set within a screen, and `ct.PRC()`, which draws precision-recall curves.  When called, both functions return the raw data necessary to reproduce or combine these results, along with appropriate statistics for assessing the significance of the overall signal within the specified target set (via a hypergeometric test).
 
