@@ -67,9 +67,11 @@ ct.CAT <-
     if(enrich){
       message('Sorting on enrichment.')
       ranks <- ranks[,c(1,5,2,6)]
+      out <- out[order((-log10(out$screen1_enrich.rho) + -log10(out$screen2_enrich.rho))/2, decreasing = TRUE),]
     } else {
       message('Sorting on depletion.')
       ranks <- ranks[,c(3,7,4,8)]
+      out <- out[order((-log10(out$screen1_deplete.rho) + -log10(out$screen2_deplete.rho))/2, decreasing = TRUE),]
     }
     
     message(paste0(min(apply(ranks,2, function(x){length(unique(x))})), ' distinct ranks identified.'))
