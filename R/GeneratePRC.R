@@ -90,7 +90,7 @@ ct.PRC <-
            type = "l", ylab = "Precision", xlab = "Recall", 
            main = paste("Precision and Recall of", deparse(substitute(target.list))), col = "blue", lwd = 3)
       }
-    return(out)
+    return(invisible(out))
     }
 
 
