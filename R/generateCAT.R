@@ -19,6 +19,7 @@
 ##' @param df2 A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}. 
 ##' @param targets Column of the provided \code{summaryDF} to consider. Must be \code{geneID} or \code{geneSymbol}.
 ##' @param enrich Logical indicating whether to test for enrichment or depletion.
+##' @param plot.it Logical indicating whether to compose the plot on the default device. 
 ##' @param plot.rho Logical indicating whether to plot the Rho values in addition to the P-values, which sometimes 
 ##' have better ranking properties. 
 ##' @return Invisibly, a data.frame containing the relevant summary stats for each target in both screens. 
@@ -32,6 +33,7 @@ ct.CAT <-
   function(df1, df2,
            targets = c('geneSymbol', 'geneID'),
            enrich, 
+           plot.it = TRUE, 
            plot.rho = TRUE) {
 
     #Check the input: 
@@ -47,7 +49,7 @@ ct.CAT <-
     df2 <- df2[!duplicated(df2[,targets]),]
     row.names(df2) <- df2[,targets]
     
-    out <- data.frame('Target' = union(df1[,targets], df2[,targets]))
+    out <- data.frame('Target' = as.character(union(df1[,targets], df2[,targets])), stringsAsFactors = FALSE)
     row.names(out) <- out$Target
     out$screen1_enrich.rho <- df1[out$Target,'Rho_enrich']
     out$screen1_enrich.p <- df1[out$Target,'Target-level Enrichment P']
@@ -81,30 +83,31 @@ ct.CAT <-
     if(length(unique(ranks[,3])) < length(unique(ranks[,4]))){ ranks[,3:4] <- ranks[,4:3]}
     
     #Compose statistics. more significant = Bigger numbers. 
-    rho.cat <- t(vapply(unique(ranks[,1]), 
+    rho.cat <- t(vapply(sort(unique(ranks[,1]), decreasing = FALSE), 
                         function(x){
                           c(sum(ranks[(ranks[,1] <= x),2] <= x), sum(ranks[,1] <= x)) 
                         }, 
                         numeric(2)))
-    p.cat <- t(vapply(unique(ranks[,3]), 
+    p.cat <- t(vapply(sort(unique(ranks[,3]), decreasing = FALSE), 
                         function(x){
                           c(sum(ranks[(ranks[,3] <= x),4] <= x), sum(ranks[,3] <= x)) 
                         }, 
                         numeric(2)))
-    p.cat <- p.cat[order(p.cat[,2], decreasing = TRUE),] 
-    rho.cat <- rho.cat[order(rho.cat[,2], decreasing = TRUE),] 
-    
+
     #Plot it
-    plot((p.cat[,2]/nrow(ranks)), p.cat[,1]/p.cat[,2], 
-         main = paste0(ifelse(enrich, 'Enrichment ', 'Depletion '), 'CAT'), 
-         xlab = 'Signal Rank', ylab = 'Concordance', 
-         xlim = c(0,1), ylim = c(0,1),
-         pch = 19, col = rgb(0,0,0.7))
-    abline(0,1,col='red')
-    if(plot.rho){lines(rho.cat[,2]/nrow(rho.cat), rho.cat[,1]/rho.cat[,2], 
-                       lty = 2, col = 'darkgrey', lwd = 2)
-      legend('bottomright', c('P', 'Rho'), fill = c(rgb(0,0,0.7), 'darkgrey'))
+    if(plot.it){
+      plot((p.cat[,2]/nrow(ranks)), p.cat[,1]/p.cat[,2], 
+           main = paste0(ifelse(enrich, 'Enrichment ', 'Depletion '), 'CAT'), 
+           xlab = 'Signal Rank', ylab = 'Concordance', 
+           xlim = c(0,1), ylim = c(0,1),
+           pch = 19, col = rgb(0,0,0.7))
+      abline(0,1,col='red')
+      if(plot.rho){
+        lines(rho.cat[,2]/nrow(rho.cat), rho.cat[,1]/rho.cat[,2], 
+                         lty = 2, col = 'darkgrey', lwd = 2)
+        legend('bottomright', c('P', 'Rho'), fill = c(rgb(0,0,0.7), 'darkgrey'))
       }
+    }
     return(invisible(out))
   }
 
