@@ -113,7 +113,7 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
 
 ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL){
   
-  if(is(eset, "ExpressionSet")){stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))}
+  if(!is(eset, "ExpressionSet")){stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))}
   
   #Check the annotation and find the NTC rows
   if(!is.data.frame(annotation)){

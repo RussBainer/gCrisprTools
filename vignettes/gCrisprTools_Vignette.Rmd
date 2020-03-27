@@ -107,6 +107,8 @@ ann <- ct.prepareAnnotation(ann, es, controls = "NoTarget")
 A suite of normalization tools are provided with the `ct.normalizeGuides()` wrapper function; see the relevant manual pages for further details about these methods.
 
 ```{r, fig.width=6, fig.height = 8}
+
+is(es, 'ExpressionSet')
 es <- ct.normalizeGuides(es, 'scale', annotation = ann, sampleKey = sk, plot.it = TRUE)
 es.norm <- ct.normalizeGuides(es, 'slope', annotation = ann, sampleKey = sk, plot.it = TRUE)
 es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
