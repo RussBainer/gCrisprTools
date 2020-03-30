@@ -38,7 +38,7 @@ ct.guideCDF <- function(eset, sampleKey = NULL, plotType = "gRNA", annotation = 
   current.graphic.params <- par(no.readonly = TRUE)
   on.exit(suppressWarnings(par(current.graphic.params)))
 
-  if(!is(eset, "ExpressionSet")){stop('eset must be an expressionset object.')}  
+  if(!methods::is(eset, "ExpressionSet")){stop('eset must be an expressionset object.')}  
   if(!(plotType %in% c("gRNA", "Target"))){stop('Please specify "gRNA" or "Target" to be displayed.')}
   
   #Extract and preprocess data  

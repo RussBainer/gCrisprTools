@@ -31,7 +31,7 @@
 ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL){
 
   #check inputs
-  if(is(data.obj, 'ExpressionSet')){
+  if(methods::is(data.obj, 'ExpressionSet')){
       is.fit <- FALSE
       d <- exprs(data.obj)
       

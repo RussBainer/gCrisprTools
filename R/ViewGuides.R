@@ -84,7 +84,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
   
   
   #testing
-  if(!is(fit, "MArrayLM")){stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))}
+  if(!methods::is(fit, "MArrayLM")){stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))}
  
   #Find the gRNAs targeting the gene from the annotation, and order them
   options(warn=-1)

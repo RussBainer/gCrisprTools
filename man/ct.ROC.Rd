@@ -29,12 +29,12 @@ indicate the curve value at every position (useful for performing curve arithmet
 \item{plot.it}{Logical value indicating whether to plot the curves.}
 }
 \value{
-A list containing the the x and y coordinates of the curve, and the AUC statistic.
+A list containing the the x and y coordinates of the curve, and the AUC statistic (invisibly).
 }
 \description{
 Given a set of targets of interest, this function generates a ROC curve and associated statistics from the results of
 a CRISPR screen. Specifically, it orders the elements targeted in the screen by the specified statistic, and then plots the cumulative
-proportion of positive hits on the y-axis. The corresponding vextors and Area Under the Curve (AUC) statistic are returned as a list.
+proportion of positive hits on the y-axis. The corresponding vectors and Area Under the Curve (AUC) statistic are returned as a list.
 
 Note that ranking statistics in CRISPR screens are (usually) permutation-based, and so some granularity is expected. This
 function does a little extra work to ensure that hits are counted as soon as the requisite value of the ranking statistic is reached

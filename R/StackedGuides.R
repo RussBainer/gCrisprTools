@@ -35,7 +35,7 @@ ct.stackGuides <- function(eset, sampleKey = NULL, nguides = 20, plotType = "gRN
     stop("The ggplot2 package is required")
   }
   if(!is.numeric(nguides)){stop('Please specify a numeric number of guides to display.')}  
-  if(!is(eset, "ExpressionSet")){stop('eset must be an expressionset object.')}  
+  if(!methods::is(eset, "ExpressionSet")){stop('eset must be an expressionset object.')}  
   if(!(plotType %in% c("gRNA", "Target"))){stop('Please specify "gRNA" or "Target" to be displayed.')}
 
   #Check eset colnames

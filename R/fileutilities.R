@@ -97,9 +97,9 @@ ct.inputCheck <- function(sampleKey, object){
   if(is.null(names(sampleKey))){stop(paste(deparse(substitute(sampleKey)), "must have a names attribute, specifying the sample assignments in", deparse(substitute(object)), "."))}
   
   #Check to see if the names match properly
-  if(is(object, "EList")){
+  if(methods::is(object, "EList")){
     dat <- object$E
-  }else if(is(object, "ExpressionSet")){
+  }else if(methods::is(object, "ExpressionSet")){
     dat <- exprs(object)
   }else{
     dat <- object
@@ -181,7 +181,7 @@ ct.buildSE <- function(es,
                        fit = NULL, 
                        summaryList = NULL){
 
-  stopifnot(is(es, 'ExpressionSet'))
+  stopifnot(methods::is(es, 'ExpressionSet'))
   
   asy <- list('counts' = exprs(es))
   met <- list()

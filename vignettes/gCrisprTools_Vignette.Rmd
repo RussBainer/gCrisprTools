@@ -108,7 +108,6 @@ A suite of normalization tools are provided with the `ct.normalizeGuides()` wrap
 
 ```{r, fig.width=6, fig.height = 8}
 
-is(es, 'ExpressionSet')
 es <- ct.normalizeGuides(es, 'scale', annotation = ann, sampleKey = sk, plot.it = TRUE)
 es.norm <- ct.normalizeGuides(es, 'slope', annotation = ann, sampleKey = sk, plot.it = TRUE)
 es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')

@@ -41,7 +41,7 @@ ct.topTargets <- function(fit, summaryDF, annotation, targets = 10, enrich = TRU
   
     #Test input: 
     #testing
-    if(!is(fit, "MArrayLM")){stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))}
+    if(!methods::is(fit, "MArrayLM")){stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))}
     
     if(!setequal(row.names(annotation), row.names(fit))){
       warning("row.names of the fit object and the annotation file are not identical. Using the intersection only.")

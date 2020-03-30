@@ -4,7 +4,14 @@
 \alias{ct.CAT}
 \title{Compare Two CRISPR Screens via a CAT plot}
 \usage{
-ct.CAT(df1, df2, targets = c("geneSymbol", "geneID"), enrich, plot.rho = TRUE)
+ct.CAT(
+  df1,
+  df2,
+  targets = c("geneSymbol", "geneID"),
+  enrich,
+  plot.it = TRUE,
+  plot.rho = TRUE
+)
 }
 \arguments{
 \item{df1}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
@@ -14,6 +21,8 @@ ct.CAT(df1, df2, targets = c("geneSymbol", "geneID"), enrich, plot.rho = TRUE)
 \item{targets}{Column of the provided \code{summaryDF} to consider. Must be \code{geneID} or \code{geneSymbol}.}
 
 \item{enrich}{Logical indicating whether to test for enrichment or depletion.}
+
+\item{plot.it}{Logical indicating whether to compose the plot on the default device.}
 
 \item{plot.rho}{Logical indicating whether to plot the Rho values in addition to the P-values, which sometimes 
 have better ranking properties.}

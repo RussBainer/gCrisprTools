@@ -23,7 +23,7 @@
 ##' @export
 ct.filterReads <- function(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL, plot.it = TRUE, read.floor = NULL){
 
-  if(!is(eset, "ExpressionSet")) {
+  if(!methods::is(eset, "ExpressionSet")) {
     stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
   }
   if(!is.numeric(trim)) {
