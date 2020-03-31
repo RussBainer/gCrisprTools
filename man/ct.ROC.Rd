@@ -44,7 +44,7 @@ somewhat anticonservative in cases where the gene ranks are not well differentia
 \examples{
 data('resultsDF')
 data('essential.genes') #Note that this is an artificial example.
-roc <- ct.ROC(resultsDF, essential.genes, 'enrich.p')
+roc <- ct.ROC(resultsDF, essential.genes, 'deplete.p')
 str(roc)
 }
 \author{

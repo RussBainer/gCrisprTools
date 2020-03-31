@@ -1,7 +1,4 @@
 Version 0.99.0: 
-<<<<<<< HEAD
-Initial bioconductor submission. 
-=======
 Initial bioconductor submission. 
 
 Version 1.0.0: 
@@ -9,4 +6,6 @@ First official release to Bioconductor.
 
 Version 1.1.0: 
 Miscellaneous minor report edits and performance upgrades. Bugfix to P-value based scoring algorithm. Peter Haverty designated as official maintainer. 
->>>>>>> upstream/master
+
+Version 1.15.0: 
+Various code updates, new functions added for visualization, compatibility with modern R objects. Russell Bainer redesignated as official maintainer. 

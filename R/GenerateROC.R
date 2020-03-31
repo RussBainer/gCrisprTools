@@ -21,7 +21,7 @@
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
 ##' data('essential.genes') #Note that this is an artificial example.
-##' roc <- ct.ROC(resultsDF, essential.genes, 'enrich.p')
+##' roc <- ct.ROC(resultsDF, essential.genes, 'deplete.p')
 ##' str(roc)
 ##' @export
 ct.ROC <-
@@ -76,12 +76,17 @@ ct.ROC <-
 
 
     out <- list()
-    out$specificity <- c(0, which(!duplicated(values)), length(values))
-    out$sensitivity <- c(0, unlist(lapply(unique(values), function(x){sum(targvals <= x, na.rm = TRUE)/length(targvals)})), 1)
+    values.unique <- sort(unique(values), decreasing = FALSE)
+    out$sensitivity <- unlist(lapply(values.unique, function(x){sum(targvals <= x, na.rm = TRUE)/length(targvals)}))
+    out$specificity <- unlist(lapply(values.unique, function(x){(sum(values > x) - sum(targvals > x, na.rm = TRUE))/(nrow(summaryDF) - length(present))}))
 
     #Calculate the AUC/Enrichment
-    binWidth <- out$specificity[2:length(out$specificity)] - out$specificity[1:(length(out$specificity) - 1)]
-    out$AUC <- sum(out$sensitivity[1:(length(out$specificity) - 1)] * binWidth)/length(values)
+
+    out$AUC <- sum(unlist(lapply(2:length(out$sensitivity), 
+                          function(x){
+                            (out$sensitivity[(x)])*(values.unique[x] - values.unique[(x-1)])
+                          })))
+      
 
     enrich <- switch(stat,
                   enrich.p = ct.targetSetEnrichment(summaryDF, target.list, enrich = TRUE),
@@ -93,10 +98,10 @@ ct.ROC <-
 
     #Plot it?
     if(plot.it){
-      plot(out$specificity, out$sensitivity, xlim = c(0, length(values)), ylim = c(0,1),
-           type = "l", ylab = "Sensitivity", xlab = "Specificity",
+      plot(c(0,(1 - out$specificity), 1), c(0, out$sensitivity, 1), xlim = c(0, 1), ylim = c(0,1),
+           type = "l", ylab = "Sensitivity", xlab = "1-Specificity",
            main = paste("AUC:", round(out$AUC, 3)), col = "blue", lwd = 3)
-      abline(0, 1/length(values), lty = "dashed", col = "red")
+      abline(0, 1, lty = "dashed", col = "red")
       }
 
     if(!condense){
