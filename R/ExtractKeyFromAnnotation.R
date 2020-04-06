@@ -3,6 +3,14 @@
 ##' Originally this was processed into something special, but now it essentially returns
 ##' the original annotation object in which the geneSymbol column has been factorized. This is primarily used 
 ##' internally during a call to the \code{ct.generateResults()} function. Also performs some minor functionality checking.
+##' 
+##' Valid annotations contain both `geneID` and `geneSymbol` columns. This is because there is often a distinction between
+##' the official gene that is being targeted and a coherent set of gRNAs that make up a testing cohort. For example, 
+##' multiple sets of guides may target distinct promoters, exons, or other entities that are expected to produce distinct 
+##' biological phenomena related to the gene that should be interpreted separately. For this reason, the `geneID` column 
+##' encodes the official gene designation (typically an ensembl or entrez gene identifier) while the `geneSymbol` column
+##' contains a human-readable descriptor of the gRNA target (such as a gene symbol or promoter name). 
+##' 
 ##' @param ann A \code{data.frame} containing an annotation object with gRNA-level information encoded as rows. The 
 ##' \code{row.names} attribute should correspond to the individual gRNAs, and it should at minimum contain columns 
 ##' named "geneID" and "geneSymbol" indicating the corresponding gRNA target gene ID and symbol, respectively. 

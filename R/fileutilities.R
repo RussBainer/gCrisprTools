@@ -92,7 +92,10 @@ dir.writable <- function(path) {
 ct.inputCheck <- function(sampleKey, object){
   
   #Check input formats
-  if(!(class(object) %in% c("ExpressionSet", "EList", "matrix"))){stop(paste(deparse(substitute(object)), "is not an ExpressionSet, Elist, or matrix."))}
+  if(!any(is(object, "ExpressionSet"), is(object, "EList"), is(object, "matrix"))){
+    stop(paste(deparse(substitute(object)), "is not an ExpressionSet, Elist, or matrix. Class is: ", class(object)))
+  }
+  
   if(!(is.factor(sampleKey))){stop(paste(deparse(substitute(sampleKey)), "is not an ordered factor."))}
   if(is.null(names(sampleKey))){stop(paste(deparse(substitute(sampleKey)), "must have a names attribute, specifying the sample assignments in", deparse(substitute(object)), "."))}
   

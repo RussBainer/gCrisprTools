@@ -4,6 +4,13 @@ Title: Suite of Functions for Pooled Crispr Screen QC and Analysis
 Version: 1.15.3
 Date: 2019-04-09
 Author: Russell Bainer, Dariusz Ratman, Steve Lianoglou, Peter Haverty
+Authors@R: c(
+    person("Russell", "Bainer", , "russ.bainer@gmail.com", c("aut", "cre")),
+    person("Dariusz", "Ratman", , "ratmand@roche.com", "aut"),
+    person("Peter", "Haverty", , "havertypm@gmail.com", "aut"),
+    person("Steve", "Lianoglou", , "slianoglou@gmail.com", "aut"),
+    person("Maze Therapeutics", role = c("fnd"), comment = "2019+"),
+    person("Genentech, Inc.", role = c("fnd"), comment = "2014 - 2018"))
 Maintainer: Russell Bainer <russ.bainer@gmail.com>
 Description: Set of tools for evaluating pooled high-throughput screening experiments,
     typically employing CRISPR/Cas9 or shRNA expression cassettes. Contains methods for interrogating
