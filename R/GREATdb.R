@@ -66,7 +66,7 @@ ct.GREATdb <- function(annotation,
 ##' @examples 
 ##' data('ann')
 ##' data('resultsDF')
-##' gsd <- multiGSEA::getMSigGeneSetDb(c('h', 'c2'), 'mouse', id.type = 'entrez')
+##' #gsd <- multiGSEA::getMSigGeneSetDb(c('h', 'c2'), 'mouse', id.type = 'entrez')
 ##' 
 ##' @author Steve Lianoglou for multiGSEA; Russell Bainer for wrapping functions.
 ct.multiGSEA <- function(resultsDF, 
