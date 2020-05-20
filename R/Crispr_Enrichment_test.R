@@ -169,13 +169,13 @@ ct.getPanther <- function (species = c("human", "mouse")){
 ##' @param targets A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneID}
 ##' column of the provided \code{summaryDF} are considered.
 ##' @param enrich Logical indicating whether to consider guides that are enriched (default) or depleted within the screen.
-##' @param ignore Optionally, a character vector containing elements of the \code{geneID} column of the provided \code{summaryDF}
+##' @param ignore Optionally, a character vector containing elements of the \code{geneSymbol} column of the provided \code{summaryDF}
 ##' that should be ignored in the analysis (e.g., unassignable or nonfunctional targets, such as nontargeting controls). By default,
 ##' this function omits targets with \code{geneSymbol} 'NoTarget'.
 ##' @return A named list containing the tested target set and tables detailing the hypergeometric test results using various P-value and
 ##' Q-value thresholds.
 ##' @examples data(resultsDF)
-##' tar <-  sample(unique(resultsDF$geneID), 20)
+##' tar <-  sample(unique(resultsDF$geneSymbol), 20)
 ##' res <- ct.targetSetEnrichment(resultsDF, tar)
 ##' @author Russell Bainer
 ##' @export
@@ -191,23 +191,23 @@ ct.targetSetEnrichment <- function(summaryDF, targets, enrich = TRUE, ignore = N
       stop('enrich must be either TRUE or FALSE.')
   }
 
-  valid <- intersect(targets, summaryDF$geneID)
+  valid <- intersect(targets, summaryDF$geneSymbol)
 
   if(length(valid) == 0){
-    stop('None of the targets in the supplied vector are contained in the geneID column of the summary dataframe.')
+    stop('None of the targets in the supplied vector are contained in the geneSymbol column of the summary dataframe.')
   }
   if(length(setdiff(targets, valid)) != 0){
-    warning(paste('Not all of the supplied targets are present in the geneID column of the summary dataframe. Proceeding with',
+    warning(paste('Not all of the supplied targets are present in the geneSymbol column of the summary dataframe. Proceeding with',
             length(valid), 'targets.'))
   }
 
   #Condense the summary frame to gene-level estimates and isolate the ones that we are testing
-  summaryDF <- summaryDF[!duplicated(summaryDF$geneID),]
-  summaryDF <- summaryDF[!is.na(summaryDF$geneID),]
+  summaryDF <- summaryDF[!duplicated(summaryDF$geneSymbol),]
+  summaryDF <- summaryDF[!is.na(summaryDF$geneSymbol),]
   summaryDF <- summaryDF[!grepl('NoTarget', summaryDF$geneSymbol),]  #Remove NoTarget Genes rather than constraining to Entrez
 
   if(!is.null(ignore)){
-    summaryDF <- summaryDF[!(summaryDF$geneID %in% ignore),]
+    summaryDF <- summaryDF[!(summaryDF$geneSymbol %in% ignore),]
   }
 
   #Pull out the P-values
@@ -216,7 +216,7 @@ ct.targetSetEnrichment <- function(summaryDF, targets, enrich = TRUE, ignore = N
   } else {
     selected <- summaryDF[,c("Target-level Depletion P", "Target-level Depletion Q")]
   }
-  row.names(selected) <- summaryDF$geneID
+  row.names(selected) <- summaryDF$geneSymbol
 
   #Set the cutoffs
   cuts <- c(0,1/(10^(5:1)), 0.5, 1)

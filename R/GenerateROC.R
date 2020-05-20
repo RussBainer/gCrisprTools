@@ -9,7 +9,7 @@
 ##' somewhat anticonservative in cases where the gene ranks are not well differentiated.
 ##'
 ##' @param summaryDF A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.
-##' @param target.list A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneID}
+##' @param target.list A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneSymbol}
 ##' column of the provided \code{summaryDF} are considered.
 ##' @param stat The statistic to use when ordering the genes. Must be one of \code{"enrich.p"}, \code{"deplete.p"}, \code{"enrich.fc"},
 ##' \code{"deplete.fc"}, \code{"enrich.rho"}, or \code{"deplete.rho"}.
@@ -38,14 +38,14 @@ ct.ROC <-
     }
 
     #Convert to gene-level stats
-    summaryDF <- summaryDF[!duplicated(summaryDF$geneID),]
-    row.names(summaryDF) <- summaryDF$geneID
+    summaryDF <- summaryDF[!duplicated(summaryDF$geneSymbol),]
+    row.names(summaryDF) <- summaryDF$geneSymbol
 
     if(!is.character(target.list)){
       warning("Supplied target.list is not a character vector. Coercing.")
       target.list <- as.character(target.list)
     }
-    present <- intersect(target.list, summaryDF$geneID)
+    present <- intersect(target.list, summaryDF$geneSymbol)
     if(length(present) != length(target.list)){
       if(length(present) < 1){
         stop("None of the genes in the input list are present in the geneSymbol column of the input data.frame.")

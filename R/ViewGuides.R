@@ -147,7 +147,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
   mapply(ct.drawFlat, x = rep(max(day3Density$y), length(grna.inx)),
          y = fit$coefficients[grna.inx,1], width = 0.5, color = "black")
   lines(c(0, max(day3Density$y)), c(0, 0), col = 'red', lty = 'dashed')
-  return(TRUE)
+  return(invisible(TRUE))
 }
 
 

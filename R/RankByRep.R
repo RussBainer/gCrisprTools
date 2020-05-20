@@ -119,7 +119,7 @@ ct.gRNARankByReplicate <- function(eset, sampleKey, annotation = NULL, geneSymb 
                      )
               )
     }
-  legend("topright", legend = levels(sampleKey), fill = colors)
+  legend("bottomleft", legend = levels(sampleKey), fill = colors, bty = 'n')
 }
 
 
