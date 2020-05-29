@@ -2,14 +2,14 @@
 % Please edit documentation in R/NormalizeBySlope.R
 \name{ct.normalizeFQ}
 \alias{ct.normalizeFQ}
-\title{Factored Quantile Normalization}
+\title{Apply Factored Quantile Normalization to an eset}
 \usage{
 ct.normalizeFQ(eset, sets, lib.size = NULL)
 }
 \arguments{
 \item{eset}{An \code{ExpressionSet} containing, at minimum, count data accessible by \code{exprs}.}
 
-\item{sets}{A character or factor object delineating which samples shoudl be grouped together during the normalization step. Must 
+\item{sets}{A character or factor object delineating which samples should be grouped together during the normalization step. Must 
 be the same length as the number of columns in the provided eset, and cannot contain `NA` or `NULL` values.}
 
 \item{lib.size}{An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 

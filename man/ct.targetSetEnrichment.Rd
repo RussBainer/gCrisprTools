@@ -14,7 +14,7 @@ column of the provided \code{summaryDF} are considered.}
 
 \item{enrich}{Logical indicating whether to consider guides that are enriched (default) or depleted within the screen.}
 
-\item{ignore}{Optionally, a character vector containing elements of the \code{geneID} column of the provided \code{summaryDF}
+\item{ignore}{Optionally, a character vector containing elements of the \code{geneSymbol} column of the provided \code{summaryDF}
 that should be ignored in the analysis (e.g., unassignable or nonfunctional targets, such as nontargeting controls). By default,
 this function omits targets with \code{geneSymbol} 'NoTarget'.}
 }
@@ -34,7 +34,7 @@ at various significance thresholds.
 }
 \examples{
 data(resultsDF)
-tar <-  sample(unique(resultsDF$geneID), 20)
+tar <-  sample(unique(resultsDF$geneSymbol), 20)
 res <- ct.targetSetEnrichment(resultsDF, tar)
 }
 \author{

@@ -16,7 +16,7 @@ ct.ROC(
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
 
-\item{target.list}{A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneID}
+\item{target.list}{A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneSymbol}
 column of the provided \code{summaryDF} are considered.}
 
 \item{stat}{The statistic to use when ordering the genes. Must be one of \code{"enrich.p"}, \code{"deplete.p"}, \code{"enrich.fc"},
