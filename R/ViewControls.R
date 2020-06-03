@@ -34,7 +34,7 @@ ct.viewControls <- function(eset, annotation, sampleKey, geneSymb = NULL, normal
   #current.graphic.params <- par(no.readonly = TRUE)
   #on.exit(suppressWarnings(par(current.graphic.params)))
 
-  annotation <- ct.prepareAnnotation(annotation, object = eset, throw.error = FALSE)
+  annotation <- ct.prepareAnnotation(annotation, object = eset, controls = geneSymb, throw.error = FALSE)
   invisible(ct.inputCheck(sampleKey, eset))
 
   if(is.null(lib.size)){
@@ -68,7 +68,7 @@ ct.viewControls <- function(eset, annotation, sampleKey, geneSymb = NULL, normal
     }
 
   colorSpace <- colorRampPalette(c("lightblue", "darkred"))(length(ntc))
-  plottitle <- paste0("Nontargeting Guide Abundance (Raw Reads)")
+  plottitle <- paste0(geneSymb, " Guide Abundance (Raw Reads)")
 
   if(normalize){
     message('Normalizing gRNAs by median scaling.')
@@ -77,7 +77,7 @@ ct.viewControls <- function(eset, annotation, sampleKey, geneSymb = NULL, normal
     } else {
       eset <- ct.normalizeGuides(eset, 'scale', annotation = annotation, sampleKey = sampleKey, lib.size = lib.size, plot.it = FALSE)
       }
-    plottitle <- paste0("Nontargeting Guide Abundance (Median Scaled)")
+    plottitle <- paste0(geneSymb, " Guide Abundance (Median Scaled)")
   }
 
   counts <- exprs(eset)[ntc,names(sampleKey)[order(sampleKey)]]
