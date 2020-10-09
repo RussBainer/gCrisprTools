@@ -43,6 +43,11 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
   if(!is.character(ann$geneID)){
     ann$geneID <- as.character(ann$geneID)
   }
+  if(any(is.na(ann$geneID))){
+    warning('NA detected within the geneID column; setting to no_gid...')
+    ann$geneID[is.na(ann$geneID)] <- "no_gid"
+  }
+  
   
   #If supplied, trim out the gRNAs not present in the object. 
   if(!is.null(object)){
@@ -79,12 +84,12 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
         } else {
           message(paste(geneSymb, "is not present in the geneSymbol column of the specified annotation file; trying to find something nontargeting..."))
           
-          if((sum(is.na(ann$geneSymbol)) > 0) && (sum(ann$geneID == "no_gid") > 0)){
+          if((sum(is.na(ann$geneSymbol)) > 0) && (sum(ann$geneID %in% "no_gid") > 0)){
               message('NA and "no_gid" elements are both present in the supplied annotation, so I am using the "no_gid" elements. If you wish to select another set of gRNAs, please change geneSymb.')  
             } 
         
-          if(sum(ann$geneID == "no_gid") > 0){
-            ntc <- row.names(ann)[ann$geneID == "no_gid"]
+          if(sum(ann$geneID %in% "no_gid") > 0){
+            ntc <- row.names(ann)[ann$geneID %in% "no_gid"]
             message(paste('I found some gRNAs targeting "no_gid".', "Let's use that." ))
           } else if (sum(is.na(ann$geneSymbol)) > 0){
               ntc <- row.names(ann)[is.na(ann$geneSymbol)]

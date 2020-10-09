@@ -34,13 +34,13 @@ ct.viewControls <- function(eset, annotation, sampleKey, geneSymb = NULL, normal
   #current.graphic.params <- par(no.readonly = TRUE)
   #on.exit(suppressWarnings(par(current.graphic.params)))
 
-  annotation <- ct.prepareAnnotation(annotation, object = eset, controls = geneSymb, throw.error = FALSE)
+  annotation <- ct.prepareAnnotation(annotation, object = eset, throw.error = FALSE)
   invisible(ct.inputCheck(sampleKey, eset))
 
   if(is.null(lib.size)){
     lib.size <- colSums(exprs(eset))
   } else if(!is.numeric(lib.size) | (length(lib.size) != ncol(eset))){
-    stop('If specified, lib.size must be a numeric vector of length equal to the numebr of samples.')
+    stop('If specified, lib.size must be a numeric vector of length equal to the number of samples.')
   }
   
   #Find the row.names that correspond to the guides.
@@ -49,24 +49,16 @@ ct.viewControls <- function(eset, annotation, sampleKey, geneSymb = NULL, normal
     }
 
   if(is.null(geneSymb)){
-    message("No control geneSymbol supplied, or I can't find it in the annotation object. Checking for something plausible.")
-
-    if((sum(is.na(annotation$geneSymbol)) > 0) && (sum(annotation$geneID == "no_gid") > 0)){
-      message('NA and "no_gid" elements are both present in the supplied annotation file, so I am using the "no_gid" elements. If you wish to select another set of gRNAs use the geneSymb command.')
+    message("No control geneSymbol supplied, so I'll use the default of 'NoTarget'.")
+    ntc <- row.names(annotation)[annotation$geneSymbol == "NoTarget"]
+    } else{
+      ntc <- row.names(annotation)[annotation$geneSymbol == geneSymb]
       }
 
-    if(sum(annotation$geneID == "no_gid") > 0){
-        ntc <- row.names(annotation)[annotation$geneID == "no_gid"]
-      } else if (sum(is.na(annotation$geneSymbol)) > 0){
-        ntc <- row.names(annotation)[is.na(annotation$geneSymbol)]
-        message('No "no_gid" geneIDs in the annotation file, Using gRNAs targeting geneSymbol NA.')
-      } else {
-        stop('No suitable control elements are present in the supplied annotation file. Please specify a geneSymbol to display.')
-      }
-  } else{
-    ntc <- row.names(annotation)[annotation$geneSymbol == geneSymb]
-    }
-
+  if(length(ntc) < 1){
+    stop('No controls detected.')
+  }
+  
   colorSpace <- colorRampPalette(c("lightblue", "darkred"))(length(ntc))
   plottitle <- paste0(geneSymb, " Guide Abundance (Raw Reads)")
 
