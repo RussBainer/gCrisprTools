@@ -120,6 +120,7 @@ ct.inputCheck <- function(sampleKey, object){
 ##' a logical indicating whether the object can be treated as one of these data.frames 
 ##' for the purposes of downstream analyses. This is largely used internally, but can 
 ##' be useful if a user needs to build a result object for some reason.  
+##' 
 ##' @param summaryDF A \code{data.frame}, usually returned by \code{ct.generateResults}. 
 ##' if you need to generate one of these by hand for some reason, see the example 
 ##' \code{resultsDF} object loaded in the example below. 
@@ -232,3 +233,55 @@ ct.buildSE <- function(es,
 
   return(se)
 }
+
+##' @title Convert a verbose results DF object to a gene-level result object
+##' 
+##' @description Convenience function to reduce a full results object to a gene-level object 
+##' that retains minimal statistics. 
+##' 
+##' @param summaryDF A \code{data.frame}, usually returned by \code{ct.generateResults}. 
+##' if you need to generate one of these by hand for some reason, see the example 
+##' \code{resultsDF} object loaded in the example below. 
+##' @param collapse Column of the provided resultsDF on which to collapse values; in most cases this should be 
+##' @return A gene-level `data.frame`, with guide-level information omitted 
+##' @author Russell Bainer
+##' @examples data('resultsDF')
+##' ct.simpleResult(resultsDF)
+##' @export
+ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
+  
+  #Check input
+  stopifnot(ct.resultCheck(summaryDF))
+  stopifnot(collapse %in% names(summaryDF))
+  
+  out <- summaryDF[!duplicated(summaryDF[,collapse]),]
+  if(any(is.na(out[,collapse]))){
+    warning(paste0('NA detected in column ', collapse, '! Omitting the associated entries.'))
+    out <- out[!is.na(out[,collapse]),]
+  }
+  row.names(out) <- out[,collapse]
+  
+  out$direction <- vapply(1:nrow(out), 
+                          function(x){
+                            ifelse(out[x,"Target-level Enrichment P"] < out[x,"Target-level Depletion P"], 'enrich', 'deplete')
+                          }, character(1))
+  
+  out$best.p <- vapply(1:nrow(out), 
+                       function(x){
+                         ifelse(out$direction[x] %in% 'enrich', 
+                                out[x,"Target-level Enrichment P"], 
+                                out[x,"Target-level Depletion P"])
+                       }, numeric(1))
+  
+  out$best.q <- vapply(1:nrow(out), 
+                       function(x){
+                         ifelse(out$direction[x] %in% 'enrich', 
+                                out[x,"Target-level Enrichment Q"], 
+                                out[x,"Target-level Depletion Q"])
+                       }, numeric(1)) 
+    
+  return(out[,c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction')])
+}
+
+
+

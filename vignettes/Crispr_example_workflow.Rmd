@@ -76,6 +76,8 @@ data("resultsDF", package = "gCrisprTools")
 
 fit <- fit[(row.names(fit) %in% row.names(ann)),]
 resultsDF <- resultsDF[(row.names(resultsDF) %in% row.names(ann)),]
+
+targetResultDF <- ct.simpleResult(resultsDF) #For a simpler target-level result object
 ```
 
 Crispr-specific quality control and visualization tools (see man pages for details):
