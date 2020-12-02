@@ -9,3 +9,6 @@ Miscellaneous minor report edits and performance upgrades. Bugfix to P-value bas
 
 Version 1.15.0: 
 Various code updates, new functions added for visualization, compatibility with modern R objects. Russell Bainer redesignated as official maintainer. 
+
+Version 1.16.0: 
+Inclusion of factored quantile normalization and additional convenience functions, typo revisions in the vignettes. Suppression of results dataframe reordering by ct.generateResults().  Implementation of alternative reagent:target assignment, useful for situations where reagents are known to target multiple valid targets. 

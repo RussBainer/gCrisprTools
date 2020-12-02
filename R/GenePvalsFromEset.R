@@ -13,8 +13,9 @@
 ##' (or downregulated) gRNAs for the purposes of RRAa calculations).
 ##' 
 ##' Note that this function uses directional tests to identify enriched or depleted targets, and when RRAalphaCutoff is 
-##' provided as a logical vector, only one of these hypotheses is implicitly specified; this means that enrichment and 
-##' depletion cannot be . 
+##' provided as a logical vector the interpretation of the various aggregation statistics is going to be dependent on the specific criteria 
+##' used to select reagents for inclusion. 
+##' 
 ##' @param permutations The number of permutations to use during the RRAa aggregation step.
 ##' @param contrast.term If a fit object with multiple coefficients is passed in, a string indiating the coefficient of interest.   
 ##' @param scoring The gRNA ranking method to use in RRAa aggregation. May take one of three values: \code{pvalue}, \code{fc},
@@ -139,8 +140,8 @@ ct.generateResults <- function(fit,
     summaryDF["Rho_deplete"] <- rhoDeplete[summaryDF$geneSymbol]
     
     ## order them
-    summaryDF <- summaryDF[order(summaryDF[,"Rho_enrich"], decreasing = FALSE),]
-    summaryDF <- summaryDF[order(summaryDF[,"Target-level Enrichment P"], decreasing = FALSE),]
+    #summaryDF <- summaryDF[order(summaryDF[,"Rho_enrich"], decreasing = FALSE),]
+    #summaryDF <- summaryDF[order(summaryDF[,"Target-level Enrichment P"], decreasing = FALSE),]
     return(summaryDF)
 }
 
