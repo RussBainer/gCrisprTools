@@ -30,8 +30,8 @@ meaningfully altered in the experiment (e.g., if \code{RRAalphaCutoff} is set to
 (or downregulated) gRNAs for the purposes of RRAa calculations).
 
 Note that this function uses directional tests to identify enriched or depleted targets, and when RRAalphaCutoff is 
-provided as a logical vector, only one of these hypotheses is implicitly specified; this means that enrichment and 
-depletion cannot be .}
+provided as a logical vector the interpretation of the various aggregation statistics is going to be dependent on the specific criteria 
+used to select reagents for inclusion.}
 
 \item{permutations}{The number of permutations to use during the RRAa aggregation step.}
 

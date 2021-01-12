@@ -22,7 +22,7 @@ Imports: Biobase, limma, RobustRankAggreg, ggplot2,
         PANTHER.db, rmarkdown, grDevices, graphics,
         stats, utils, parallel, SummarizedExperiment
 Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, RUnit, BiocGenerics
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 Encoding: UTF-8
 biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
