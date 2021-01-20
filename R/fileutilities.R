@@ -243,6 +243,7 @@ ct.buildSE <- function(es,
 ##' if you need to generate one of these by hand for some reason, see the example 
 ##' \code{resultsDF} object loaded in the example below. 
 ##' @param collapse Column of the provided resultsDF on which to collapse values; in most cases this should be 
+##' `geneSymbol` or `geneID`.
 ##' @return A gene-level `data.frame`, with guide-level information omitted 
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
@@ -282,6 +283,42 @@ ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
     
   return(out[,c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction')])
 }
+
+
+##' @title Regularize Two Screening Results Objects 
+##' @description This function prepares two `gCrisprTools` results dataframes for comparison. Specifically, 
+##' it checks that both provided data frames are valid result objects, converts each to the target-wise `simpleResult` format, 
+##' removes signals that are not shared by both objects, places them in identical order, and then returns the two dataframes as a list. 
+##' 
+##' This function is largely meant to be used by other gCrisprtools functions, although there are occasions when an analyst may want to call it directly. 
+##' Often, it is useful to pass the `collapse` argument to `ct.simpleresult()`
+##' @param df1 Results dataframe 1 
+##' @param df2 Results dataframe 2
+##' @return a list of length 2 containing the in-register `simpleResult` objects.
+##' @examples 
+##' data('resultsDF')
+##' lapply(ct.regularizeContrasts(resultsDF[1:300,], resultsDF[200:400,]), nrow)
+##' @export
+ct.regularizeContrasts <- function(df1, df2, ...){
+  
+  #input check 
+  stopifnot(ct.resultCheck(df1), ct.resultCheck(df2))
+
+  df1 <- ct.simpleResult(df1, ...)
+  df2 <- ct.simpleResult(df2, ...)
+  
+  samerows <- intersect(row.names(df1), row.names(df2))
+  if(length(samerows) == 0){
+    stop("The supplied DFs have no targets in common! Consider specifying `collapse` argumewnt for ct.simpleResult().")
+  } else if (length(samerows) != length(union(row.names(df1), row.names(df2)))){
+      message(paste0(length(samerows), ' targets in common. Omitting others.'))
+    }
+
+  return(list('df1' = df1[samerows,], 
+              'df2' = df2[samerows,]))  
+  
+}
+
 
 
 
