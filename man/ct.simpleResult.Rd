@@ -11,7 +11,8 @@ ct.simpleResult(summaryDF, collapse = "geneSymbol")
 if you need to generate one of these by hand for some reason, see the example 
 \code{resultsDF} object loaded in the example below.}
 
-\item{collapse}{Column of the provided resultsDF on which to collapse values; in most cases this should be}
+\item{collapse}{Column of the provided resultsDF on which to collapse values; in most cases this should be 
+`geneSymbol` or `geneID`.}
 }
 \value{
 A gene-level `data.frame`, with guide-level information omitted
