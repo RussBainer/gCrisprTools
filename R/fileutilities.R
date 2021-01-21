@@ -286,37 +286,37 @@ ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
 
 
 ##' @title Regularize Two Screening Results Objects 
-##' @description This function prepares two `gCrisprTools` results dataframes for comparison. Specifically, 
-##' it checks that both provided data frames are valid result objects, converts each to the target-wise `simpleResult` format, 
-##' removes signals that are not shared by both objects, places them in identical order, and then returns the two dataframes as a list. 
+##' @description This function prepares multiple `gCrisprTools` results dataframes for comparison. Specifically, 
+##' it checks that all provided data frames are valid result objects, converts each to the target-wise `simpleResult` format, 
+##' removes signals that are not shared by all objects, places their rows in identical order, and then returns the simplified dataframes as a list. 
 ##' 
 ##' This function is largely meant to be used by other gCrisprtools functions, although there are occasions when an analyst may want to call it directly. 
-##' Often, it is useful to pass the `collapse` argument to `ct.simpleresult()`
-##' @param df1 Results dataframe 1 
-##' @param df2 Results dataframe 2
-##' @return a list of length 2 containing the in-register `simpleResult` objects.
+##' Often, it is useful to pass the `collapse` argument to `ct.simpleresult()` in cases where libraries and technologies differ between screens. 
+##' @param dflist A list of results dataframes. Names will be preserved.
+##' @return A list of the in-register `simpleResult` objects, with length and names identical to `dflist`.
 ##' @examples 
 ##' data('resultsDF')
-##' lapply(ct.regularizeContrasts(resultsDF[1:300,], resultsDF[200:400,]), nrow)
+##' lapply(ct.regularizeContrasts(list('df1' = resultsDF[1:300,], 'df2' = resultsDF[200:400,]), nrow)
 ##' @export
-ct.regularizeContrasts <- function(df1, df2, ...){
+ct.regularizeContrasts <- function(dflist, ...){
   
   #input check 
-  stopifnot(ct.resultCheck(df1), ct.resultCheck(df2))
+  stopifnot(is.list(dflist), all(unlist(lapply(dflist, ct.resultCheck))))
 
-  df1 <- ct.simpleResult(df1, ...)
-  df2 <- ct.simpleResult(df2, ...)
+  #convert to simple results
+  dflist <- sapply(dflist, ct.simpleResult, ..., simplify = FALSE)
   
-  samerows <- intersect(row.names(df1), row.names(df2))
+  #find common rows
+  rowcounts <- table(unlist(lapply(dflist, row.names)))
+  samerows <- names(rowcounts)[rowcounts == length(dflist)]
+  
   if(length(samerows) == 0){
     stop("The supplied DFs have no targets in common! Consider specifying `collapse` argumewnt for ct.simpleResult().")
-  } else if (length(samerows) != length(union(row.names(df1), row.names(df2)))){
+  } else if (!all(rowcounts == length(dflist))){
       message(paste0(length(samerows), ' targets in common. Omitting others.'))
     }
 
-  return(list('df1' = df1[samerows,], 
-              'df2' = df2[samerows,]))  
-  
+  return(sapply(dflist, function(x){x[samerows,]}, simplify = FALSE))  
 }
 
 
