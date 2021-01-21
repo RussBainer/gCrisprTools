@@ -320,5 +320,16 @@ ct.regularizeContrasts <- function(df1, df2, ...){
 }
 
 
+##' @title Log10 transform empirical P-values with a pseudocount
+##' @description This function -log10 transforms empirical P-values by adding a pseudocount of 1/2 the minimum nonzero value. 
+##' @param x numeric vector. 
+##' @return -log10-transformed version of X.
+ct.softLog <- function(x){
+  stopifnot(is.numeric(x), all(!is.na(x)), !all(x == 0))
+  return(-log10((x + (min(x[x != 0])/2))))
+}
+
+
+
 
 
