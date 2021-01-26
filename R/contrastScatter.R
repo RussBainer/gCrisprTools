@@ -37,17 +37,18 @@ ct.scatter <-
     cutoff <- -log10(cutoff)
     
     dfs <- ct.regularizeContrasts(dflist, collapse = targets)
+
+    #Form output & divide into quadrants: 
+    out <- cbind(dfs[[1]][,1:6], dfs[[2]][,3:6])
+    colnames(out) <- c('geneID', 'geneSymbol', 
+                       paste0(c('Rho.enrich.', 'Rho.deplete.', 'p.', 'q.'), names(dfs)[1]),
+                       paste0(c('Rho.enrich.', 'Rho.deplete.', 'p.', 'q.'), names(dfs)[2]))
     dfs <- sapply(dfs, 
                   function(x){
                     x[,c("Rho_enrich", "Rho_deplete", "best.p", "best.q")] <- apply(x[,c("Rho_enrich", "Rho_deplete", "best.p", "best.q")], 2, ct.softLog)
                     return(x)
                   }, simplify = FALSE)
-
-    #Form output & divide into quadrants: 
-    out <- cbind(dfs[[1]][,1:6], dfs[[2]][,3:6])
-    colnames(out) <- c('geneID', 'geneSymbol', 
-                       'Rho_enrich.c1', 'Rho.deplete.c1', 'log10p.c1', 'log10q.c1',
-                       'Rho_enrich.c2', 'Rho.deplete.c2', 'log10p.c2', 'log10q.c2')
+    
     c1.sig <- (dfs[[1]][,statistic] >= cutoff)
     c2.sig <- (dfs[[2]][,statistic] >= cutoff)
     
@@ -74,7 +75,7 @@ ct.scatter <-
            xlab = paste0(names(dfs)[1], ' -log10(', statistic, ')'), 
            ylab = paste0(names(dfs)[2], ' -log10(', statistic, ')'), 
            xlim = dims, ylim = dims,
-           pch = 19, col = rgb(0,0,0, 0.4), cex = 0.7)
+           pch = 19, col = rgb(0,0,0, 0.1), cex = 0.7)
       abline(v = c(-cutoff, cutoff), h = c(-cutoff, cutoff), lty = 2)
       
       points((dfs[[1]][,statistic] * vapply(dfs[[1]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1)))[out$quadrant %in% c(1,3,7,9)],  
