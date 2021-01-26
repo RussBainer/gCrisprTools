@@ -237,7 +237,7 @@ ct.buildSE <- function(es,
 ##' @title Convert a verbose results DF object to a gene-level result object
 ##' 
 ##' @description Convenience function to reduce a full results object to a gene-level object 
-##' that retains minimal statistics. 
+##' that retains minimal statistics (or alternatively, check that a provided simple result object is valid). 
 ##' 
 ##' @param summaryDF A \code{data.frame}, usually returned by \code{ct.generateResults}. 
 ##' if you need to generate one of these by hand for some reason, see the example 
@@ -251,7 +251,15 @@ ct.buildSE <- function(es,
 ##' @export
 ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
   
-  #Check input
+  #Pass through a simple result object
+  stopifnot(is(summaryDF, 'data.frame'))
+  if(setequal(names(summaryDF), c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction'))){
+    if(all(vapply(names(summaryDF)[1:7], function(x){class(out[,x])}, character(1)) == rep(c('character', 'numeric', 'character'), times = c(2, 4, 1)))){
+      return(summaryDF)
+    }
+  }
+
+  #Check usual results df
   stopifnot(ct.resultCheck(summaryDF))
   stopifnot(collapse %in% names(summaryDF))
   
@@ -280,8 +288,8 @@ ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
                                 out[x,"Target-level Enrichment Q"], 
                                 out[x,"Target-level Depletion Q"])
                        }, numeric(1)) 
-    
-  return(out[,c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction')])
+    out <- out[,c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction')]
+  return(out)
 }
 
 
