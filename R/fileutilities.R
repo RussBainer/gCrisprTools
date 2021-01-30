@@ -134,7 +134,7 @@ ct.resultCheck <- function(summaryDF){
   #Check input formats
   if(!is.data.frame(summaryDF)){
     summaryDF <- as.data.frame(summaryDF, stringsAsFactors = FALSE)
-    message('The supplied screen results are not a dataframe.')
+    message('The supplied screen results are not a data.frame.')
     return(FALSE)
     }
    
@@ -309,7 +309,7 @@ ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
 ct.regularizeContrasts <- function(dflist, ...){
   
   #input check 
-  stopifnot(is.list(dflist), all(unlist(lapply(dflist, ct.resultCheck))))
+  stopifnot(is.list(dflist))
 
   #convert to simple results
   dflist <- sapply(dflist, ct.simpleResult, ..., simplify = FALSE)
@@ -319,7 +319,7 @@ ct.regularizeContrasts <- function(dflist, ...){
   samerows <- names(rowcounts)[rowcounts == length(dflist)]
   
   if(length(samerows) == 0){
-    stop("The supplied DFs have no targets in common! Consider specifying `collapse` argumewnt for ct.simpleResult().")
+    stop("The supplied DFs have no targets in common! Consider specifying `collapse` argument for ct.simpleResult().")
   } else if (!all(rowcounts == length(dflist))){
       message(paste0(length(samerows), ' targets in common. Omitting others.'))
     }
