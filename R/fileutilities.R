@@ -253,7 +253,7 @@ ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
   
   #Pass through a simple result object
   stopifnot(is(summaryDF, 'data.frame'))
-  if(setequal(names(summaryDF), c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction'))){
+  if(length(setdiff(c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction'), (names(summaryDF)))) == 0){
     if(all(vapply(names(summaryDF)[1:7], function(x){class(out[,x])}, character(1)) == rep(c('character', 'numeric', 'character'), times = c(2, 4, 1)))){
       return(summaryDF)
     }

@@ -35,7 +35,7 @@ ct.compareContrasts  <-
 
     #Check the input: 
     statistics <- match.arg(statistics)
-    stopifnot(all(statistics %in% c('p', 'q')), (length(statistics) <= 2), (length(statistics) > 0), 
+    stopifnot(all(statistics %in% c('best.p', 'best.q')), (length(statistics) <= 2), (length(statistics) > 0), 
               is.numeric(cutoffs), (length(cutoffs) <= 2), (length(cutoffs) > 0), is.logical(same.dir))
     if(length(statistics) == 1){ 
       statistics <- rep(statistics, 2)
@@ -49,17 +49,13 @@ ct.compareContrasts  <-
     
     mainresult$replicated <- rep(NA, nrow(mainresult))
  
-    shared <- ct.regularizeContrasts(list(df1 = mainresult, df2 = validationresult), ...)
-    valid <- switch(same.dir,
-                    TRUE = ((valid$df1[,statistics[1]] < cutoffs[1]) & 
-                              (valid$df1[,statistics[2]] < cutoffs[2]) &
-                              (valid$df1$direction == valid$df2$direction)),
-                    FALSE = ((valid$df1[,statistics[1]] < cutoffs[1]) & 
-                               (valid$df1[,statistics[2]] < cutoffs[2]) & 
-                               (valid$df1$direction != valid$df2$direction))
-                    )
-    
-    
+    shared <- ct.regularizeContrasts(dflist = list(df1 = mainresult, df2 = validationresult), ...)
+    if(same.dir){
+      valid <- ((shared$df1[,statistics[1]] < cutoffs[1]) & (shared$df1[,statistics[2]] < cutoffs[2]) & (shared$df1$direction == shared$df2$direction))
+    } else {
+      valid <- ((shared$df1[,statistics[1]] < cutoffs[1]) & (shared$df1[,statistics[2]] < cutoffs[2]) & (shared$df1$direction != shared$df2$direction))
+    }
+ 
     mainresult[row.names(shared$df1), 'replicated'] <- FALSE
     mainresult[row.names(shared$df1)[valid], 'replicated'] <- TRUE
 
