@@ -18,12 +18,16 @@
 ##' Internally coerced to a vector of length 2.
 ##' @param ... Other arguments to \link{`ct.simpleResult`}, especially `collapse`.
 ##' @param same.dir Logical indicating whether replicating signals are expected to go in the same direction (e.g., enrich/deplete in both screens)
-##' @return The simplified `mainresults` data.frame, with a `replicated` logical column indicating whether a signal replicates. Incomparable elements (e.g., 
-##' targets not assayed in the provided `validationresult`) are set to `NA`.  
+##' @param return.stats When TRUE, return the significance of overlap instead of the logical vector (via a Hypergeometric Test).
+##' @return If `return.stats` is `FALSE`, returns the simplified `mainresults` data.frame, with a `replicated` logical column indicating whether a 
+##' signal replicates. Incomparable elements (e.g., targets not assayed in the provided `validationresult`) are set to `NA`.  If `return.stats` is 
+##' `TRUE`, returns a named list indicating the hypergeometric test *P*-values summarizing the evidence for significantly enriched signal 
+##' replication across screens,   
 ##' @author Russell Bainer
 ##' @examples 
 ##' data('resultsDF')
 ##' summary(ct.compareContrasts(resultsDF, resultsDF[1:5000,])$replicated)
+##' ct.compareContrasts(resultsDF, resultsDF[1:5000,], return.stats = TRUE)
 ##' @export
 ct.compareContrasts  <- 
   function(mainresult,
@@ -31,6 +35,7 @@ ct.compareContrasts  <-
            statistics = c('best.q', 'best.p'),
            cutoffs = c(0.1, 0.1), 
            same.dir = TRUE,
+           return.stats = FALSE,
            ...) {
 
     #Check the input: 
@@ -58,6 +63,26 @@ ct.compareContrasts  <-
  
     mainresult[row.names(shared$df1), 'replicated'] <- FALSE
     mainresult[row.names(shared$df1)[valid], 'replicated'] <- TRUE
+    
+    if(return.stats){
+      #calculate a hypergeometric test P-value for enrichment/depletion
+      p.up <- .doHyperGInternal(numW = sum(shared$df2[(shared$df2$direction %in% 'enrich'),statistics[2]] <= cutoffs[2]), 
+                                numB = nrow(shared$df2), 
+                                numDrawn = sum(shared$df1[(shared$df1$direction %in% 'enrich'),statistics[1]] <= cutoffs[1]), 
+                                numWdrawn = sum(((mainresult$direction %in% 'enrich') & (mainresult$replicated)), na.rm = TRUE))
+      p.dn <- .doHyperGInternal(numW = sum(shared$df2[(shared$df2$direction %in% 'deplete'),statistics[2]] <= cutoffs[2]), 
+                                numB = nrow(shared$df2), 
+                                numDrawn = sum(shared$df1[(shared$df1$direction %in% 'deplete'),statistics[1]] <= cutoffs[1]), 
+                                numWdrawn = sum(((mainresult$direction %in% 'deplete') & (mainresult$replicated)), na.rm = TRUE))
+      p.all <- .doHyperGInternal(numW = sum(shared$df2[,statistics[2]] <= cutoffs[2]), 
+                                numB = nrow(shared$df2), 
+                                numDrawn = sum(shared$df1[,statistics[1]] <= cutoffs[1]), 
+                                numWdrawn = sum(((mainresult$replicated)), na.rm = TRUE))
+      return(list('hypergeom.p.enrich' = p.up, 
+                  'hypergeom.p.deplete' = p.up, 
+                  'hypergeom.p.all' = p.all))
+    }
+    
 
     return(mainresult)
   }

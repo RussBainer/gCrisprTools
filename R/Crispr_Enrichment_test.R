@@ -278,7 +278,7 @@ ct.targetSetEnrichment <- function(summaryDF, targets, enrich = TRUE, ignore = N
 ## numWdrawn: the number of genes differentially expressed in category
 ##' @keywords internal
 
-.doHyperGInternal <- function(numW, numB, numDrawn, numWdrawn, over) {
+.doHyperGInternal <- function(numW, numB, numDrawn, numWdrawn, over = TRUE) {
   n21 <- numW - numWdrawn
   n12 <- numDrawn - numWdrawn
   n22 <- numB - n12

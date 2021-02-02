@@ -19,7 +19,7 @@ A gene-level `data.frame`, with guide-level information omitted
 }
 \description{
 Convenience function to reduce a full results object to a gene-level object 
-that retains minimal statistics.
+that retains minimal statistics (or alternatively, check that a provided simple result object is valid).
 }
 \examples{
 data('resultsDF')
