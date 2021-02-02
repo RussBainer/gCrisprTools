@@ -18,11 +18,11 @@
 ##' Internally coerced to a vector of length 2.
 ##' @param ... Other arguments to \link{`ct.simpleResult`}, especially `collapse`.
 ##' @param same.dir Logical indicating whether replicating signals are expected to go in the same direction (e.g., enrich/deplete in both screens)
-##' @param return.stats When TRUE, return the significance of overlap instead of the logical vector (via a Hypergeometric Test).
+##' @param return.stats When TRUE, return the significance of overlap instead of the logical vector.
 ##' @return If `return.stats` is `FALSE`, returns the simplified `mainresults` data.frame, with a `replicated` logical column indicating whether a 
 ##' signal replicates. Incomparable elements (e.g., targets not assayed in the provided `validationresult`) are set to `NA`.  If `return.stats` is 
 ##' `TRUE`, returns a named list indicating the hypergeometric test *P*-values summarizing the evidence for significantly enriched signal 
-##' replication across screens,   
+##' replication across screens (enrich, deplete, and all together).   
 ##' @author Russell Bainer
 ##' @examples 
 ##' data('resultsDF')

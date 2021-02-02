@@ -27,7 +27,7 @@ Internally coerced to a vector of length 2.}
 
 \item{same.dir}{Logical indicating whether replicating signals are expected to go in the same direction (e.g., enrich/deplete in both screens)}
 
-\item{return.stats}{When TRUE, return the significance of overlap instead of the logical vector (via a Hypergeometric Test).}
+\item{return.stats}{When TRUE, return the significance of overlap instead of the logical vector.}
 
 \item{...}{Other arguments to \link{`ct.simpleResult`}, especially `collapse`.}
 }
@@ -35,7 +35,7 @@ Internally coerced to a vector of length 2.}
 If `return.stats` is `FALSE`, returns the simplified `mainresults` data.frame, with a `replicated` logical column indicating whether a 
 signal replicates. Incomparable elements (e.g., targets not assayed in the provided `validationresult`) are set to `NA`.  If `return.stats` is 
 `TRUE`, returns a named list indicating the hypergeometric test *P*-values summarizing the evidence for significantly enriched signal 
-replication across screens,
+replication across screens (enrich, deplete, and all together).
 }
 \description{
 This function identifies signals in a provided screening experiment contrast that are also present in a 
