@@ -21,8 +21,8 @@
 ##' @param return.stats When TRUE, return the significance of overlap instead of the logical vector.
 ##' @return If `return.stats` is `FALSE`, returns the simplified `mainresults` data.frame, with a `replicated` logical column indicating whether a 
 ##' signal replicates. Incomparable elements (e.g., targets not assayed in the provided `validationresult`) are set to `NA`.  If `return.stats` is 
-##' `TRUE`, returns a named list indicating the hypergeometric test *P*-values summarizing the evidence for significantly enriched signal 
-##' replication across screens (enrich, deplete, and all together).   
+##' `TRUE`, returns a dataframe indicating the hypergeometric test statistics summarizing the evidence for significantly enriched signal 
+##' replication across the provided contrasts (enrich, deplete, and all together).   
 ##' @author Russell Bainer
 ##' @examples 
 ##' data('resultsDF')
@@ -78,9 +78,13 @@ ct.compareContrasts  <-
                                 numB = nrow(shared$df2), 
                                 numDrawn = sum(shared$df1[,statistics[1]] <= cutoffs[1]), 
                                 numWdrawn = sum(((mainresult$replicated)), na.rm = TRUE))
-      return(list('hypergeom.p.enrich' = p.up, 
-                  'hypergeom.p.deplete' = p.up, 
-                  'hypergeom.p.all' = p.all))
+      return(data.frame('set' = c('hypergeom.p.enrich', 'hypergeom.p.deplete', 'hypergeom.p.all'), 
+                        'p' = c(p.up$p, p.dn$p, p.all$p), 
+                        'odds.ratio' = c(p.up$odds, p.dn$odds, p.all$odds), 
+                        'expected' = c(p.up$expected, p.dn$expected, p.all$expected), 
+                        'observed' = c(sum(((mainresult$direction %in% 'enrich') & (mainresult$replicated)), na.rm = TRUE), 
+                                       sum(((mainresult$direction %in% 'deplete') & (mainresult$replicated)), na.rm = TRUE),
+                                       sum(((mainresult$replicated)), na.rm = TRUE))))
     }
     
 
