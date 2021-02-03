@@ -34,8 +34,8 @@ Internally coerced to a vector of length 2.}
 \value{
 If `return.stats` is `FALSE`, returns the simplified `mainresults` data.frame, with a `replicated` logical column indicating whether a 
 signal replicates. Incomparable elements (e.g., targets not assayed in the provided `validationresult`) are set to `NA`.  If `return.stats` is 
-`TRUE`, returns a named list indicating the hypergeometric test *P*-values summarizing the evidence for significantly enriched signal 
-replication across screens (enrich, deplete, and all together).
+`TRUE`, returns a dataframe indicating the hypergeometric test statistics summarizing the evidence for significantly enriched signal 
+replication across the provided contrasts (enrich, deplete, and all together).
 }
 \description{
 This function identifies signals in a provided screening experiment contrast that are also present in a 

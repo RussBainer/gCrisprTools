@@ -257,26 +257,27 @@ ct.targetSetEnrichment <- function(summaryDF, targets, enrich = TRUE, ignore = N
 ## -----------------------------------------------------------------------------
 ## These were copied from the Bioconductor collection package
 
-## We envision the test as follows:
-##
-## The urn contains genes from the gene universe.  Genes annotated at a
-## given collection term are white and the rest black.
-##
-## The number drawn is the size of the selected gene list.  The
-## number of white drawn is the size of the intersection of the
-## selected list and the genes annotated at the collection.
-## Here's a diagram based on using GO as the collection:
-##
-##          inGO    notGO
-##          White   Black
-## selected  n11     n12
-## not       n21     n22
-##
-## numW: number of genes in GO category
-## numB: size of universe
-## numDrawn: number of differentially expressed genes
-## numWdrawn: the number of genes differentially expressed in category
+##' We envision the test as follows:
+##'
+##' The urn contains genes from the gene universe.  Genes annotated at a
+##' given collection term are white and the rest black.
+##'
+##' The number drawn is the size of the selected gene list.  The
+##' number of white drawn is the size of the intersection of the
+##' selected list and the genes annotated at the collection.
+##' Here's a diagram based on using GO as the collection:
+##'
+##'          inGO    notGO
+##'          White   Black
+##' selected  n11     n12
+##' not       n21     n22
+##'
+##' numW: number of genes in GO category
+##' numB: size of universe
+##' numDrawn: number of differentially expressed genes
+##' numWdrawn: the number of genes differentially expressed in category
 ##' @keywords internal
+##' @noRd
 
 .doHyperGInternal <- function(numW, numB, numDrawn, numWdrawn, over = TRUE) {
   n21 <- numW - numWdrawn

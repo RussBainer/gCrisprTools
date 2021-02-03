@@ -78,13 +78,14 @@ ct.compareContrasts  <-
                                 numB = nrow(shared$df2), 
                                 numDrawn = sum(shared$df1[,statistics[1]] <= cutoffs[1]), 
                                 numWdrawn = sum(((mainresult$replicated)), na.rm = TRUE))
-      return(data.frame('set' = c('hypergeom.p.enrich', 'hypergeom.p.deplete', 'hypergeom.p.all'), 
-                        'p' = c(p.up$p, p.dn$p, p.all$p), 
+      out <- data.frame('p' = c(p.up$p, p.dn$p, p.all$p), 
                         'odds.ratio' = c(p.up$odds, p.dn$odds, p.all$odds), 
                         'expected' = c(p.up$expected, p.dn$expected, p.all$expected), 
                         'observed' = c(sum(((mainresult$direction %in% 'enrich') & (mainresult$replicated)), na.rm = TRUE), 
                                        sum(((mainresult$direction %in% 'deplete') & (mainresult$replicated)), na.rm = TRUE),
-                                       sum(((mainresult$replicated)), na.rm = TRUE))))
+                                       sum(((mainresult$replicated)), na.rm = TRUE)))
+      row.names(out) <- c('enrich', 'deplete', 'all') 
+      return(out)
     }
     
 
