@@ -49,8 +49,8 @@ ct.scatter <-
                     return(x)
                   }, simplify = FALSE)
     
-    c1.sig <- (dfs[[1]][,statistic] >= cutoff)
-    c2.sig <- (dfs[[2]][,statistic] >= cutoff)
+    c1.sig <- (dfs[[1]][,statistic] >= cutoff) & (dfs[[1]][,direction] == dfs[[2]][,direction])
+    c2.sig <- (dfs[[2]][,statistic] >= cutoff) & (dfs[[1]][,direction] == dfs[[2]][,direction])
     
     maxval <- max(c(dfs[[1]][,statistic], dfs[[2]][,statistic]))
     
