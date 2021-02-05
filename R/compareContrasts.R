@@ -56,9 +56,9 @@ ct.compareContrasts  <-
  
     shared <- ct.regularizeContrasts(dflist = list(df1 = mainresult, df2 = validationresult), ...)
     if(same.dir){
-      valid <- ((shared$df1[,statistics[1]] < cutoffs[1]) & (shared$df1[,statistics[2]] < cutoffs[2]) & (shared$df1$direction == shared$df2$direction))
+      valid <- ((shared$df1[,statistics[1]] < cutoffs[1]) & (shared$df2[,statistics[2]] < cutoffs[2]) & (shared$df1$direction == shared$df2$direction))
     } else {
-      valid <- ((shared$df1[,statistics[1]] < cutoffs[1]) & (shared$df1[,statistics[2]] < cutoffs[2]) & (shared$df1$direction != shared$df2$direction))
+      valid <- ((shared$df1[,statistics[1]] < cutoffs[1]) & (shared$df2[,statistics[2]] < cutoffs[2]) & (shared$df1$direction != shared$df2$direction))
     }
  
     mainresult[row.names(shared$df1), 'replicated'] <- FALSE
