@@ -39,7 +39,7 @@ ct.compareContrasts  <-
            ...) {
 
     #Check the input: 
-    statistics <- match.arg(statistics)
+    #statistics <- match.arg(statistics)
     stopifnot(all(statistics %in% c('best.p', 'best.q')), (length(statistics) <= 2), (length(statistics) > 0), 
               is.numeric(cutoffs), (length(cutoffs) <= 2), (length(cutoffs) > 0), is.logical(same.dir))
     if(length(statistics) == 1){ 
