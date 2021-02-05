@@ -61,8 +61,8 @@ ct.compareContrasts  <-
       valid <- ((shared$df1[,statistics[1]] < cutoffs[1]) & (shared$df2[,statistics[2]] < cutoffs[2]) & (shared$df1$direction != shared$df2$direction))
     }
  
-    mainresult[row.names(shared$df1), 'replicated'] <- FALSE
-    mainresult[row.names(shared$df1)[valid], 'replicated'] <- TRUE
+    mainresult[(row.names(mainresult) %in% row.names(shared$df1)), 'replicated'] <- FALSE
+    mainresult[(row.names(mainresult) %in% row.names(shared$df1)[valid]), 'replicated'] <- TRUE
     
     if(return.stats){
       #calculate a hypergeometric test P-value for enrichment/depletion
@@ -87,8 +87,6 @@ ct.compareContrasts  <-
       row.names(out) <- c('enrich', 'deplete', 'all') 
       return(out)
     }
-    
-
     return(mainresult)
   }
 
