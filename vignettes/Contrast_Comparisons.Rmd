@@ -103,7 +103,7 @@ scat[scat$quadrant %in% '7',]
 
 This simplified infrastructure allows dissection of interaction effects as well: 
 
-```{r contrast interaction, eval = FALSE}
+```{r contrast interaction, message = FALSE, warning=FALSE}
 library(Biobase)
 library(limma)
 library(gCrisprTools)
@@ -138,25 +138,37 @@ allResults <- sapply(colnames(fit$coefficients),
                        }, simplify = FALSE)
 
 allSimple <- ct.regularizeContrasts(allResults)
+```
 
-#Number of replicated signals observed in the follow-up screen
-# Targets changing over time in both timecourses
+Now, using the logical columns we can Idnetify relevant sets of targets. For example, the number of targets changing over time in both timecourses:
+
+```{r}
+
 time.effect <- ct.compareContrasts(allSimple$ControlTime,
                                    allSimple$DeathOverTime)
 summary(time.effect$replicated)
+```
 
-#Targets with modifying effect that compromise intrinsic viability
+or targets with a toxicity modifying effect that compromise intrinsic viability:
+
+```{r}
 mod.control <- ct.compareContrasts(allSimple$Interaction,
                                  allSimple$ControlTime,
                                  same.dir = FALSE)
 summary(mod.control$replicated)
+```
 
-#Targets with modifying effect that affect viability in death condition
+or targets with modifying effect that affect viability in the death condition:
+
+```{r}
 mod.death <- ct.compareContrasts(allSimple$Interaction, 
                                    allSimple$ControlTime)
 summary(mod.death$replicated)
+```
 
-#Modifiers w/ no evidence of background viability effects
+or modifiers w/ no evidence of background viability effects:
+
+```{r}
 summary(mod.death$replicated & !mod.control$replicated)
 
 ```
