@@ -1,0 +1,164 @@
+---
+title: "Contrast Comparisons with gCrisprTools"
+output:
+  html_document:
+    df_print: paged
+---
+
+This is a brief description of the new capabilites for comparing and summarizing contrasts with gCrisprTools. 
+
+Historically, gCrisprTools was focused on making results data.frames, which exhaustively summarize the results of a screen contrast. They look like this: 
+
+```{r setup}
+library(gCrisprTools)
+data(resultsDF)
+
+head(resultsDF)
+```
+
+In many applications, there are limitations to these objects. For example: 
+
+- They are gRNA-focused, but many downstream applications are focused on Targets
+- The `colnames` are human-readable instead of machine readable
+- The distinction between `geneID` and `geneSymbol` is not clear
+- Many columns are not informative for the majority of modern applications/screens
+- Historically, they are sorted to put the strongest signals at the top (this is not the case now)
+
+To help with downstream analyses, I introduce the `simpleResult` object
+
+```{r}
+res <- ct.simpleResult(resultsDF, collapse = 'geneSymbol')
+head(res)
+```
+
+These objects are simpler representations of target signals that are applicable for "most" situations (e.g., when the gRNAs associated with a target have similar effects). 
+
+- Target focused, but target signals are collapsed to single directional P/Q stats
+- User specifies the identifier to collapse on
+- Both human-readable and machine-readable
+- Targets are returned in the same order
+
+This format enables better comparisons between screens, and we have some helper functions to support this: 
+
+```{r}
+regularized <- ct.regularizeContrasts(dflist = list('firstDF' = resultsDF[1:1000,], 
+                                                    'secondDF' = resultsDF[200:1200,]), 
+                                      collapse = 'geneSymbol')
+
+str(regularized)
+
+```
+
+The above function takes in a (named) list of results objects and creates a list of `simpleResult`s with the same names that are "in register" with one another, using the shared elements specified by `collapse`. 
+
+The main utility of this function is that it enables comparison of results objects that are derived from screens executed with different technologies (e.g., CRISPRi and CRISPRn), by focusing on the targets and their directional significance measures. With this in place, we can also do more sophisticated comparisons between contrasts: 
+
+```{r}
+comparison <- ct.compareContrasts(mainresult = resultsDF,
+                                  validationresult = resultsDF[20:1000, ],
+                                  statistics = c('best.q', 'best.p'), 
+                                  cutoffs = c(0.1,0.001), 
+                                  same.dir = TRUE)
+head(comparison, 30)
+
+```
+
+This function returns a `simplifiedResult` version of the `mainresult` argument, appended with a logical column indicating whether signals in the `mainresult` contrast passing the first significance cutoff are replicated in the `validationresult` contrast at the second significance cutoff. This sort of conditional scoring was shown previously to be useful in interpreting the results of validation and counterscreens.   
+
+For convenience, we can also return summary statistics characterizing the overlap between the screens: 
+
+```{r}
+ct.compareContrasts(mainresult = resultsDF,
+                    validationresult = resultsDF[20:1000, ],
+                    statistics = c('best.q', 'best.p'),
+                    cutoffs = c(0.1,0.001),
+                    same.dir = TRUE,
+                    return.stats = TRUE)
+```
+
+This can be useful when exploring appropriate cutoff thresholds, or when asking broader questions about overall congruence. 
+
+
+```{r}
+scat <- ct.scatter(dflist = list('firstDF' = resultsDF[1:1000,], 
+                                 'secondDF' = resultsDF[200:1200,]), 
+                   targets = 'geneSymbol', 
+                   statistic = 'best.p', 
+                   cutoff = 0.05)
+
+
+```
+
+This provides a scatter plot of the indicated statistic, with quadrants defined according to the user-specified statistic cutoff. The number of targets in each of the quadrants is indicated in grey, and a more complete genewise picture can be achieved by examining the returned invisible object: 
+
+```{r}
+head(scat)
+```
+
+This object basically returns the information from the respective `simpleResult` annotations, but also appends the relevant quadrants to assist in in focusing on particular targets of interest: 
+
+```{r}
+scat[scat$quadrant %in% '7',]
+```
+
+This simplified infrastructure allows dissection of interaction effects as well: 
+
+```{r contrast interaction, eval = FALSE}
+library(Biobase)
+library(limma)
+library(gCrisprTools)
+
+#Create a complex model design; removing the replicate term for clarity
+data("es", package = "gCrisprTools")
+data("ann", package = "gCrisprTools")
+
+design <- model.matrix(~ 0 + TREATMENT_NAME, pData(es))
+colnames(design) <- gsub('TREATMENT_NAME', '', colnames(design))
+contrasts <-makeContrasts(ControlTime = ControlExpansion - ControlReference,
+                          DeathOverTime = DeathExpansion - ControlReference,
+                          Interaction = DeathExpansion - ControlExpansion, 
+                          levels = design)
+
+es <- ct.normalizeGuides(es, method = "scale", plot.it = TRUE) #See man page for other options
+vm <- voom(exprs(es), design)
+
+fit <- lmFit(vm, design)
+fit <- contrasts.fit(fit, contrasts)
+fit <- eBayes(fit)
+
+allResults <- sapply(colnames(fit$coefficients), 
+                     function(x){
+                         ct.generateResults(fit,
+                                            annotation = ann,
+                                            RRAalphaCutoff = 0.1,
+                                            permutations = 1000,
+                                            scoring = "combined",
+                                            permutation.seed = 2, 
+                                            contrast.term = x)
+                       }, simplify = FALSE)
+
+allSimple <- ct.regularizeContrasts(allResults)
+
+#Number of replicated signals observed in the follow-up screen
+# Targets changing over time in both timecourses
+time.effect <- ct.compareContrasts(allSimple$ControlTime,
+                                   allSimple$DeathOverTime)
+summary(time.effect$replicated)
+
+#Targets with modifying effect that compromise intrinsic viability
+mod.control <- ct.compareContrasts(allSimple$Interaction,
+                                 allSimple$ControlTime,
+                                 same.dir = FALSE)
+summary(mod.control$replicated)
+
+#Targets with modifying effect that affect viability in death condition
+mod.death <- ct.compareContrasts(allSimple$Interaction, 
+                                   allSimple$ControlTime)
+summary(mod.death$replicated)
+
+#Modifiers w/ no evidence of background viability effects
+summary(mod.death$replicated & !mod.control$replicated)
+
+```
+
+
