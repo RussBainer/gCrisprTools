@@ -130,8 +130,7 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
 ##' and are passed through directly. 
 ##'
 ##' @param ann A \code{data.frame} containing an annotation object with gRNA-level information encoded as rows, typically produced by 
-##' `ct.prepareAnnotation`. The \code{row.names} attribute should correspond to the individual gRNAs, and it should at minimum contain columns 
-##' named "geneID" and "geneSymbol" indicating the corresponding gRNA target gene ID and symbol, respectively. 
+##' `ct.prepareAnnotation`. The `ID` column should correspond to the individual reagent identifiers. 
 ##' @param alt.annotation A named list of character vectors, which should be named identically to a value in the `ID` column of the supplied 
 ##' annotation object. The values in the character vectors will eventually form the `geneSymbol` column of the annotation file.
 ##' @return A new annotation data frame, expanded as described above.
@@ -169,7 +168,56 @@ ct.expandAnnotation <- function(ann, alt.annotation){
 }
 
 
-
+##' @title Parse `geneSymbol` values to construct an alternative annotation list
+##' @description This is an accessory function to \link{\code{ct.expandAnnotation()}} function, which enables users to expand annotation objects 
+##' to accomodate reagent libraries where reagents are expected to impact a set of known targets. See documentation for that function for 
+##' additional details. 
+##' 
+##' Often, libraries that contain multiply-targeting reagents are annotated using a structured format that can be decomposed by regex matching. 
+##' This function takes in an annotation object containing an `ID` column indicating the reagent ID and a `geneSymbol` column containing the 
+##' target mappings, and parses the target mappings according to a known annotation format. Currently supported formats are "cellecta" 
+##' (e.g., "TARGET_P1P2P3" indicating multiple promoters associated with a known target), and "underscore", where different targets are 
+##' concatenated using the underscore separator (e.g., "TARGET1_TARGET2_TARGET3").
+##' 
+##' Returns an `alt.annotation`-type list of character vectors encoding the target mappings for each reagent. 
+##'
+##' @param ann A \code{data.frame} containing reagent-level information encoded as rows. The `ID` column should correspond to the individual 
+##' reagent identifiers, and the "geneSymbol" column should contain target annotation strings to be parsed (both are coerced to strings). 
+##' Does not, strictly speaking, need to be a proper annotation object, but one of those will work. 
+##' @param format Format of the geneSymbol column strings.
+##' @return A named `alt.annotation`-type list of character vectors encoding the target mappings for each reagent
+##' @author Russell Bainer
+##' @examples 
+##' fakeann <- data.frame('ID' = LETTERS[1:4], 'geneSymbol' = c('T1_P1', 'T1_P1P2', 'T1_P2P1', 'T1_P2'))
+##' ct.parseGeneSymbol(fakeann, 'cellecta')
+##' ct.parseGeneSymbol(fakeann, 'underscore')
+##' @export
+ct.parseGeneSymbol <- function(ann, format = c('cellecta', 'underscore')){
+  
+  format <- match.arg(format)
+  stopifnot(all(c('ID', 'geneSymbol') %in% names(ann)))
+  
+  reagents <- as.character(ann$ID)
+  symbols <- as.character(ann$geneSymbol)
+  
+  if(format %in% 'cellecta'){
+    out <- lapply(symbols, 
+                  function(x){
+                    splut <- strsplit(x, split = '_')[[1]]
+                    prom <- strsplit(splut[2], split = 'P')[[1]]
+                    return(paste0(splut[1], '_P', prom[2:length(prom)]))
+                  })
+  }
+  if(format %in% 'underscore'){
+    out <- lapply(symbols, 
+                  function(x){
+                    return(strsplit(x, split = '_')[[1]])
+                  })
+  }
+  
+  names(out) <- reagents
+  return(out)
+}
 
 
 
