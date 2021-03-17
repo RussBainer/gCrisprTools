@@ -118,3 +118,58 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
 }
 
 
+##' @title Expand an annotation object to allow annotations of reagents to multiple targets
+##' @description This function takes a gCrisprTools annotation object and expands it to allow 1:many mappings of reagents. 
+##' This mostly is used for internal processing, and users should interact with the wrapper functions that call it (e.g., `ct.generateResults`). 
+##' 
+##' Libraries targeting ambiguous biological elements (e.g., alternative promoters to a gene where the boundaries between
+##' elements is contested) may contain reagents that are plausibly annotated to a finite set of possible targets. To accomodate this, users may 
+##' supply an alternative reagent annotation in the form of a named list of vectors, where the names correspond to reagent `ID`s in the annotation 
+##' object and each list element corresponds something coercible to a to a character vector of associated targets that will ultimately be assembled
+##' into the `geneSymbol` column of the annotation object. It is assumed that the `geneID` values are assigned unambiguously to the reagents, 
+##' and are passed through directly. 
+##'
+##' @param ann A \code{data.frame} containing an annotation object with gRNA-level information encoded as rows, typically produced by 
+##' `ct.prepareAnnotation`. The \code{row.names} attribute should correspond to the individual gRNAs, and it should at minimum contain columns 
+##' named "geneID" and "geneSymbol" indicating the corresponding gRNA target gene ID and symbol, respectively. 
+##' @param alt.annotation A named list of character vectors, which should be named identically to a value in the `ID` column of the supplied 
+##' annotation object. The values in the character vectors will eventually form the `geneSymbol` column of the annotation file.
+##' @return A new annotation data frame, expanded as described above.
+##' @author Russell Bainer
+##' @examples 
+##' data('ann')
+##' alt.annotation <- list("Target2089_b" = c('foo', 'bar'), "Target2089_c" = 'foo', "Target2089_a" = 'bar')
+##' ct.expandAnnotation(ann, alt.annotation)
+##' @export
+ct.expandAnnotation <- function(ann, alt.annotation){
+  #input check
+  ann <- ct.prepareAnnotation(ann)
+  if(!('ID' %in% names(ann))){
+    stop('Annotation must contain a reagent-level "ID" column to enable expansion.')
+  }
+  stopifnot(is.list(alt.annotation), all(names(alt.annotation) %in% ann$ID))
+  alt.annotation <- sapply(alt.annotation, as.character, simplify = FALSE)
+  
+  assigned <- vapply(alt.annotation, length, numeric(1)) > 0
+  alt.annotation <- alt.annotation[assigned]
+  
+  if(length(setdiff(ann$ID, names(alt.annotation))) > 0){
+    message(paste0('Removing ', length(setdiff(ann$ID, names(alt.annotation))), ' reagents that were not assigned to a target.'))
+  }
+  
+  subs <- lapply(1:length(alt.annotation), 
+                 function(x){
+                   out <- ann[ann$ID %in% names(alt.annotation)[x], , drop = FALSE]
+                   out <- out[rep(1, times = length(alt.annotation[[x]])),, drop = FALSE]
+                   out$geneSymbol <- alt.annotation[[x]]
+                   return(out)
+                 })
+  
+  return(do.call(rbind, subs))
+}
+
+
+
+
+
+
