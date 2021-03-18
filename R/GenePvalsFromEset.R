@@ -23,6 +23,12 @@
 ##' fit object. \code{fc} indicates that the ranks of the gRNA coefficients should be used instead, and \code{combined} indicates that 
 ##' that the coefficents should be used as the ranking statistic but gRNAs are discarded in the aggregation step based on the corresponding nominal 
 ##' p-value in the fit object. 
+##' @param alt.annotation Libraries targeting ambiguous biological elements (e.g., alternative promoters to a gene where the boundaries between
+##' elelments is contested) may contain reagents that are plausibly annotated to a finite set of possible targets. To accomodate this, users may 
+##' supply an alternative reagent annotation in the form of a named list of vectors, where each list element corresponds something coercible to a to
+##' a character vector of associated targets that will ultimately be assembled into the `geneSymbol` column of the `resultsDF` object. Each of these 
+##' character vectors should be named identically to a row of the supplied fit object (e.g., the `row.names`). It is assumed that the `geneID` values 
+##' are assigned unambiguously to the reagents, and are passed through directly. 
 ##' @param permutation.seed numeric seed for permutation reproducibility. 
 ##'   Default: \code{NULL} means to not set any seed. This argument is passed
 ##'   through to \code{\link{ct.RRAaPvals}}.
@@ -54,6 +60,7 @@ ct.generateResults <- function(fit,
                                permutations = 1000,
                                contrast.term = NULL,
                                scoring = c("combined", "pvalue", "fc"),
+                               alt.annotation = NULL,
                                permutation.seed = NULL) {
 
     ## figure out the scoring method
@@ -64,6 +71,7 @@ ct.generateResults <- function(fit,
       stop('Evidence for differential gRNA abundance (p-values) has not been estimated for the provided fit object. Please do so using eBayes(), treat(), or similar method.')
     }
  
+    #Select relevant contrast
     if(ncol(fit$coefficients) > 1){
         if(is.null(contrast.term)){
             stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
@@ -71,22 +79,27 @@ ct.generateResults <- function(fit,
         fit <- ct.preprocessFit(fit, contrast.term)
     }
     
-    #The code below is now handled in the prepareAnnotation function but is retained for legacy purposes. 
-    ## filter the annotation file as necessary for downstream processes, and format it for pval generation
-    #if(!setequal(row.names(fit), row.names(annotation))){
-    #    if(length(setdiff(row.names(fit), row.names(annotation))) > 0){
-    #        stop("fit contains elements not present in the annotation file.")
-    #    }
-    #    message("The annotation file contains elements not present in the fit object. They will be discarded for downstream analyses.")
-    #    annotation <- annotation[row.names(fit),]
-    #}
-
-    ## Prepare the ranking values and calculate p-values
+    #Apply directional test to the model estimates
     pvals <- ct.DirectionalTests(fit)
-    rra.input <- ct.applyAlpha(cbind(pvals, FC=fit$coefficients[,1]), RRAalphaCutoff, scoring )
-
-    ## Add pvalues and qvalues
+    
+    #prep the annotation
     key <- ct.prepareAnnotation(annotation, fit, throw.error = FALSE)
+    if(!('ID' %in% names(key))){key$ID <- row.names(key)}
+
+    #If provided, check the alt.annotation and expand the fit/key as needed. 
+    if(!is.null(alt.annotation)){
+      stopifnot(is.list(alt.annotation), all(names(alt.annotation) %in% row.names(fit)))
+      alt.annotation <- sapply(alt.annotation, as.character, simplify = FALSE)
+      
+      #Expand the annotation object
+      key <- ct.expandAnnotation(key, alt.annotation)
+    }
+
+    ## Prepare the ranking values 
+    rra.input <- ct.applyAlpha(cbind(pvals[key$ID,], FC=fit$coefficients[key$ID,1]), RRAalphaCutoff, scoring )
+    
+    
+    ## Add pvalues and qvalues
     geneP.depletion <-
         ct.RRAaPvals(
             rra.input[,"scores.deplete", drop=FALSE],
@@ -123,11 +136,11 @@ ct.generateResults <- function(fit,
     ## make the DF
     summaryDF <- key[,annotFields]
     summaryDF$geneSymbol <- as.character(summaryDF$geneSymbol)
-    summaryDF["gRNA Log2 Fold Change"] <- fit$coefficients[row.names(summaryDF),1]
-    summaryDF["gRNA Depletion P"] <- signif(pvals[row.names(summaryDF),1], 5)
-    summaryDF["gRNA Depletion Q"] <- signif(p.adjust(pvals[,'Depletion.P'], "fdr")[row.names(summaryDF)], 5)
-    summaryDF["gRNA Enrichment P"] <- signif(pvals[row.names(summaryDF),2], 5)
-    summaryDF["gRNA Enrichment Q"] <- signif(p.adjust(pvals[,'Enrichment.P'], "fdr")[row.names(summaryDF)], 5)
+    summaryDF["gRNA Log2 Fold Change"] <- fit$coefficients[summaryDF$ID,1]
+    summaryDF["gRNA Depletion P"] <- signif(pvals[summaryDF$ID,1], 5)
+    summaryDF["gRNA Depletion Q"] <- signif(p.adjust(pvals[,'Depletion.P'], "fdr")[summaryDF$ID], 5)
+    summaryDF["gRNA Enrichment P"] <- signif(pvals[summaryDF$ID,2], 5)
+    summaryDF["gRNA Enrichment Q"] <- signif(p.adjust(pvals[,'Enrichment.P'], "fdr")[summaryDF$ID], 5)
     summaryDF["Target-level Enrichment P"] <- geneP.enrichment[summaryDF$geneSymbol]
     summaryDF["Target-level Enrichment Q"] <- p.adjust(geneP.enrichment,"fdr")[summaryDF$geneSymbol]
     summaryDF["Target-level Depletion P"] <- geneP.depletion[summaryDF$geneSymbol]

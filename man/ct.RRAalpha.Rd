@@ -7,7 +7,7 @@
 ct.RRAalpha(p, g.key, shuffle = FALSE)
 }
 \arguments{
-\item{p}{A single column matrix of rank statistics, with \code{row.names} indicating the gRNA labels.}
+\item{p}{A single column matrix of rank statistics.}
 
 \item{g.key}{data.frame with guide and gene names}
 
@@ -18,7 +18,10 @@ Nothing, or a named list of target-level P-values, which are treated as a rho st
 }
 \description{
 This function is called internally as a single instance of the beta aggregation step in RRAa. Users should not interact with it directly. 
-The expected input is a list of rank statistics, and a paired \code{alpha} argument defining which values to consider in downstream analyses (see below).
+The expected input is a set of rank statistics, and a paired \code{alpha} argument defining which values to consider in downstream analyses (see below). 
+
+As of gCrisprTools 2.0, this function does not consider `row.names` associated with the provided values, and the p-values are expected to be provided 
+in register with the provided `g.key` object.
 }
 \examples{
 data('fit')

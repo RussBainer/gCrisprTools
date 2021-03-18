@@ -11,6 +11,7 @@ ct.generateResults(
   permutations = 1000,
   contrast.term = NULL,
   scoring = c("combined", "pvalue", "fc"),
+  alt.annotation = NULL,
   permutation.seed = NULL
 )
 }
@@ -42,6 +43,13 @@ or '\code{combined}'. \code{pvalue} indicates that the gRNA ranking statistic sh
 fit object. \code{fc} indicates that the ranks of the gRNA coefficients should be used instead, and \code{combined} indicates that 
 that the coefficents should be used as the ranking statistic but gRNAs are discarded in the aggregation step based on the corresponding nominal 
 p-value in the fit object.}
+
+\item{alt.annotation}{Libraries targeting ambiguous biological elements (e.g., alternative promoters to a gene where the boundaries between
+elelments is contested) may contain reagents that are plausibly annotated to a finite set of possible targets. To accomodate this, users may 
+supply an alternative reagent annotation in the form of a named list of vectors, where each list element corresponds something coercible to a to
+a character vector of associated targets that will ultimately be assembled into the `geneSymbol` column of the `resultsDF` object. Each of these 
+character vectors should be named identically to a row of the supplied fit object (e.g., the `row.names`). It is assumed that the `geneID` values 
+are assigned unambiguously to the reagents, and are passed through directly.}
 
 \item{permutation.seed}{numeric seed for permutation reproducibility. 
 Default: \code{NULL} means to not set any seed. This argument is passed
