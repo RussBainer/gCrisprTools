@@ -56,6 +56,7 @@ ann <- ct.prepareAnnotation(ann, fit, controls = "NoTarget")
 ```
 
 Summarize gRNA signals to identify target genes of interest
+
 ```{r, eval = FALSE}
 resultsDF <-
   ct.generateResults(
@@ -67,6 +68,34 @@ resultsDF <-
     permutation.seed = 2
   )
 ```
+
+In some cases, reagents might target multiple known elements (e.g., gRNAs in a CRISPRi library that target multiple promoters of the same gene). In such cases, you can specify this via the `alt.annotation` argument to `ct.generateResults()`. Alternative annotations are supplies as a list of character vectors named for the reagents. 
+
+
+
+```{r, eval = FALSE}
+
+# Create random alternative target associations 
+
+altann <- sapply(ann$ID, 
+                 function(x){
+                   out <- as.character(ann$geneSymbol)[ann$ID %in% x]
+                   if(runif(1) < 0.01){out <- c(out, sample(as.character(ann$geneSymbol), size = 1))}
+                   return(out)
+                 }, simplify = FALSE)
+
+resultsDF <-
+  ct.generateResults(
+    fit,
+    annotation = ann,
+    RRAalphaCutoff = 0.1,
+    permutations = 1000,
+    scoring = "combined", 
+    alt.annotation = altann,
+    permutation.seed = 2
+  )
+```
+
 
 
 Optionally, just load an example results object for testing purposes (trimming out reads as necessary)
