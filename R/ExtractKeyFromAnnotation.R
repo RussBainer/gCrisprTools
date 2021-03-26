@@ -211,16 +211,27 @@ ct.parseGeneSymbol <- function(ann, format = c('cellecta', 'underscore')){
   symbols <- as.character(ann$geneSymbol)
   
   if(format %in% 'cellecta'){
-    out <- lapply(symbols, 
-                  function(x){
-                    splut <- strsplit(x, split = '_')[[1]]
-                    if(splut == x){return(x)}  #Return the original genesymbol if no underscores present
- 
-                    prom <- strsplit(splut[2], split = 'P')[[1]]
-                    prom <- prom[prom != '']
-                    
-                    return(paste0(splut[1], '_P', prom))
-                  })
+
+     #Cellecta is dumb and sometimes annotate a single set of guides to multiple promoters
+     core <- vapply(symbols, function(x){strsplit(x, split = '_')[[1]][1]}, character(1))
+     ntarg <- tapply(ann$geneSymbol, core, function(x){length(unique(x))})
+     unary <- names(ntarg)[ntarg == 1]
+     pass <- core %in% unary
+     
+     out <- lapply(seq.int(1, length(symbols)), 
+                   function(x){
+                     
+                     if(pass[x]){return(symbols[x])}
+                     
+                     splut <- strsplit(symbols[x], split = '_')[[1]]
+                     
+                     if(splut[1] == symbols[1]){return(x)}  #Return the original genesymbol if no underscores present
+                     
+                     prom <- strsplit(splut[2], split = 'P')[[1]]
+                     prom <- prom[prom != '']
+                     
+                     return(paste0(splut[1], '_P', prom))
+                   })
   }
   if(format %in% 'underscore'){
     out <- lapply(symbols, 
