@@ -2,14 +2,16 @@
 ##' @description This function processes a supplied annotation object for use in a pooled screening experiment. 
 ##' Originally this was processed into something special, but now it essentially returns
 ##' the original annotation object in which the geneSymbol column has been factorized. This is primarily used 
-##' internally during a call to the \code{ct.generateResults()} function. Also performs some minor functionality checking.
+##' internally during a call to the \code{ct.generateResults()} function. Also performs some minor functionality checking, 
+##' and ensures that the reagent identifiers are present as an `ID` column (if absent, the row.names are used).
 ##' 
 ##' Valid annotations contain both `geneID` and `geneSymbol` columns. This is because there is often a distinction between
 ##' the official gene that is being targeted and a coherent set of gRNAs that make up a testing cohort. For example, 
 ##' multiple sets of guides may target distinct promoters, exons, or other entities that are expected to produce distinct 
 ##' biological phenomena related to the gene that should be interpreted separately. For this reason, the `geneID` column 
 ##' encodes the official gene designation (typically an ensembl or entrez gene identifier) while the `geneSymbol` column
-##' contains a human-readable descriptor of the gRNA target (such as a gene symbol or promoter name). 
+##' contains a human-readable descriptor of the gRNA target (such as a gene symbol or promoter name). This mapping can be 
+##' further expanded to incorporate mapping ambiguity via the `ct.expandAnnotation()` function.
 ##' 
 ##' @param ann A \code{data.frame} containing an annotation object with gRNA-level information encoded as rows. The 
 ##' \code{row.names} attribute should correspond to the individual gRNAs, and it should at minimum contain columns 
@@ -37,8 +39,15 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
     stop("The annotation object must contain a geneSymbol column.")
   }
   
+
   exception <- ifelse(throw.error, stop, warning)
 
+  #Add an `ID` column if not present
+  if(!('ID' %in% names(ann))){
+    ann$ID <- row.names(ann)
+    message('Adding row.names as "ID".')
+  }
+  
   #Convert the geneID column to a charvec if it isn't already.
   if(!is.character(ann$geneID)){
     ann$geneID <- as.character(ann$geneID)
@@ -47,6 +56,7 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
     warning('NA detected within the geneID column; setting to no_gid...')
     ann$geneID[is.na(ann$geneID)] <- "no_gid"
   }
+  
   
   
   #If supplied, trim out the gRNAs not present in the object. 
@@ -204,8 +214,12 @@ ct.parseGeneSymbol <- function(ann, format = c('cellecta', 'underscore')){
     out <- lapply(symbols, 
                   function(x){
                     splut <- strsplit(x, split = '_')[[1]]
+                    if(splut == x){return(x)}  #Return the original genesymbol if no underscores present
+ 
                     prom <- strsplit(splut[2], split = 'P')[[1]]
-                    return(paste0(splut[1], '_P', prom[2:length(prom)]))
+                    prom <- prom[prom != '']
+                    
+                    return(paste0(splut[1], '_P', prom))
                   })
   }
   if(format %in% 'underscore'){
@@ -214,7 +228,7 @@ ct.parseGeneSymbol <- function(ann, format = c('cellecta', 'underscore')){
                     return(strsplit(x, split = '_')[[1]])
                   })
   }
-  
+
   names(out) <- reagents
   return(out)
 }
