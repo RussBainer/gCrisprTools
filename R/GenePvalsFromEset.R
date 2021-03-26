@@ -89,8 +89,7 @@ ct.generateResults <- function(fit,
     #If provided, check the alt.annotation and expand the fit/key as needed. 
     if(!is.null(alt.annotation)){
       stopifnot(is.list(alt.annotation), all(names(alt.annotation) %in% row.names(fit)))
-      alt.annotation <- sapply(alt.annotation, as.character, simplify = FALSE)
-      
+
       #Expand the annotation object
       key <- ct.expandAnnotation(key, alt.annotation)
     }

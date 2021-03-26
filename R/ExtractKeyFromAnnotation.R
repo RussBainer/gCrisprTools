@@ -159,22 +159,22 @@ ct.expandAnnotation <- function(ann, alt.annotation){
   stopifnot(is.list(alt.annotation), all(names(alt.annotation) %in% ann$ID))
   alt.annotation <- sapply(alt.annotation, as.character, simplify = FALSE)
   
-  assigned <- vapply(alt.annotation, length, numeric(1)) > 0
-  alt.annotation <- alt.annotation[assigned]
-  
-  if(length(setdiff(ann$ID, names(alt.annotation))) > 0){
-    message(paste0('Removing ', length(setdiff(ann$ID, names(alt.annotation))), ' reagents that were not assigned to a target.'))
+  aa.len <- lengths(alt.annotation)
+
+  if(sum(aa.len == 0) > 0){
+    message(paste0('Removing ', (sum(aa.len == 0) > 0), ' reagents that were not assigned to a target.'))
+    alt.annotation <- alt.annotation[aa.len > 0]
   }
   
-  subs <- lapply(1:length(alt.annotation), 
-                 function(x){
-                   out <- ann[ann$ID %in% names(alt.annotation)[x], , drop = FALSE]
-                   out <- out[rep(1, times = length(alt.annotation[[x]])),, drop = FALSE]
-                   out$geneSymbol <- alt.annotation[[x]]
-                   return(out)
-                 })
+  #Subselect relevant annotation rows, and then synchronize rows with alt.ann names
+  out <- ann[ann$ID %in% names(alt.annotation),]
+  alt.annotation <- alt.annotation[out$ID]
   
-  return(do.call(rbind, subs))
+  #Expand the annotation and update the geneSymbol column
+  out <- out[rep(seq_len(nrow(out)), lengths(alt.annotation)), ]
+  out$geneSymbol <- unlist(alt.annotation)
+  
+  return(out)
 }
 
 
