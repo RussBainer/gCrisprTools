@@ -35,7 +35,7 @@ ct.CAT <-
     stopifnot(is(switch.dir, 'logical'), is(plot.it, 'logical'), is(dflist, 'list'), length(dflist) == 2)
     targets <- match.arg(targets)
     dflist <- ct.regularizeContrasts(dflist, collapse = targets)
-    tits <- paste0(names(dflist)[2], ' signal by ', names(dflist)[1], ', ', c('Enrichment', 'Depletion'))
+    titles <- paste0(names(dflist)[2], ' signal by ', names(dflist)[1], ', ', c('Enrichment', 'Depletion'))
     cuts <- c(min(sum(dflist[[1]]$direction %in% 'enrich'), sum(dflist[[2]]$direction %in% 'enrich')), 
               min(sum(dflist[[2]]$direction %in% 'deplete'), sum(dflist[[2]]$direction %in% 'deplete')))
     cuts <- cuts/nrow(dflist[[1]])
@@ -44,8 +44,8 @@ ct.CAT <-
     r1 <- ct.rankSimple(dflist[[1]])
     
     if(switch.dir){
-      tits <- paste0(names(dflist)[2], c(' Depletion', ' Enrichment'), ' by ', names(dflist)[1], c(' Enrichment', ' Depletion'))
-      r2 <- ct.rankSimple(dflist[[2]], 'deplete')
+      titles <- paste0(names(dflist)[2], c(' Depletion', ' Enrichment'), ' by ', names(dflist)[1], c(' Enrichment', ' Depletion'))
+      r2 <- ct.rankSimple(dflist[[2]], top = 'deplete')
     } else {
       r2 <- ct.rankSimple(dflist[[2]])
     }
@@ -68,10 +68,9 @@ ct.CAT <-
     #Plot it
     if(plot.it){
       
-      par(mfrow = c(1,2))
       plot(sort(unique(r1), decreasing = FALSE)/max(r1), 
            enrich.over, 
-           main = tits[1], 
+           main = titles[1], 
            xlab = paste0(names(dflist)[1], ' Signal Rank'), ylab = 'Concordance', 
            xlim = c(0,cuts[1]), ylim = c(0,1),
            pch = 19, col = rgb(0,0,0.7), 
@@ -80,7 +79,7 @@ ct.CAT <-
       
       plot(sort(unique(r1), decreasing = FALSE)/max(r1), 
            deplete.over, 
-           main = tits[2], 
+           main = titles[2], 
            xlab = paste0(names(dflist)[1], ' Signal Rank'), ylab = 'Concordance', 
            xlim = c(0,cuts[2]), ylim = c(0,1),
            pch = 19, col = rgb(0,0,0.7), 

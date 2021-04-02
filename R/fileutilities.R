@@ -345,7 +345,6 @@ ct.regularizeContrasts <- function(dflist, ...){
 ##' sr <- ct.rankSimple(resultsDF, 'deplete')
 ##' all((df.simple$best.p[sr == 1] == 0), (df.simple$direction[sr == 1] == 'deplete'))
 ##' @export
-
 ct.rankSimple <- function(df, top = c('enrich', 'deplete')){
   df.simple <- ct.simpleResult(df)
   top <- match.arg(top)
@@ -365,6 +364,11 @@ ct.rankSimple <- function(df, top = c('enrich', 'deplete')){
   out <- rep(0, nrow(df.simple))
   out[df.simple$direction %in% 'enrich'] <- enr
   out[df.simple$direction %in% 'deplete'] <- dep
+
+  #Switch the values if depletion
+  if(top %in% 'deplete'){
+    out <- (max(out) + 1) - out
+  }
   
   return(out)
 }
