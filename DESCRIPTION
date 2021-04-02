@@ -1,7 +1,7 @@
 Package: gCrisprTools
 Type: Package
 Title: Suite of Functions for Pooled Crispr Screen QC and Analysis
-Version: 1.19.4
+Version: 1.19.5
 Date: 2019-04-09
 Author: Russell Bainer, Dariusz Ratman, Steve Lianoglou, Peter Haverty
 Authors@R: c(

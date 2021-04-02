@@ -327,6 +327,47 @@ ct.regularizeContrasts <- function(dflist, ...){
   return(sapply(dflist, function(x){x[samerows,]}, simplify = FALSE))  
 }
 
+##' @title Rank Signals in a Simplified Pooled Screen Result Object 
+##' @description This function takes in a supplied results data.frame, optionally transforms it into a `simplifiedResult`, 
+##' and returns the ranks of the target-level signals. 
+##' 
+##' @param df A results data.frame, in either raw or simplified form. Will be converted to simplified form if necessary.
+##' @param top Determines the directionality of the ranking. `enrich` defines ranks from the most enriched to the most 
+##' depleted target; `deplete` does the opposite 
+##' @return A numeric vector of ranks, with length equal to the number of rows in the simplified data.frame. 
+##' @author Russell Bainer
+##' @examples 
+##' data('resultsDF')
+##' df.simple <- ct.simpleResult(resultsDF) 
+##' sr <- ct.rankSimple(resultsDF)
+##' all((df.simple$best.p[sr == 1] == 0), (df.simple$direction[sr == 1] == 'enrich'))
+##' 
+##' sr <- ct.rankSimple(resultsDF, 'deplete')
+##' all((df.simple$best.p[sr == 1] == 0), (df.simple$direction[sr == 1] == 'deplete'))
+##' @export
+
+ct.rankSimple <- function(df, top = c('enrich', 'deplete')){
+  df.simple <- ct.simpleResult(df)
+  top <- match.arg(top)
+  
+  ranktype <- switch(top, 
+                     'enrich' = 'min', 
+                     'deplete' = 'max')
+  
+  #rank the enriched:
+  enr <- rank(df.simple$best.p[df.simple$direction %in% 'enrich'], na.last = TRUE, ties.method = ranktype)
+  
+  #Depleted is trickier:
+  dep <- rank(df.simple$best.p[df.simple$direction %in% 'deplete'], na.last = TRUE, ties.method = ranktype)
+  dep <- ((max(dep) + 1) - dep) + max(enr)
+  
+  #put them back in order:
+  out <- rep(0, nrow(df.simple))
+  out[df.simple$direction %in% 'enrich'] <- enr
+  out[df.simple$direction %in% 'deplete'] <- dep
+  
+  return(out)
+}
 
 ##' @title Log10 transform empirical P-values with a pseudocount
 ##' @description This function -log10 transforms empirical P-values by adding a pseudocount of 1/2 the minimum nonzero value. 
