@@ -54,6 +54,7 @@ ct.GREATdb <- function(annotation,
 ##' collapsing features in the provided `simpleDF`s must be present in the `gsd@db$feature_id` slot. 
 ##' @param ... Other parameters to lower functions, especially `ct.simpleResult()`.
 ##' @return A list of `data.frames` formatted for evaluation with `multiGSEA`. 
+##' @export
 ct.mgseaPrep <- function(dflist, 
                          cutoff = 0.1, 
                          statistic = c('best.q', 'best.p'), 
