@@ -39,12 +39,6 @@ Limited annotation is provided for the specified targets using the following log
 \examples{
 data('resultsDF')
 ct.signalSummary(resultsDF, list('CandidateA' = 'Target229', 'Pathway3' = resultsDF$geneSymbol[c(42,116,1138,5508)]), 'enrich')
-data('es')
-data('ann')
-data('fit')
-
-ct.GCbias(es, ann)
-ct.GCbias(fit, ann)
 }
 \author{
 Russell Bainer

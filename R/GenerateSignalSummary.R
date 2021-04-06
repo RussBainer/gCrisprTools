@@ -19,13 +19,6 @@
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
 ##' ct.signalSummary(resultsDF, list('CandidateA' = 'Target229', 'Pathway3' = resultsDF$geneSymbol[c(42,116,1138,5508)]), 'enrich')
-##' @examples 
-##' data('es')
-##' data('ann')
-##' data('fit')
-##' 
-##' ct.GCbias(es, ann)
-##' ct.GCbias(fit, ann)
 ##' @export
 ct.signalSummary <-
   function(summaryDF,
@@ -139,3 +132,81 @@ ct.signalSummary <-
                        points(exes[gw.ranks], gwp[gw.ranks], pch = 21, bg = t.col[x], cex = 1.2, lwd = 1.2)
                      }))
   }
+
+
+##' @title Visualize Signal Across A List of Contrasts 
+##' @description Given a list of provided results `data.frame`s summarizing a series of contrasts from one or more pooled screens, 
+##' this function visualizes the signal associated with their shared targets as a series of stacked barcharts. Enriched signals 
+##' are represented in the positive direction, and depleted signals are represented in the negative direction. 
+##' 
+##' @param dflist A named list of `data.frame`s summarizing the results of one or more screen contrasts, returned by the function 
+##' \code{\link{ct.generateResults}}. 
+##' @param background Logical indicating whether to represent the nonsignificant hits in the barchart.  
+##' @param ... Additional parameters for internal functions, such as `ct.simpleResult()`
+##' @param statistic Should cutoffs be calculated based on FDR (`best.q`) or P-value (`best.p`)?
+##' @param ... Other parameters to lower functions, especially `ct.simpleResult()`
+##' @return A summary plot on the current device. Invisibly, the data.frame tallying signals at various thresholds. 
+##' @author Russell Bainer
+##' @examples data('resultsDF')
+##' # Not so interesting b/c of limited weak signal in example
+##' ct.contrastBarchart(list('First Result' = resultsDF, 'Second Result' = resultsDF))
+##' @export
+ct.contrastBarchart <- function(dflist, background = TRUE, statistic = c('best.q', 'best.p'), ...){
+
+  #Check input
+  dflist <- ct.regularizeContrasts(dflist, ...)
+  stopifnot(is(background, 'logical'))
+  statistic <- match.arg(statistic)
+  
+  colors <- c('grey', colorRampPalette(c('white', 'orange', 'red', 'darkred'))(5)[2:5])
+  names(colors) <- c('N/S', '< 0.1', '< 0.01', '< 0.001', '< 0.00001')
+  
+  #Collect values
+  vals <- vapply(dflist, 
+                 function(x){
+                   c(sum((x[,statistic] > 0.1) & (x$direction == 'enrich')), 
+                     sum((x[,statistic] > 0.01) & (x[,statistic] <= 0.1) & (x$direction == 'enrich')),
+                     sum((x[,statistic] > 0.001) & (x[,statistic] <= 0.01) & (x$direction == 'enrich')), 
+                     sum((x[,statistic] > 0.00001) & (x[,statistic] <= 0.001) & (x$direction == 'enrich')), 
+                     sum((x[,statistic] < 0.00001) & (x$direction == 'enrich')), 
+                     -sum((x[,statistic] < 0.00001) & (x$direction == 'deplete')), 
+                     -sum((x[,statistic] > 0.00001) & (x[,statistic] <= 0.001) & (x$direction == 'deplete')), 
+                     -sum((x[,statistic] > 0.001) & (x[,statistic] <= 0.01) & (x$direction == 'deplete')),
+                     -sum((x[,statistic] > 0.01) & (x[,statistic] <= 0.1) & (x$direction == 'deplete')),
+                     -sum((x[,statistic] > 0.1) & (x$direction == 'deplete'))) 
+                 }, numeric(10))
+  
+  row.names(vals) <- paste0(rep(c('enrich', 'deplete'), each = 5), 
+                            '_p', 
+                            c('Other', '1', '01', '001', '00001', '00001', '001', '01', '1', 'Other'))
+  
+  if(!background){
+    vals <- vals[2:9,]
+    colors <- colors[2:5]
+  }
+  
+  plot(NA, xlim = range(vals), ylim = c(0,(length(dflist))), 
+       yaxt = "n",  
+       ylab = '', xlab = 'Significant Target Signals', 
+       main = switch(statistic, 'best.p' = 'Target P Values', 'best.q' = 'Target Q Values'))
+
+  for(j in 1:length(dflist)){
+    for(k in 1:5){
+     polygon(x = c(vals[k,j], vals[k,j], vals[(nrow(vals) - k + 1),j], vals[(nrow(vals) - k + 1),j]), 
+             y = c((j-0.8), (j-0.2), (j-0.2), (j - 0.8)), col = colors[k])
+    }
+    text(range(vals)[1], j, names(dflist)[j], adj = c(0,1))
+  }
+  abline(v = 0, lty = 2, col = 'black')
+  legend('bottom', names(colors), fill = colors, horiz = TRUE, cex = 0.7)
+  text(range(vals)[1], 0, 'Depleted', col = 'grey', adj = c(0,0))
+  text(range(vals)[2], 0, 'Enriched', col = 'grey', adj = c(1,0))
+  
+  return(invisible(vals))
+}
+  
+
+
+
+
+
