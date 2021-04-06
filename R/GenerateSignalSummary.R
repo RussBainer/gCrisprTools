@@ -142,7 +142,6 @@ ct.signalSummary <-
 ##' @param dflist A named list of `data.frame`s summarizing the results of one or more screen contrasts, returned by the function 
 ##' \code{\link{ct.generateResults}}. 
 ##' @param background Logical indicating whether to represent the nonsignificant hits in the barchart.  
-##' @param ... Additional parameters for internal functions, such as `ct.simpleResult()`
 ##' @param statistic Should cutoffs be calculated based on FDR (`best.q`) or P-value (`best.p`)?
 ##' @param ... Other parameters to lower functions, especially `ct.simpleResult()`
 ##' @return A summary plot on the current device. Invisibly, the data.frame tallying signals at various thresholds. 

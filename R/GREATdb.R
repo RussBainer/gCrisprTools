@@ -45,6 +45,46 @@ ct.GREATdb <- function(annotation,
   return(multiGSEA:::GeneSetDb.list(out))
 }
 
+##' Prepare a resultsDF object for analysis via MultiGSEA
+##'
+##' @param dflist A list of gCrisprTools results `data.frames` to be formatted.
+##' @param cutoff Numeric maximum value of `statistic` to define significance.
+##' @param statistic Should cutoffs be calculated based on FDR (`best.q`) or P-value (`best.p`)?
+##' @param gdb Optionally, a `GeneSetDb` object to enable proper registration of the output. If provided, the 
+##' collapsing features in the provided `simpleDF`s must be present in the `gsd@db$feature_id` slot. 
+##' @param ... Other parameters to lower functions, especially `ct.simpleResult()`.
+##' @return A list of `data.frames` formatted for evaluation with `multiGSEA`. 
+ct.mgseaPrep <- function(dflist, 
+                         cutoff = 0.1, 
+                         statistic = c('best.q', 'best.p'), 
+                         gdb = NULL,
+                         ...){
+  #Input check
+  dflist <- ct.regularizeContrasts(dflist, ...)
+  stopifnot(is(cutoff, 'numeric'), cutoff <= 1, cutoff >= 0)
+  statistic <- match.arg(statistic)
+  
+  if(!is.null(gsd)){
+    dflist <- sapply(dflist, 
+                     function(x){
+                       x[(row.names(x) %in% gsd@db$feature_id),]
+                     }, simplify = FALSE)
+  }
+  
+  out <- sapply(dflist, 
+                function(x){
+                  data.frame('feature_id' = x$geneID, 
+                             'logFC' = 1,
+                             'selected' = (x[,statistic] <= cutoff),
+                             'direction' = x$direction,
+                             stringsAsFactors = FALSE)
+                },simplify = FALSE)
+
+  names(out) <- names(dflist)
+  return(out)
+  
+}
+                         
 ##' @title Geneset Enrichment within a CRISPR screen using multiGSEA
 ##' 
 ##' This function identifies differentially enriched/depleted ontological categories within the hits of a CRISPR screen 
