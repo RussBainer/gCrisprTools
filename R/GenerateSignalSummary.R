@@ -163,17 +163,27 @@ ct.contrastBarchart <- function(dflist, background = TRUE, statistic = c('best.q
   #Collect values
   vals <- vapply(dflist, 
                  function(x){
-                   c(sum((x[,statistic] > 0.1) & (x$direction == 'enrich')), 
-                     sum((x[,statistic] > 0.01) & (x[,statistic] <= 0.1) & (x$direction == 'enrich')),
-                     sum((x[,statistic] > 0.001) & (x[,statistic] <= 0.01) & (x$direction == 'enrich')), 
-                     sum((x[,statistic] > 0.00001) & (x[,statistic] <= 0.001) & (x$direction == 'enrich')), 
-                     sum((x[,statistic] < 0.00001) & (x$direction == 'enrich')), 
-                     -sum((x[,statistic] < 0.00001) & (x$direction == 'deplete')), 
-                     -sum((x[,statistic] > 0.00001) & (x[,statistic] <= 0.001) & (x$direction == 'deplete')), 
-                     -sum((x[,statistic] > 0.001) & (x[,statistic] <= 0.01) & (x$direction == 'deplete')),
-                     -sum((x[,statistic] > 0.01) & (x[,statistic] <= 0.1) & (x$direction == 'deplete')),
-                     -sum((x[,statistic] > 0.1) & (x$direction == 'deplete'))) 
-                 }, numeric(10))
+                   #c(sum((x[,statistic] > 0.1) & (x$direction == 'enrich')), 
+                  #   sum((x[,statistic] > 0.01) & (x[,statistic] <= 0.1) & (x$direction == 'enrich')),
+                  #   sum((x[,statistic] > 0.001) & (x[,statistic] <= 0.01) & (x$direction == 'enrich')), 
+                  #   sum((x[,statistic] > 0.00001) & (x[,statistic] <= 0.001) & (x$direction == 'enrich')), 
+                  #   sum((x[,statistic] < 0.00001) & (x$direction == 'enrich')), 
+                  #   -sum((x[,statistic] < 0.00001) & (x$direction == 'deplete')), 
+                  #   -sum((x[,statistic] > 0.00001) & (x[,statistic] <= 0.001) & (x$direction == 'deplete')), 
+                  #   -sum((x[,statistic] > 0.001) & (x[,statistic] <= 0.01) & (x$direction == 'deplete')),
+                  #   -sum((x[,statistic] > 0.01) & (x[,statistic] <= 0.1) & (x$direction == 'deplete')),
+                  #   -sum((x[,statistic] > 0.1) & (x$direction == 'deplete'))) 
+                   c(sum((x$direction == 'enrich')), 
+                     sum((x[,statistic] <= 0.1) & (x$direction == 'enrich')),
+                     sum((x[,statistic] <= 0.01) & (x$direction == 'enrich')), 
+                     sum((x[,statistic] <= 0.001) & (x$direction == 'enrich')), 
+                     sum((x[,statistic] <= 0.00001) & (x$direction == 'enrich')), 
+                     -sum((x[,statistic] <= 0.00001) & (x$direction == 'deplete')), 
+                     -sum((x[,statistic] <= 0.001) & (x$direction == 'deplete')), 
+                     -sum((x[,statistic] <= 0.01) & (x$direction == 'deplete')),
+                     -sum((x[,statistic] <= 0.1) & (x$direction == 'deplete')),
+                     -sum((x$direction == 'deplete'))) 
+                   }, numeric(10))
   
   row.names(vals) <- paste0(rep(c('enrich', 'deplete'), each = 5), 
                             '_p', 
