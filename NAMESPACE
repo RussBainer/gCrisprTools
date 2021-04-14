@@ -3,6 +3,7 @@
 export(ct.CAT)
 export(ct.DirectionalTests)
 export(ct.GCbias)
+export(ct.GREATdb)
 export(ct.PRC)
 export(ct.PantherPathwayEnrichment)
 export(ct.ROC)

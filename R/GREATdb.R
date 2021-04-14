@@ -4,6 +4,7 @@
 ##' @param gsdb A gene-centric \code{GeneSetDb} object to conform to the relevant peakwise dataset.
 ##' @param minsize Minimum number of targets required to consider a geneset valid for analysis.
 ##' @return A new \code{GeneSetDb} object with the features annotated genewise to pathways.
+##' @export
 ct.GREATdb <- function(annotation, 
                        gsdb = getMSigGeneSetDb(c('h', 'c2'), 'human'), 
                        minsize = 10){
@@ -42,7 +43,7 @@ ct.GREATdb <- function(annotation,
                   new_gs[collections %in% z]
                 })
   names(out) <- unique(collections)
-  return(multiGSEA:::GeneSetDb.list(out))
+  return(multiGSEA:::GeneSetDb(out))
 }
 
 ##' Prepare a resultsDF object for analysis via MultiGSEA
@@ -65,16 +66,16 @@ ct.mgseaPrep <- function(dflist,
   stopifnot(is(cutoff, 'numeric'), cutoff <= 1, cutoff >= 0)
   statistic <- match.arg(statistic)
   
-  if(!is.null(gsd)){
+  if(!is.null(gdb)){
     dflist <- sapply(dflist, 
                      function(x){
-                       x[(row.names(x) %in% gsd@db$feature_id),]
+                       x[(row.names(x) %in% gdb@db$feature_id),]
                      }, simplify = FALSE)
   }
   
   out <- sapply(dflist, 
                 function(x){
-                  data.frame('feature_id' = x$geneID, 
+                  data.frame('feature_id' = row.names(dflist[[1]]), 
                              'logFC' = 1,
                              'selected' = (x[,statistic] <= cutoff),
                              'direction' = x$direction,
