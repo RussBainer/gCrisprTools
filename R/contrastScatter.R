@@ -64,13 +64,16 @@ ct.scatter <-
     out$quadrant[(!c1.sig & c2.sig & (dfs[[2]]$direction == 'deplete'))] <- 8
     out$quadrant[(c1.sig & c2.sig & (dfs[[1]]$direction == 'enrich') & (dfs[[2]]$direction == 'deplete'))] <- 9
     
+    out$x <- dfs[[1]][,statistic] * vapply(dfs[[1]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1))
+    out$y <- dfs[[2]][,statistic] * vapply(dfs[[2]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1))
+    
     #Plot it
     if(plot.it){
       
       dims <- c(-maxval, maxval)
       
-      plot(dfs[[1]][,statistic] * vapply(dfs[[1]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1)),  
-           dfs[[2]][,statistic] * vapply(dfs[[2]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1)),  
+      plot(out$x,  
+           out$y,  
            main = paste0(names(dfs)[1], ' vs ', names(dfs)[2], ' (', statistic, ')'), 
            xlab = paste0(names(dfs)[1], ' -log10(', statistic, ')'), 
            ylab = paste0(names(dfs)[2], ' -log10(', statistic, ')'), 
@@ -78,11 +81,11 @@ ct.scatter <-
            pch = 19, col = rgb(0,0,0, 0.1), cex = 0.7)
       abline(v = c(-cutoff, cutoff), h = c(-cutoff, cutoff), lty = 2)
       
-      points((dfs[[1]][,statistic] * vapply(dfs[[1]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1)))[out$quadrant %in% c(1,3,7,9)],  
-             (dfs[[2]][,statistic] * vapply(dfs[[2]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1)))[out$quadrant %in% c(1,3,7,9)],  
+      points(out$x[out$quadrant %in% c(1,3,7,9)],  
+             out$y[out$quadrant %in% c(1,3,7,9)],  
              pch = 19, col = rgb(0.5,0,0, 0.4), cex = 0.7)
-      points((dfs[[1]][,statistic] * vapply(dfs[[1]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1)))[out$quadrant %in% c(2,4,6,8)],  
-             (dfs[[2]][,statistic] * vapply(dfs[[2]]$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1)))[out$quadrant %in% c(2,4,6,8)],  
+      points(out$x[out$quadrant %in% c(2,4,6,8)],  
+             out$y[out$quadrant %in% c(2,4,6,8)],  
              pch = 19, col = rgb(0,0,0.6, 0.4), cex = 0.7)
       
       text(-maxval, maxval, sum(out$quadrant == 1), cex = 0.5, col = rgb(0,0,0, 0.4))
