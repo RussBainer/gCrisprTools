@@ -91,7 +91,66 @@ ct.compareContrasts  <-
   }
 
 
-
+##' @title Consolidate shared signals across many contrasts in an UpSet Plot
+##' @description This function takes in a named list of `results` dataframes produced by `ct.generateResults()` or similar, 
+##' harmonizes them, and identifies overlaps between them using the logic implemented in `ct.compareContrasts()`. It then uses the
+##' Overlaps of these sets to compose an UpSet plot summarizing shared overlaps of the provided contrasts. These overlaps can be 
+##' specified with some detail via arguments passed to the `ct.compareContrasts()` function; see documentation for more details.
+##' 
+##' Note that the UpSet plot is constructed to respect signal directionality, and by default constructs overlaps conditionally, 
+##' but in a *bidirectional* manner. That is, a signal is considered observed in two (or more) contrasts regardless of the 
+##' contrast from which the stringent signal is observed, so a signal replicated in three contrasts is interpreted as a target 
+##' for which the evidence crosses the stringent threshold in one or more of the contrasts and passes the lax contrast in the others. 
+##' 
+##' @param dflist a named list of (possibly simplified) `resultsDf`s. 
+##' @param orientation Optionally, a numeric vector encoding the orientation of the contrasts relative to one another. 
+##' @param mode Mode of intersection. "intersect" by default; see `ComplexHeatmap::make_comb_mat()` for details.
+##' @param ... Other named arguments to `ComplexHeatmap::UpSet()`, `ct.compareContrasts`, or `ct.simpleResult()`. 
+##' @return Silently, a named list indicating the set of targets shared within each pair of contrasts.    
+##' @author Russell Bainer
+##' @examples 
+##' data('resultsDF')
+##' sets <- ct.contrastUpset(list('first' = resultsDF, 'second' = resultsDF[1:5000,]))
+##' @export
+ct.contrastUpset <- function(dflist, 
+                             orientation = NULL, 
+                             statistic = c('best.q', 'best.p'), 
+                             cutoff = 0.1,
+                             mode = c("intersect", "union", "distinct"), 
+                             ...){
+  suppressPackageStartupMessages(library(ComplexHeatmap, quietly = TRUE))
+  
+  dflist <- ct.regularizeContrasts(dflist, ...)
+  if(is.null(names(dflist))){
+    stop('The names() attribute must be set on the provided dflist for this to make any sense.')
+  }
+  
+  mode <- match.arg(mode)
+  statistic <- match.arg(statistic)
+  stopifnot(is(cutoff, 'numeric'), cutoff <= 1, cutoff >= 0)
+  if(!is.null(orientation)){
+    stopifnot(length(orientation) == length(dflist), )
+  }
+  
+  #prep the combinatorial matrix
+  m <- ComplexHeatmap::make_comb_mat(setNames(as.list(1:length(dflist)), names(dflist)), mode = mode)
+  
+  #Compile a list of comparisons
+  combos <- combn(names(dflist), 2)
+  combos <- cbind(combos, combos[2:1,])
+  message(paste0(ncol(combos), ' conditional comparisons defined. Compiling lists.'))
+  
+  hits <- vapply(1:ncol(combos), 
+                 function(x){
+                   ct.compareContrasts(dflist[combos[1,x]], dflist[combos[2,x]], return.stats = FALSE, ...)$replicated
+                 }, logical(nrow(dflist[[1]])))
+  
+  
+  
+  
+  
+  
+}
 
 
 
