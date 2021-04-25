@@ -136,8 +136,12 @@ ct.signalSummary <-
 
 ##' @title Visualize Signal Across A List of Contrasts 
 ##' @description Given a list of provided results `data.frame`s summarizing a series of contrasts from one or more pooled screens, 
-##' this function visualizes the signal associated with their shared targets as a series of stacked barcharts. Enriched signals 
-##' are represented in the positive direction, and depleted signals are represented in the negative direction. 
+##' this function visualizes their respective signals as a series of stacked barcharts. Enriched signals 
+##' are represented in the positive direction, and depleted signals are represented in the negative direction.  Note that the 
+##' provided contrast results are not regularized by this function.
+##' 
+##' This function may be used to compare signals across different screen contrasts, or to compare signals within interesting 
+##' subsets of targets ascertained within a single experiment.  
 ##' 
 ##' @param dflist A named list of `data.frame`s summarizing the results of one or more screen contrasts, returned by the function 
 ##' \code{\link{ct.generateResults}}. 
@@ -147,13 +151,18 @@ ct.signalSummary <-
 ##' @return A summary plot on the current device. Invisibly, the data.frame tallying signals at various thresholds. 
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
-##' # Not so interesting b/c of limited weak signal in example
 ##' ct.contrastBarchart(list('First Result' = resultsDF, 'Second Result' = resultsDF))
+##' ct.contrastBarchart(list('First Result' = resultsDF, 'Second Result' = resultsDF), background = FALSE)
+##' ct.contrastBarchart(list('First Result' = resultsDF[1:100,], 'Second Result' = resultsDF))
 ##' @export
 ct.contrastBarchart <- function(dflist, background = TRUE, statistic = c('best.q', 'best.p'), ...){
 
   #Check input
-  dflist <- ct.regularizeContrasts(dflist, ...)
+  dflist <- sapply(dflist, 
+                   function(x){ct.simpleResult(x, ...)}, 
+                   simplify =  FALSE)
+  
+  
   stopifnot(is(background, 'logical'))
   statistic <- match.arg(statistic)
   
@@ -163,16 +172,6 @@ ct.contrastBarchart <- function(dflist, background = TRUE, statistic = c('best.q
   #Collect values
   vals <- vapply(dflist, 
                  function(x){
-                   #c(sum((x[,statistic] > 0.1) & (x$direction == 'enrich')), 
-                  #   sum((x[,statistic] > 0.01) & (x[,statistic] <= 0.1) & (x$direction == 'enrich')),
-                  #   sum((x[,statistic] > 0.001) & (x[,statistic] <= 0.01) & (x$direction == 'enrich')), 
-                  #   sum((x[,statistic] > 0.00001) & (x[,statistic] <= 0.001) & (x$direction == 'enrich')), 
-                  #   sum((x[,statistic] < 0.00001) & (x$direction == 'enrich')), 
-                  #   -sum((x[,statistic] < 0.00001) & (x$direction == 'deplete')), 
-                  #   -sum((x[,statistic] > 0.00001) & (x[,statistic] <= 0.001) & (x$direction == 'deplete')), 
-                  #   -sum((x[,statistic] > 0.001) & (x[,statistic] <= 0.01) & (x$direction == 'deplete')),
-                  #   -sum((x[,statistic] > 0.01) & (x[,statistic] <= 0.1) & (x$direction == 'deplete')),
-                  #   -sum((x[,statistic] > 0.1) & (x$direction == 'deplete'))) 
                    c(sum((x$direction == 'enrich')), 
                      sum((x[,statistic] <= 0.1) & (x$direction == 'enrich')),
                      sum((x[,statistic] <= 0.01) & (x$direction == 'enrich')), 
