@@ -1,11 +1,12 @@
 ##' @title Identify Replicated Signals in Pooled Screens Using Conditional Scoring
-##' @description This function identifies signals that are present in multiple screening experiment contrasts using a conditional 
+##' @description This function identifies signals that are present in one or more screening experiment contrasts using a conditional 
 ##' strategy. Specifically, this function identifies all significant signals (according to user definitions) in a set of provided 
 ##' results DF and returns a `simplifiedResult` dataframe derived from the first provided contrast with an appended logical column 
-##' indicating whether there is evidence for signal replication in the other provided resultsDFs. 
+##' indicating whether there is evidence for signal replication in the other provided resultsDFs.
 ##' 
 ##' Signals are considered replicated if they cross the specified stringent threshold (default: 10% FDR) in one or more of the provided 
-##' contrasts, and are similarly enriched or depleted at the relaxed threshold (default: P = 0.1) in all of the remaining contrasts. 
+##' contrasts, and are similarly enriched or depleted at the relaxed threshold (default: P = 0.1) in all of the remaining contrasts. If 
+##' a single contrast is provided, all signals crossing the stringent threshold are conisered replicated.
 ##' 
 ##' Signals are compared across screens on the basis of \code{\link{ct.regularizeContrasts}}, so users must provide an identifier 
 ##' with which to standardize targets (`geneID` by default). 
@@ -68,21 +69,15 @@ ct.compareContrasts  <-
     mainresult$replicated <- valid
     
     if(return.stats){
-      #calculate a hypergeometric test P-value for enrichment/depletion
-      #p.up <- gCrisprTools:::.doHyperGInternal(numW = sum(shared$df2[(shared$df2$direction %in% 'enrich'),statistics[2]] <= cutoffs[2]), 
-      #                          numB = nrow(shared$df2), 
-      #                          numDrawn = sum(shared$df1[(shared$df1$direction %in% 'enrich'),statistics[1]] <= cutoffs[1]), 
-      #                          numWdrawn = sum(((mainresult$direction %in% 'enrich') & (mainresult$replicated)), na.rm = TRUE))
-      #p.dn <- gCrisprTools:::.doHyperGInternal(numW = sum(shared$df2[(shared$df2$direction %in% 'deplete'),statistics[2]] <= cutoffs[2]), 
-      #                          numB = nrow(shared$df2), 
-      #                          numDrawn = sum(shared$df1[(shared$df1$direction %in% 'deplete'),statistics[1]] <= cutoffs[1]), 
-      #                          numWdrawn = sum(((mainresult$direction %in% 'deplete') & (mainresult$replicated)), na.rm = TRUE))
-      #p.all <- gCrisprTools:::.doHyperGInternal(numW = sum(shared$df2[,statistics[2]] <= cutoffs[2]), 
-      #                          numB = nrow(shared$df2), 
-      #                          numDrawn = sum(shared$df1[,statistics[1]] <= cutoffs[1]), 
-      #                          numWdrawn = sum(((mainresult$replicated)), na.rm = TRUE))
-      
       obs <- c(sum((rowSums(dirs) == ncol(dirs)) & valid), sum((rowSums(dirs) == 0) & valid), sum(valid))
+
+      if(length(dflist) == 1){
+        out <- data.frame('expected' = obs, 
+                          'observed' = obs, 
+                          'p' = c(1,1,1)) 
+        row.names(out) <- c('enrich', 'deplete', 'all') 
+        return(out)
+      }
       
       perm <- t(replicate(nperm, 
                         expr={
@@ -100,9 +95,9 @@ ct.compareContrasts  <-
                         simplify = TRUE))
       out <- data.frame('expected' = colMeans(perm), 
                         'observed' = obs, 
-                        'p' = c(sum(perm[,1] > sum((rowSums(dirs) == 0) & valid))/nperm, 
-                                sum(perm[,2] > sum((rowSums(dirs) == ncol(dirs)) & valid))/nperm, 
-                                sum(perm[,3] > sum(valid))/nperm)) 
+                        'p' = c(sum(perm[,1] > obs[1])/nperm, 
+                                sum(perm[,2] > obs[2])/nperm, 
+                                sum(perm[,3] > obs[3])/nperm)) 
       
       row.names(out) <- c('enrich', 'deplete', 'all') 
       return(out)
@@ -114,7 +109,7 @@ ct.compareContrasts  <-
 ##' @title Consolidate shared signals across many contrasts in an UpSet Plot
 ##' @description This function takes in a named list of `results` dataframes produced by `ct.generateResults()` or similar, 
 ##' harmonizes them, and identifies overlaps between them using the logic implemented in `ct.compareContrasts()`. It then uses the
-##' Overlaps of these sets to compose an UpSet plot summarizing shared overlaps of the provided contrasts. These overlaps can be 
+##' overlaps of these sets to compose an UpSet plot summarizing shared overlaps of the provided contrasts. These overlaps can be 
 ##' specified with some detail via arguments passed to the `ct.compareContrasts()` function; see documentation for more details.
 ##' 
 ##' Note that the UpSet plot is constructed to respect signal directionality, and by default constructs overlaps conditionally, 
@@ -122,57 +117,112 @@ ct.compareContrasts  <-
 ##' contrast from which the stringent signal is observed, so a signal replicated in three contrasts is interpreted as a target 
 ##' for which the evidence crosses the stringent threshold in one or more of the contrasts and passes the lax contrast in the others. 
 ##' 
+##' Note that multiple important parameters are passed directly to `ct.compareContrasts()` if not specified in the command. Users 
+##' are advised to study the corresponding manual page to better understand their options regarding contrast thresholding, 
+##' orientation, etc. 
+##' 
 ##' @param dflist a named list of (possibly simplified) `resultsDf`s. 
-##' @param orientation Optionally, a numeric vector encoding the orientation of the contrasts relative to one another. 
-##' @param mode Mode of intersection. "intersect" by default; see `ComplexHeatmap::make_comb_mat()` for details.
+##' @param add.stats Logical indicating whether the significance of set overlaps should be included in the visualization. 
+##' @param nperm Number of permutations for P-value generation. Ignored if `add.stats` is `FALSE`.
 ##' @param ... Other named arguments to `ComplexHeatmap::UpSet()`, `ct.compareContrasts`, or `ct.simpleResult()`. 
-##' @return Silently, a named list indicating the set of targets shared within each pair of contrasts.    
+##' @return An UpSet plot on the current device. Silently, a combination matrix appropriate for plotting that plot, 
+##' containing useful information about the observed intersections.  
 ##' @author Russell Bainer
 ##' @examples 
 ##' data('resultsDF')
 ##' sets <- ct.contrastUpset(list('first' = resultsDF, 'second' = resultsDF[1:5000,]))
 ##' @export
-ct.upSet <- function(dflist, 
-                             orientation = NULL, 
-                             statistic = c('best.q', 'best.p'), 
-                             cutoff = 0.1,
-                             mode = c("intersect", "union", "distinct"), 
-                             ...){
+ct.upSet <- function(dflist,
+                     add.stats = TRUE,
+                     nperm = 10000,
+                     ...){
   suppressPackageStartupMessages(library(ComplexHeatmap, quietly = TRUE))
   
+  stopifnot(length(dflist) > 1, is.numeric(nperm))
+  
+  if(is.null(names(dflist))){stop('The names() attribute must be set on the provided dflist for this to make any sense.')}
   dflist <- ct.regularizeContrasts(dflist, ...)
-  if(is.null(names(dflist))){
-    stop('The names() attribute must be set on the provided dflist for this to make any sense.')
-  }
   
-  mode <- match.arg(mode)
-  statistic <- match.arg(statistic)
-  stopifnot(is(cutoff, 'numeric'), cutoff <= 1, cutoff >= 0)
-  if(!is.null(orientation)){
-    stopifnot(length(orientation) == length(dflist), )
-  }
-  
-  #prep the combinatorial matrix
-  m <- ComplexHeatmap::make_comb_mat(setNames(as.list(1:length(dflist)), names(dflist)), mode = mode)
-  
-  #Compile a list of comparisons
-  combos <- combn(names(dflist), 2)
-  combos <- cbind(combos, combos[2:1,])
-  message(paste0(ncol(combos), ' conditional comparisons defined. Compiling lists.'))
-  
-  hits <- vapply(1:ncol(combos), 
-                 function(x){
-                   ct.compareContrasts(dflist[combos[1,x]], dflist[combos[2,x]], return.stats = FALSE, ...)$replicated
-                 }, logical(nrow(dflist[[1]])))
-  
-  
-  
-  
-  
-  
-}
+  #Generate the relevant overlap counts
+  combos <- unlist(lapply(1:length(dflist), function(x){combn(1:length(dflist), x, simplify = FALSE)}), recursive = FALSE)
 
 
+  #Calculate overlap counts
+  overlaps <- lapply(combos, 
+                      function(x){
+                        if(exists('same.dir')){
+                          dirarg <- same.dir[x]
+                        } else {dirarg <- rep(TRUE, length(x))}
+                        return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = FALSE))
+                      })
+  overlapct <- vapply(overlaps, function(x){sum(x$replicated, na.rm = TRUE)}, numeric(1))
+  
+  combos <- combos[overlapct != 0]
+  overlaps <- overlaps[overlapct != 0]
+  overlapct <- overlapct[overlapct != 0]
+
+  #Create the comb mat object.
+  n <- length(dflist)
+  comb_mat <- matrix(FALSE, nrow = n, ncol = sum(choose(n, 1:n)))
+  for(x in 1:length(combos)){
+    comb_mat[combos[[x]],x] <- TRUE
+  }
+  rownames(comb_mat) <- names(dflist)
+  comb_mat <- comb_mat + 0
+
+  attributes(overlapct) <- NULL
+  attr(comb_mat, "set_size") <- rep(nrow(dflist[[1]]),length(dflist))
+  attr(comb_mat, "comb_size") <- overlapct
+  attr(comb_mat, "data") <- lapply(overlaps, function(x){x$geneID[x$replicated]})
+  param <- list(mode = 'conditional', value_fun = 'gCrisprTools', universal_set = NULL, 
+               set_on_rows = TRUE)
+  attr(comb_mat, "param") <- param
+  class(comb_mat) <- c("comb_mat", "matrix")
+  cmorder <- order.comb_mat(comb_mat)
+  comb_mat <- comb_mat[cmorder]
+
+  # If appropriate, generate stats: 
+  if(add.stats){
+    combo_stats <- lapply(combos, 
+                       function(x){
+                         if(exists('same.dir')){
+                           dirarg <- same.dir[x]
+                         } else {dirarg <- rep(TRUE, length(x))}
+                         return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = TRUE, nperm = nperm))
+                       })
+    lfc <- log2(vapply(combo_stats, function(x){log2(x[3,2]/x[3,1])}, numeric(1))[cmorder])
+    lfc[!is.finite(lfc)] <- 0
+    pv <- -log10(vapply(combo_stats, function(x){-log10(x[3,3])}, numeric(1))[cmorder] + 1e-5)
+    
+    #Make the UpSet Plot
+    us <- UpSet(comb_mat) %v%     
+      HeatmapAnnotation("Log2FC" = anno_points(lfc, ylim = (rep(max(abs(range(lfc))), 2) * c(-1,1))), annotation_name_side = "left", annotation_name_rot = 0) %v%     
+      HeatmapAnnotation("-log10(P)" = anno_barplot(pv, ylim = c(0,(max(pv) + 1))), annotation_name_side = "left", annotation_name_rot = 0)
+    show(us)
+    decorate_annotation("Log2FC", 
+                        {pushViewport(viewport(xscale = c(0.5, 10.5), yscale = (rep(max(abs(range(lfc))), 2) * c(-1,1))))
+                          grid.lines(c(0.5, 10.5), c(0, 0), gp = gpar(lty = 2), default.units = "native")
+                          popViewport()})
+    decorate_annotation("-log10(P)", 
+                        {pushViewport(viewport(xscale = c(0.5, 10.5), yscale = c(0,(max(pv) + 1))))
+                          grid.lines(c(0.5, 10.5), c(2, 2), gp = gpar(lty = 2), default.units = "native")
+                          popViewport()})
+  } else {
+    show(UpSet(comb_mat))
+  }
+    
+  return(invisible(comb_mat))
+    
+  }
+  
+
+
+  
+  
+  
+  
+  
+  
 
 
 
