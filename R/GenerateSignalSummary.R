@@ -1,6 +1,6 @@
 ##' @title Generate a Figure Summarizing Overall Signal for One or More Targets
 ##' @description Given one or more targets of interest, this function generates a summary image contextualizing the 
-##' corresponding signals within the contest of the provided contrast. This takes the form of an annotated ranking 
+##' corresponding signals within the provided contrast. This takes the form of an annotated ranking 
 ##' curve of target-level signals, supplemented with horizontal Q-value cutoffs and an inset volcano plot of gRNA 
 ##' behavior. 
 ##' 
@@ -10,27 +10,25 @@
 ##' - If a list is provided, the `names` element is used as the annotation. This is similarly constrained to a total of 5 annotated elements. 
 ##' 
 ##' @param summaryDF A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}. 
-##' @param targets A list or character vector containing the names of the targets to be displayed. Only targets contained in the \code{geneSymbol} 
-##' column of the provided \code{summaryDF} are considered. Plotting priority (e.g., the points to plot last in the case 
-##' of overlapping signals) is given to earlier elements in the list. 
-##' @param direction Should enrichment or depletion be considered? Must be one of \code{"enrich"} or \code{"deplete"}.
+##' @param targets A list or character vector containing the names of the targets to be displayed. Only targets contained in the column 
+##' specified by the `collapse` parameter to `ct.simpleResult()` will be displayed; default is `geneSymbol`. Plotting priority (e.g., 
+##' the points to plot last in the case of overlapping signals) is given to earlier elements in the list. 
 ##' @param callout Logical indicating whether lines should be plotted indicating individual gene sets to augment the point highlighting.
+##' @param ... Additional optional arguments to `ct.simpleResult()`
 ##' @return A summary plot on the current device. 
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
-##' ct.signalSummary(resultsDF, list('CandidateA' = 'Target229', 'Pathway3' = resultsDF$geneSymbol[c(42,116,1138,5508)]), 'enrich')
+##' ct.signalSummary(resultsDF, list('CandidateA' = 'Target229', 'Pathway3' = resultsDF$geneSymbol[c(42,116,1138,5508)]))
 ##' @export
 ct.signalSummary <-
   function(summaryDF,
            targets,
-           direction = c("enrich", "deplete"), 
-           callout = FALSE) {
+           callout = FALSE, 
+           ...) {
 
     #Check the input: 
-    direction <- match.arg(direction)
-    if(!ct.resultCheck(summaryDF)){
-      stop("Execution halted.")
-    }
+    ct.resultCheck(summaryDF)
+    simpleDF <- ct.simpleResult(summaryDF, ...)
 
     if(!is.list(targets)){
       targets <- as.list(targets)
@@ -43,40 +41,39 @@ ct.signalSummary <-
     }
     targets <- rev(targets)
     
-    bad <- setdiff(unlist(targets), summaryDF$geneSymbol)
+    bad <- setdiff(unlist(targets), row.names(simpleDF))
     if(length(bad) > 0){
       stop(paste0('Cannot find the following supplied targets in the geneSymbol column of the supplied DF: ', paste(bad, collapse = ', ')))
     }
+    id <- ifelse(unlist(targets)[1] %in% simpleDF$geneID, 'geneID', 'geneSymbol')
     
     #Prep data
-    summaryDF <- switch(direction, 
-                        'enrich' = summaryDF[order(summaryDF$`Target-level Enrichment P`, decreasing = FALSE),], 
-                        'deplete' = summaryDF[order(summaryDF$`Target-level Depletion P`, decreasing = FALSE),])
-    
-    p <- switch(direction, 
-                   'enrich' = -log10(summaryDF$`Target-level Enrichment P`), 
-                   'deplete' = -log10(summaryDF$`Target-level Depletion P`))
-    p[is.infinite(p)] <- max(p[is.finite(p)]) + 0.5
+    top <- simpleDF[simpleDF$direction == 'enrich',]
+    top <- top[order(top$best.p, top$Rho_enrich, decreasing = FALSE),]
+    bot <- simpleDF[simpleDF$direction == 'deplete',]
+    bot <- bot[order(bot$best.p, bot$Rho_deplete, decreasing = TRUE),]
+    simpleDF <- rbind(top, bot)
 
-    genewise <- !duplicated(summaryDF$geneSymbol)
-    gwp <- p[genewise]
-    names(gwp) <- summaryDF$geneSymbol[genewise]
+    gwp <- -log10(simpleDF$best.p)
+    gwp[is.infinite(gwp)] <- max(gwp[is.finite(gwp)]) + 0.5
+    gwp <- gwp*vapply(simpleDF$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1))
+    names(gwp) <- row.names(simpleDF)
+
     exes <- (1:length(gwp))/length(gwp)
     
-    qcut <- min(p[switch(direction, 
-                              'enrich' = summaryDF$`Target-level Enrichment Q`[genewise] < 0.1, 
-                              'deplete' = summaryDF$`Target-level Depletion Q`[genewise] < 0.1)])
+    #qcut <- c(min(gwp[(simpleDF$direction == 'enrich') & (simpleDF$best.q <= 0.1)]), min(gwp[(simpleDF$direction == 'deplete') & (simpleDF$best.q <= 0.1)]))
+
     
     #Compose Plot
     plot(exes, gwp, 
-         ylab = 'Target -log10 P', xaxt = 'n', xlab = 'Signal Rank', 
+         ylab = 'Target -log10 P', xaxt = 'n', xlab = 'Signal Rank, Most Enriched to Most Depleted', 
          pch = 19, cex = 0.5, col = rgb(14/255,41/255,56/255))
     #inset
     maxval <- max(gwp)
     glfc <- summaryDF$`gRNA Log2 Fold Change`
-    gp <- switch(direction, 
-                 'enrich' = -log10(summaryDF$`gRNA Enrichment P`), 
-                 'deplete' = -log10(summaryDF$`gRNA Depletion P`))
+    gp <- rowMax(cbind(-log10(summaryDF$`gRNA Enrichment P`), -log10(summaryDF$`gRNA Depletion P`)))
+    
+    
     inset.x <- ((0.29/(max(glfc) - min(glfc))) * (glfc - min(glfc))) + 0.7
     inset.y <- ((((maxval - 0.1) - ((maxval)/2))/(max(gp) - min(gp))) * (gp - min(gp))) + ((maxval + 0.05)/2)
     inset.zero <- inset.x[which(abs(glfc) == min(abs(glfc), na.rm = TRUE))][1]
@@ -103,11 +100,10 @@ ct.signalSummary <-
       invisible(
         lapply(1:length(targets),
                function(x){
-                 selected <- (summaryDF$geneSymbol %in% targets[[x]])
-                 all.targ <- (selected & genewise) 
-                 gw.ranks <- vapply(summaryDF$geneSymbol[all.targ], 
+                 selected <- intersect(row.names(simpleDF),targets[[x]])
+                 gw.ranks <- vapply(selected, 
                                     #function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
-                                    function(x){which(summaryDF$geneSymbol[genewise] == x)},
+                                    function(y){which(row.names(simpleDF) %in% y)},
                                     integer(1))
                  
                  if(callout){
@@ -122,13 +118,13 @@ ct.signalSummary <-
     #Highlight Points
     invisible(lapply(1:length(targets), 
                      function(x){
-                       selected <- (summaryDF$geneSymbol %in% targets[[x]])
-                       all.targ <- (selected & genewise) 
-                       gw.ranks <- vapply(summaryDF$geneSymbol[all.targ], 
+                       picked <- intersect(row.names(simpleDF),targets[[x]])
+                       gw.ranks <- vapply(picked, 
                                           #function(x){grep(x, summaryDF$geneSymbol[genewise], fixed = TRUE)},
-                                          function(x){which(summaryDF$geneSymbol[genewise] == x)},
+                                          function(y){which(row.names(simpleDF) %in% y)},
                                           integer(1))
-                       points(inset.x[selected], inset.y[selected], col = rgb(14/255,41/255,56/255), bg = t.col[x], pch = 21, cex = 0.7, lwd = 1.2)
+                       reagents <- which(summaryDF[,id] %in% picked)
+                       points(inset.x[reagents], inset.y[reagents], col = rgb(14/255,41/255,56/255), bg = t.col[x], pch = 21, cex = 0.7, lwd = 1.2)
                        points(exes[gw.ranks], gwp[gw.ranks], pch = 21, bg = t.col[x], cex = 1.2, lwd = 1.2)
                      }))
   }
