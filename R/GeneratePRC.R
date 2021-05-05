@@ -63,15 +63,15 @@ ct.PRC <-
     values <- simpleDF[simpleDF$direction == direction,]
     values <- c(values$best.p[order(values$best.p, decreasing =FALSE)],1)
 
-    targvals <- vapply(target.list, function(x){ifelse(simpleDF[x,'direction'] %in% direction, values[x, 'best.p'], 1)}, numeric(1))
+    targvals <- vapply(target.list, function(x){ifelse(simpleDF[x,'direction'] %in% direction, simpleDF[x, 'best.p'], 1)}, numeric(1))
     
     out <- list()
     out$precision <- c(1, unlist(lapply(unique(values), function(x){sum(targvals <= x, na.rm = TRUE)/sum(values <= x, na.rm= TRUE)})), 0)
     out$recall <- c(0, unlist(lapply(unique(values), function(x){sum(targvals <= x, na.rm = TRUE)/length(targvals)})), 1)
     
     enrich <- switch(direction, 
-                     enrich = ct.targetSetEnrichment(simpleDF, target.list, enrich = TRUE),
-                     deplete =  ct.targetSetEnrichment(simpleDF, target.list, enrich = FALSE)
+                     enrich = ct.targetSetEnrichment(simpleDF, target.list, enrich = TRUE, collapse = collapse),
+                     deplete = ct.targetSetEnrichment(simpleDF, target.list, enrich = FALSE, collapse = collapse)
     )
     out <- c(out, enrich)
     
