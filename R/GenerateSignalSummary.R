@@ -54,8 +54,7 @@ ct.signalSummary <-
     bot <- bot[order(bot$best.p, bot$Rho_deplete, decreasing = TRUE),]
     simpleDF <- rbind(top, bot)
 
-    gwp <- -log10(simpleDF$best.p)
-    gwp[is.infinite(gwp)] <- max(gwp[is.finite(gwp)]) + 0.5
+    gwp <- ct.softLog(simpleDF$best.p)
     gwp <- gwp*vapply(simpleDF$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1))
     names(gwp) <- row.names(simpleDF)
 
