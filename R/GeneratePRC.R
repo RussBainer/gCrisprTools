@@ -1,6 +1,6 @@
 ##' @title Generate a Precision-Recall Curve from a CRISPR screen  
 ##' @description Given a set of targets of interest, this function generates a Precision Recall curve from the results of 
-##' a CRISPR screen. Specifically, it orders the target elements in the screen by the specified statistic, and then plots the recall 
+##' a CRISPR screen. Specifically, it orders the target elements in the screen in the specified direction, and then plots the recall 
 ##' rate (proportion of true targets identified) against the precision (proportion of identified targets that are true targets). 
 ##' 
 ##' Note that ranking statistics in CRISPR screens are (usually) permutation-based, and so some granularity in the rankings is expected. This 
@@ -27,17 +27,7 @@ ct.PRC <-
            direction = c("enrich", "deplete"), 
            plot.it = TRUE, 
            ...) {
-    
-  
-    #Check the input: 
-    #if(!ct.resultCheck(summaryDF)){
-    #  stop("Execution halted.")
-    #}
 
-    #Convert to gene-level stats
-    #summaryDF <- summaryDF[!duplicated(summaryDF$geneID),]
-    #row.names(summaryDF) <- summaryDF$geneID
-    
     direction <- match.arg(direction)
     stopifnot(is(plot.it, 'logical'))
     
@@ -54,14 +44,14 @@ ct.PRC <-
     
     if(length(present) != length(target.list)){
       if(length(present) < 1){
-        stop("None of the genes in the input list are present in the geneSymbol column of the input data.frame.")
+        stop(paste0("None of the genes in the input list are present in the ", collapse, " column of the input data.frame."))
         }
       warning(paste(length(present), "of", length(target.list), "genes are present in the supplied results data.frame. Ignoring the remainder of the target.list."))
     }
     
     #Subset signals
     values <- simpleDF[simpleDF$direction == direction,]
-    values <- c(values$best.p[order(values$best.p, decreasing =FALSE)],1)
+    values <- c(values$best.p[order(values$best.p, decreasing =FALSE)],  rep(1, times = sum(!(simpleDF$direction %in% direction))))
 
     targvals <- vapply(target.list, function(x){ifelse(simpleDF[x,'direction'] %in% direction, simpleDF[x, 'best.p'], 1)}, numeric(1))
     
