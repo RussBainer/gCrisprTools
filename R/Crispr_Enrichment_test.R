@@ -27,6 +27,8 @@
 ##' @export
 
 ct.PantherPathwayEnrichment <- function(summaryDF, pvalue.cutoff = 0.01, enrich = TRUE, organism = 'human', db.cut = 10){
+  .Deprecated(msg = 'This function is on its way out in favor of the new functionality using sparrow. See the gCrisprTools vignettes.')
+  
   if (!requireNamespace("PANTHER.db")) {
     stop("The PANTHER.db bioconductor package is required")
   }
