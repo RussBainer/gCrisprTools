@@ -4,30 +4,25 @@
 \alias{ct.signalSummary}
 \title{Generate a Figure Summarizing Overall Signal for One or More Targets}
 \usage{
-ct.signalSummary(
-  summaryDF,
-  targets,
-  direction = c("enrich", "deplete"),
-  callout = FALSE
-)
+ct.signalSummary(summaryDF, targets, callout = FALSE, ...)
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
 
-\item{targets}{A list or character vector containing the names of the targets to be displayed. Only targets contained in the \code{geneSymbol} 
-column of the provided \code{summaryDF} are considered. Plotting priority (e.g., the points to plot last in the case 
-of overlapping signals) is given to earlier elements in the list.}
-
-\item{direction}{Should enrichment or depletion be considered? Must be one of \code{"enrich"} or \code{"deplete"}.}
+\item{targets}{A list or character vector containing the names of the targets to be displayed. Only targets contained in the column 
+specified by the `collapse` parameter to `ct.simpleResult()` will be displayed; default is `geneSymbol`. Plotting priority (e.g., 
+the points to plot last in the case of overlapping signals) is given to earlier elements in the list.}
 
 \item{callout}{Logical indicating whether lines should be plotted indicating individual gene sets to augment the point highlighting.}
+
+\item{...}{Additional optional arguments to `ct.simpleResult()`}
 }
 \value{
 A summary plot on the current device.
 }
 \description{
 Given one or more targets of interest, this function generates a summary image contextualizing the 
-corresponding signals within the contest of the provided contrast. This takes the form of an annotated ranking 
+corresponding signals within the provided contrast. This takes the form of an annotated ranking 
 curve of target-level signals, supplemented with horizontal Q-value cutoffs and an inset volcano plot of gRNA 
 behavior. 
 
@@ -38,7 +33,7 @@ Limited annotation is provided for the specified targets using the following log
 }
 \examples{
 data('resultsDF')
-ct.signalSummary(resultsDF, list('CandidateA' = 'Target229', 'Pathway3' = resultsDF$geneSymbol[c(42,116,1138,5508)]), 'enrich')
+ct.signalSummary(resultsDF, list('CandidateA' = 'Target229', 'Pathway3' = resultsDF$geneSymbol[c(42,116,1138,5508)]))
 }
 \author{
 Russell Bainer

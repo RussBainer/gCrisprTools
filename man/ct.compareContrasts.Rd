@@ -5,19 +5,17 @@
 \title{Identify Replicated Signals in Pooled Screens Using Conditional Scoring}
 \usage{
 ct.compareContrasts(
-  mainresult,
-  validationresult,
+  dflist,
   statistics = c("best.q", "best.p"),
   cutoffs = c(0.1, 0.1),
-  same.dir = TRUE,
+  same.dir = rep(TRUE, length(dflist)),
   return.stats = FALSE,
+  nperm = 10000,
   ...
 )
 }
 \arguments{
-\item{mainresult}{A (possibly simplified) results data.frame containing the main contrast to be analyzed. See \code{\link{ct.generateResults}}.}
-
-\item{validationresult}{Column of the provided \code{summaryDF} to consider. Must be \code{geneID} or \code{geneSymbol}.}
+\item{dflist}{A list of (possibly simplified) results data.frames produced by \code{\link{ct.generateResults}}.}
 
 \item{statistics}{Statistics to use to define congruence; may be a single value, but internally coerced to a vector of length 2 where the first 
 value corresponds to the stringent cutoff annd the second value is used for the relaxed cutoff. Must be "best.p" or "best.q".}
@@ -25,34 +23,41 @@ value corresponds to the stringent cutoff annd the second value is used for the 
 \item{cutoffs}{Numeric value(s) corresponding to the significance cutoff(s) used to define stringent and relaxed values of `statistics`. 
 Internally coerced to a vector of length 2.}
 
-\item{same.dir}{Logical indicating whether replicating signals are expected to go in the same direction (e.g., enrich/deplete in both screens)}
+\item{same.dir}{Logical vector of the same length as `dflist` indicating whether replicating signals are expected to go in the same direction 
+(e.g., enrich/deplete in their respective screens). For example, a `dflist` of length 3 could be specified as c(TRUE, TRUE, FALSE), indicating 
+that replicating signals should be enriched in both of the first two contrasts and depleted in the third to be considered replicated (or 
+vise-versa). Default is `rep(TRUE, length(dflist))`.}
 
-\item{return.stats}{When TRUE, return the significance of overlap instead of the logical vector.}
+\item{return.stats}{When TRUE, return the significance of overlap instead of the logical vector (by permutation).}
+
+\item{nperm}{numeric indicating number of permutations when `return.stats` is true (default 10000).}
 
 \item{...}{Other arguments to \link{`ct.simpleResult`}, especially `collapse`.}
 }
 \value{
-If `return.stats` is `FALSE`, returns the simplified `mainresults` data.frame, with a `replicated` logical column indicating whether a 
-signal replicates. Incomparable elements (e.g., targets not assayed in the provided `validationresult`) are set to `NA`.  If `return.stats` is 
-`TRUE`, returns a dataframe indicating the hypergeometric test statistics summarizing the evidence for significantly enriched signal 
-replication across the provided contrasts (enrich, deplete, and all together).
+If `return.stats` is `FALSE`, returns the first contrast as a `simplifiedResult` data.frame, with a `replicated` logical column 
+indicating whether each signal replicates. 
+
+If `return.stats` is `TRUE`, returns a dataframe indicating the hypergeometric test statistics summarizing the evidence for significantly 
+enriched signal replication across the provided contrasts (enrich, deplete, and all together).
 }
 \description{
-This function identifies signals in a provided screening experiment contrast that are also present in a 
-second contrast sing a conditional strategy. Specifically, this function identifies all significant signals (according to user definitions) 
-in a provided results DF and returns a `simplifiedResult` dataframe with an appended logical column indicating whether there 
-is evidence for signal replication in a second provided resultsDF. 
+This function identifies signals that are present in one or more screening experiment contrasts using a conditional 
+strategy. Specifically, this function identifies all significant signals (according to user definitions) in a set of provided 
+results DF and returns a `simplifiedResult` dataframe derived from the first provided contrast with an appended logical column 
+indicating whether there is evidence for signal replication in the other provided resultsDFs.
 
-Signals are considered replicated in the second screen contrast if the best signal associated with the same same target is similarly enriched 
-or depleted in the replicating screen, and the target signal is associated with a P-value at or below a user-indicated threshold. 
+Signals are considered replicated if they cross the specified stringent threshold (default: 10% FDR) in one or more of the provided 
+contrasts, and are similarly enriched or depleted at the relaxed threshold (default: P = 0.1) in all of the remaining contrasts. If 
+a single contrast is provided, all signals crossing the stringent threshold are conisered replicated.
 
 Signals are compared across screens on the basis of \code{\link{ct.regularizeContrasts}}, so users must provide an identifier 
-with which to standardize targets across the specified contrasts (`geneID` by default).
+with which to standardize targets (`geneID` by default).
 }
 \examples{
 data('resultsDF')
-summary(ct.compareContrasts(resultsDF, resultsDF[1:5000,])$replicated)
-ct.compareContrasts(resultsDF, resultsDF[1:5000,], return.stats = TRUE)
+summary(ct.compareContrasts(list(resultsDF, resultsDF[1:5000,]))$replicated)
+ct.compareContrasts(list(resultsDF, resultsDF[1:5000,]), return.stats = TRUE)
 }
 \author{
 Russell Bainer

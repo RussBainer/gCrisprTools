@@ -4,19 +4,28 @@
 \alias{ct.targetSetEnrichment}
 \title{Test Whether a Specified Target Set is Enriched Within a Pooled Screen}
 \usage{
-ct.targetSetEnrichment(summaryDF, targets, enrich = TRUE, ignore = NULL)
+ct.targetSetEnrichment(
+  summaryDF,
+  targets,
+  enrich = TRUE,
+  ignore = "NoTarget",
+  ...
+)
 }
 \arguments{
-\item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
+\item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}. 
+Internally coerced via `ct.simpleResult()`.}
 
-\item{targets}{A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneID}
-column of the provided \code{summaryDF} are considered.}
+\item{targets}{A character vector containing the names of the targets to be tested; by default these are assumed to be `geneID`s, 
+but specifying `collapse=geneSymbol` enables setting on `geneSymbol` by passing that value through to `ct.simpleResult`.}
 
 \item{enrich}{Logical indicating whether to consider guides that are enriched (default) or depleted within the screen.}
 
-\item{ignore}{Optionally, a character vector containing elements of the \code{geneSymbol} column of the provided \code{summaryDF}
-that should be ignored in the analysis (e.g., unassignable or nonfunctional targets, such as nontargeting controls). By default,
-this function omits targets with \code{geneSymbol} 'NoTarget'.}
+\item{ignore}{Optionally, a character vector containing elements of the \code{summaryDF} that should be ignored in the analysis 
+(e.g., unassignable or nonfunctional targets, such as nontargeting controls). By default, this function omits targets with 
+\code{geneSymbol} 'NoTarget'.}
+
+\item{...}{Additional parameters to pass to `ct.simpleResult`.}
 }
 \value{
 A named list containing the tested target set and tables detailing the hypergeometric test results using various P-value and
