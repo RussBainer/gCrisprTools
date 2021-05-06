@@ -384,5 +384,3 @@ ct.softLog <- function(x){
 
 
 
-
-

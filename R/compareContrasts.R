@@ -137,24 +137,39 @@ ct.upSet <- function(dflist,
                      nperm = 10000,
                      ...){
   suppressPackageStartupMessages(library(ComplexHeatmap, quietly = TRUE))
-  
   stopifnot(length(dflist) > 1, is.numeric(nperm))
   
   if(is.null(names(dflist))){stop('The names() attribute must be set on the provided dflist for this to make any sense.')}
-  dflist <- ct.regularizeContrasts(dflist, ...)
+  
+  #Subfunction args: 
+  #dflist <- ct.regularizeContrasts(dflist, ...)
+  dots <- list(...)
+  dirs <- rep(TRUE, length(dflist))
+  if('same.dir' %in% names(dots)){dirs <- dots$same.dir}
+  dots <- dots[!(names(dots) %in% c('dflist', 'return.stats', 'same.dir'))]
+
+  dflist <- do.call('ct.regularizeContrasts', args = c(list(dflist = dflist), dots[names(dots) %in% names(formals('ct.regularizeContrasts'))]))
   
   #Generate the relevant overlap counts
   combos <- unlist(lapply(1:length(dflist), function(x){combn(1:length(dflist), x, simplify = FALSE)}), recursive = FALSE)
 
-
   #Calculate overlap counts
   overlaps <- lapply(combos, 
                       function(x){
-                        if(exists('same.dir')){
-                          dirarg <- same.dir[x]
-                        } else {dirarg <- rep(TRUE, length(x))}
-                        return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = FALSE))
+                        return(do.call('ct.compareContrasts', 
+                                       args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = FALSE),
+                                                dots[names(dots) %in% names(formals('ct.compareContrasts'))])
+                                       )
+                        )
                       })
+  #overlaps <- lapply(combos, 
+  #                   function(x){
+  #                     if(exists('same.dir')){
+  #                       dirarg <- same.dir[x]
+  #                     } else {dirarg <- rep(TRUE, length(x))}
+  #                     return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = FALSE))
+  #                   })
+  
   overlapct <- vapply(overlaps, function(x){sum(x$replicated, na.rm = TRUE)}, numeric(1))
   
   #Create the comb mat object.
@@ -182,17 +197,25 @@ ct.upSet <- function(dflist,
   if(add.stats){
     combo_stats <- lapply(combos, 
                        function(x){
-                         if(exists('same.dir')){
-                           dirarg <- same.dir[x]
-                         } else {dirarg <- rep(TRUE, length(x))}
-                         return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = TRUE, nperm = nperm))
+                         return(do.call('ct.compareContrasts', 
+                                        args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = TRUE),
+                                                 dots[names(dots) %in% names(formals('ct.compareContrasts'))]))
+                                )
                        })
+    #combo_stats <- lapply(combos, 
+    #                      function(x){
+    #                        if(exists('same.dir')){
+    #                          dirarg <- same.dir[x]
+    #                        } else {dirarg <- rep(TRUE, length(x))}
+    #                        return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = TRUE, nperm = nperm))
+    #                      })
     lfc <- log2(vapply(combo_stats, function(x){log2(x[3,2]/x[3,1])}, numeric(1))[cmorder])
     lfc[!is.finite(lfc)] <- 0
-    pv <- -log10(vapply(combo_stats, function(x){-log10(x[3,3])}, numeric(1))[cmorder] + 1e-5)
+    pv <- ct.softLog(vapply(combo_stats, function(x){x[3,3]}, numeric(1))[cmorder])
     
     #Make the UpSet Plot
-    us <- UpSet(comb_mat) %v%     
+    #us <- UpSet(comb_mat) %v%     
+    us <- do.call('UpSet', args = c(list(m = comb_mat), dots[names(dots) %in% names(formals('UpSet'))])) %v%     
       HeatmapAnnotation("Log2FC" = anno_points(lfc, ylim = (rep(max(abs(range(lfc))), 2) * c(-1,1))), annotation_name_side = "left", annotation_name_rot = 0) %v%     
       HeatmapAnnotation("-log10(P)" = anno_barplot(pv, ylim = c(0,(max(pv) + 1))), annotation_name_side = "left", annotation_name_rot = 0)
     show(us)
@@ -205,7 +228,8 @@ ct.upSet <- function(dflist,
                           grid.lines(c(0.5, 10.5), c(2, 2), gp = gpar(lty = 2), default.units = "native")
                           popViewport()})
   } else {
-    show(UpSet(comb_mat))
+    #show(UpSet(comb_mat))
+    do.call('UpSet', args = c(list(m = comb_mat), dots[names(dots) %in% names(formals('UpSet'))]))
   }
     
   return(invisible(comb_mat))
