@@ -157,10 +157,6 @@ ct.upSet <- function(dflist,
                       })
   overlapct <- vapply(overlaps, function(x){sum(x$replicated, na.rm = TRUE)}, numeric(1))
   
-  combos <- combos[overlapct != 0]
-  overlaps <- overlaps[overlapct != 0]
-  overlapct <- overlapct[overlapct != 0]
-
   #Create the comb mat object.
   n <- length(dflist)
   comb_mat <- matrix(FALSE, nrow = n, ncol = sum(choose(n, 1:n)))
@@ -180,6 +176,7 @@ ct.upSet <- function(dflist,
   class(comb_mat) <- c("comb_mat", "matrix")
   cmorder <- order.comb_mat(comb_mat)
   comb_mat <- comb_mat[cmorder]
+  comb_mat <- comb_mat[overlapct[cmorder] != 0]
 
   # If appropriate, generate stats: 
   if(add.stats){
