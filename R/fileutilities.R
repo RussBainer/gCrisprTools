@@ -251,44 +251,48 @@ ct.buildSE <- function(es,
 ##' @export
 ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
   
-  #Pass through a simple result object
-  stopifnot(is(summaryDF, 'data.frame'))
+  #Check summary DF
+  stopifnot(is(summaryDF, 'data.frame'), (collapse %in% names(summaryDF)))
+  
   if(length(setdiff(c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction'), (names(summaryDF)))) == 0){
-    if(all(vapply(names(summaryDF)[1:7], function(x){class(summaryDF[,x])}, character(1)) == rep(c('character', 'numeric', 'character'), times = c(2, 4, 1)))){
-      return(summaryDF)
-    }
-  }
-
-  #Check usual results df
-  stopifnot(ct.resultCheck(summaryDF))
-  stopifnot(collapse %in% names(summaryDF))
-  
-  out <- summaryDF[!duplicated(summaryDF[,collapse]),]
-  if(any(is.na(out[,collapse]))){
-    warning(paste0('NA detected in column ', collapse, '! Omitting the associated entries.'))
-    out <- out[!is.na(out[,collapse]),]
-  }
-  row.names(out) <- out[,collapse]
-  
-  out$direction <- vapply(1:nrow(out), 
-                          function(x){
-                            ifelse(out[x,"Target-level Enrichment P"] < out[x,"Target-level Depletion P"], 'enrich', 'deplete')
-                          }, character(1))
-  
-  out$best.p <- vapply(1:nrow(out), 
-                       function(x){
-                         ifelse(out$direction[x] %in% 'enrich', 
-                                out[x,"Target-level Enrichment P"], 
-                                out[x,"Target-level Depletion P"])
-                       }, numeric(1))
-  
-  out$best.q <- vapply(1:nrow(out), 
-                       function(x){
-                         ifelse(out$direction[x] %in% 'enrich', 
-                                out[x,"Target-level Enrichment Q"], 
-                                out[x,"Target-level Depletion Q"])
-                       }, numeric(1)) 
+    #already simplified
+    stopifnot(all(vapply(names(summaryDF)[1:7], 
+                         function(x){class(summaryDF[,x])}, 
+                         character(1)) == rep(c('character', 'numeric', 'character'), times = c(2, 4, 1))))
+    out <- summaryDF
+    
+  } else {
+    stopifnot(ct.resultCheck(summaryDF))
+    out <- summaryDF
+    
+    out$direction <- vapply(1:nrow(out), 
+                            function(x){
+                              ifelse(out[x,"Target-level Enrichment P"] < out[x,"Target-level Depletion P"], 'enrich', 'deplete')
+                            }, character(1))
+    
+    out$best.p <- vapply(1:nrow(out), 
+                         function(x){
+                           ifelse(out$direction[x] %in% 'enrich', 
+                                  out[x,"Target-level Enrichment P"], 
+                                  out[x,"Target-level Depletion P"])
+                         }, numeric(1))
+    
+    out$best.q <- vapply(1:nrow(out), 
+                         function(x){
+                           ifelse(out$direction[x] %in% 'enrich', 
+                                  out[x,"Target-level Enrichment Q"], 
+                                  out[x,"Target-level Depletion Q"])
+                         }, numeric(1)) 
     out <- out[,c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction')]
+    
+    out <- out[order(out$best.p, decreasing = FALSE),]
+    out <- out[!duplicated(out[,collapse]),]
+    if(any(is.na(out[,collapse]))){
+      warning(paste0('NA detected in column ', collapse, '! Omitting the associated entries.'))
+      out <- out[!is.na(out[,collapse]),]
+    }
+    row.names(out) <- out[,collapse]
+  }
   return(out)
 }
 
