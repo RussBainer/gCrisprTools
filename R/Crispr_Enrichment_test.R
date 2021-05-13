@@ -23,86 +23,86 @@
 ##' @return A dataframe of enriched pathways.
 ##' @author Russell Bainer, Steve Lianoglou
 ##' @keywords internal
-ct.PantherPathwayEnrichment <- function(summaryDF, pvalue.cutoff = 0.01, enrich = TRUE, organism = 'human', db.cut = 10){
-  .Deprecated(msg = 'This function is on its way out in favor of the new functionality using sparrow. See ct.seas() and the gCrisprTools vignettes.')
-  
-  if (!requireNamespace("PANTHER.db")) {
-    stop("The PANTHER.db bioconductor package is required")
-  }
-  if (!requireNamespace("AnnotationDbi")) {
-    stop("The AnnotationDbi bioconductor package is required")
-  }
+#ct.PantherPathwayEnrichment <- function(summaryDF, pvalue.cutoff = 0.01, enrich = TRUE, organism = 'human', db.cut = 10){
+#  .Deprecated(msg = 'This function is on its way out in favor of the new functionality using sparrow. See ct.seas() and the gCrisprTools vignettes.')
+#  
+#  if (!requireNamespace("PANTHER.db")) {
+#    stop("The PANTHER.db bioconductor package is required")
+#  }
+#  if (!requireNamespace("AnnotationDbi")) {
+#    stop("The AnnotationDbi bioconductor package is required")
+#  }
+#
+#  #Check the input:
+#    organism <- match.arg(organism, c('human', 'mouse'))
+#
+#    if(!(enrich %in% c(TRUE, FALSE))){
+#      stop('enrich must be either TRUE or FALSE.')
+#    }
+#
+#    if(!ct.resultCheck(summaryDF)){
+#      stop("Execution halted.")
+#    }
+#
+#    if(!(pvalue.cutoff <= 1 & pvalue.cutoff >= 0 & is.numeric(pvalue.cutoff))){
+#      stop("pvalue.cutoff must be a numeric value between 0 and 1.")
+#    }
+#
+#    if(!(is.numeric(db.cut))){
+#      stop("db.cut must be a numeric value.")
+#    }
+#
+#
+#    message("WARNING: The interpretation of gene set enrichment analyses in Crispr screens is tricky. See the man page for further details.")
+#
+#    #Condense the summary frame to gene-level estimates and isolate the ones that we are testing
+#    summaryDF <- summaryDF[!duplicated(summaryDF$geneID),]
+#    summaryDF <- summaryDF[!is.na(summaryDF$geneID),]
+#    summaryDF <- summaryDF[!grepl('^[A-Za-z]+$', summaryDF$geneID),]
+#    universe <- summaryDF$geneID
+#    #Pull out the significant hits
+#    selected <- summaryDF$geneID[summaryDF[,"Target-level Enrichment P"] <= pvalue.cutoff]#
 
-  #Check the input:
-    organism <- match.arg(organism, c('human', 'mouse'))
-
-    if(!(enrich %in% c(TRUE, FALSE))){
-      stop('enrich must be either TRUE or FALSE.')
-    }
-
-    if(!ct.resultCheck(summaryDF)){
-      stop("Execution halted.")
-    }
-
-    if(!(pvalue.cutoff <= 1 & pvalue.cutoff >= 0 & is.numeric(pvalue.cutoff))){
-      stop("pvalue.cutoff must be a numeric value between 0 and 1.")
-    }
-
-    if(!(is.numeric(db.cut))){
-      stop("db.cut must be a numeric value.")
-    }
-
-
-    message("WARNING: The interpretation of gene set enrichment analyses in Crispr screens is tricky. See the man page for further details.")
-
-    #Condense the summary frame to gene-level estimates and isolate the ones that we are testing
-    summaryDF <- summaryDF[!duplicated(summaryDF$geneID),]
-    summaryDF <- summaryDF[!is.na(summaryDF$geneID),]
-    summaryDF <- summaryDF[!grepl('^[A-Za-z]+$', summaryDF$geneID),]
-    universe <- summaryDF$geneID
-    #Pull out the significant hits
-    selected <- summaryDF$geneID[summaryDF[,"Target-level Enrichment P"] <= pvalue.cutoff]
-
-    if(enrich == FALSE){
-      selected <- summaryDF$geneID[summaryDF[,"Target-level Depletion P"] <= pvalue.cutoff]
-    }
+#    if(enrich == FALSE){
+#      selected <- summaryDF$geneID[summaryDF[,"Target-level Depletion P"] <= pvalue.cutoff]
+#    }
 
     #make the database and conform it to the provided resultDF:
-    pdb <- suppressMessages(ct.getPanther(organism))
-    pathways <- names(pdb)
-    pdb.cut <- lapply(pdb, function(x){x[x %in% universe]})
-    genesInCats <- vapply(pdb.cut, length, numeric(1))
-    pdb.cut <- pdb.cut[genesInCats > db.cut]
-    genesInCats <- genesInCats[genesInCats > db.cut]
+#    pdb <- suppressMessages(ct.getPanther(organism))
+#    pathways <- names(pdb)
+#    pdb.cut <- lapply(pdb, function(x){x[x %in% universe]})
+#    genesInCats <- vapply(pdb.cut, length, numeric(1))
+#    pdb.cut <- pdb.cut[genesInCats > db.cut]
+#    genesInCats <- genesInCats[genesInCats > db.cut]
 
-    message(paste('Omitting PANTHER pathways containing fewer than', db.cut, 'genes.'))
+#    message(paste('Omitting PANTHER pathways containing fewer than', db.cut, 'genes.'))
 
-    if(length(pdb.cut) == 0){
-      stop(paste('No acceptable gene sets found; consider reducing db.cut? \nExiting.'))
-    }
+#    if(length(pdb.cut) == 0){
+#      stop(paste('No acceptable gene sets found; consider reducing db.cut? \nExiting.'))
+#    }
 
-    message(paste('Performing Hypergeometric tests with', length(pdb.cut), 'gene sets...'))
+#    message(paste('Performing Hypergeometric tests with', length(pdb.cut), 'gene sets...'))
 
-    #Set up the output and run the tests
-    out <- data.frame('PATHWAY' = names(pdb.cut),
-                      'nGenes' = genesInCats,
-                      'sigGenes' = vapply(pdb.cut, function(x){sum(x %in% selected, na.rm = TRUE)}, numeric(1)),
-                      stringsAsFactors = FALSE)
-    testResults <- t(mapply(.doHyperGInternal,
-                         'numW' = out$nGenes,
-                         'numB' = rep(length(universe), nrow(out)),
-                         'numDrawn' = rep(length(selected), nrow(out)),
-                         'numWdrawn' = out$sigGenes,
-                         'over' = rep(TRUE, nrow(out)),
-                         SIMPLIFY =TRUE))
-    out <- cbind(out, testResults[,3:1])
-    out[,'FDR'] <- p.adjust(out$p, 'BH')
-    out[,2:7] <- apply(out[,2:7], 2, as.numeric)
-    out <- out[order(out$p, decreasing = FALSE),]
-    row.names(out) <- 1:nrow(out)
+#    #Set up the output and run the tests
+#    out <- data.frame('PATHWAY' = names(pdb.cut),
+#                      'nGenes' = genesInCats,
+#                      'sigGenes' = vapply(pdb.cut, function(x){sum(x %in% selected, na.rm = TRUE)}, numeric(1)),
+#                      stringsAsFactors = FALSE)
+#    testResults <- t(mapply(.doHyperGInternal,
+#                         'numW' = out$nGenes,
+#                         'numB' = rep(length(universe), nrow(out)),
+#                         'numDrawn' = rep(length(selected), nrow(out)),
+#                         'numWdrawn' = out$sigGenes,
+#                         'over' = rep(TRUE, nrow(out)),
+#                         SIMPLIFY =TRUE))
+#    out <- cbind(out, testResults[,3:1])
+#    out[,'FDR'] <- p.adjust(out$p, 'BH')
+#    out[,2:7] <- apply(out[,2:7], 2, as.numeric)
+#    out <- out[order(out$p, decreasing = FALSE),]
+#    row.names(out) <- 1:nrow(out)
 
-    return(out)
-    }
+#    return(out)
+#    }
 
 ##' @title  Extract a Named List of Entrez IDs Annotated to Each Pathway in \code{PANTHER.db}
 ##' @description This is a function that invokes the \link[PANTHER.db]{PANTHER.db} Bioconductor library to extract a list of pathway mappings
@@ -113,27 +113,27 @@ ct.PantherPathwayEnrichment <- function(summaryDF, pvalue.cutoff = 0.01, enrich 
 ##' @return A named list of pathways from \code{PANTHER.db}.
 ##' @author Russell Bainer, Steve Lianoglou.
 ##' @keywords internal
-ct.getPanther <- function (species = c("human", "mouse")){
-  .Deprecated(msg = 'This function is on its way out in favor of the new functionality using sparrow. See ct.seas() and the gCrisprTools vignettes.')
-  species <- match.arg(species, c("human", "mouse"))
-
-  if (!requireNamespace("PANTHER.db")) {
-    stop("The PANTHER.db bioconductor package is required")
-  }
-  if (!requireNamespace("AnnotationDbi")) {
-    stop("The AnnotationDbi bioconductor package is required")
-  }
-  if (species == "human") {
-    org.pkg <- "org.Hs.eg.db"
-    xorg <- "Homo_sapiens"
-  }
-  else {
-    org.pkg <- "org.Mm.eg.db"
-    xorg <- "Mus_musculus"
-  }
-  if (!requireNamespace(org.pkg)) {
-    stop(org.pkg, " bioconductor package required for this species query")
-  }
+#ct.getPanther <- function (species = c("human", "mouse")){
+#  .Deprecated(msg = 'This function is on its way out in favor of the new functionality using sparrow. See ct.seas() and the gCrisprTools vignettes.')
+#  species <- match.arg(species, c("human", "mouse"))
+#
+#  if (!requireNamespace("PANTHER.db")) {
+#    stop("The PANTHER.db bioconductor package is required")
+#  }
+#  if (!requireNamespace("AnnotationDbi")) {
+#    stop("The AnnotationDbi bioconductor package is required")
+#  }
+#  if (species == "human") {
+#    org.pkg <- "org.Hs.eg.db"
+#    xorg <- "Homo_sapiens"
+#  }
+#  else {
+#    org.pkg <- "org.Mm.eg.db"
+#    xorg <- "Mus_musculus"
+#  }
+#  if (!requireNamespace(org.pkg)) {
+#    stop(org.pkg, " bioconductor package required for this species query")
+#  }
 
   p.db <- PANTHER.db
 
