@@ -134,26 +134,26 @@
 #  if (!requireNamespace(org.pkg)) {
 #    stop(org.pkg, " bioconductor package required for this species query")
 #  }
+#
+#  p.db <- PANTHER.db
+#
+#  #This is a prefiltering step that appears to be unnecessary now
+#  #but potentially breaks if the user doesn't have proper database permissions.
+#  #pthOrganisms(p.db) <- toupper(species)
 
-  p.db <- PANTHER.db
+#  org.db <- getFromNamespace(org.pkg, org.pkg)
 
-  #This is a prefiltering step that appears to be unnecessary now
-  #but potentially breaks if the user doesn't have proper database permissions.
-  #pthOrganisms(p.db) <- toupper(species)
+#  p.all <- select(p.db, keys(p.db, keytype="PATHWAY_ID"),
+#                    columns=c("PATHWAY_ID", "PATHWAY_TERM", "UNIPROT"),
+#                    'PATHWAY_ID')
+#  # Map uniprot to entrez
+#  umap <- suppressMessages(select(org.db, p.all$UNIPROT, c('UNIPROT', 'ENTREZID'), 'UNIPROT'))
+#  m <- merge(p.all, umap, by='UNIPROT')
+#  m <- subset(m, !is.na(m$ENTREZID))
 
-  org.db <- getFromNamespace(org.pkg, org.pkg)
-
-  p.all <- select(p.db, keys(p.db, keytype="PATHWAY_ID"),
-                    columns=c("PATHWAY_ID", "PATHWAY_TERM", "UNIPROT"),
-                    'PATHWAY_ID')
-  # Map uniprot to entrez
-  umap <- suppressMessages(select(org.db, p.all$UNIPROT, c('UNIPROT', 'ENTREZID'), 'UNIPROT'))
-  m <- merge(p.all, umap, by='UNIPROT')
-  m <- subset(m, !is.na(m$ENTREZID))
-
-  paths <- split(m[,3:4], as.factor(m$PATHWAY_TERM))
-  lapply(paths, function(x){unique(x$ENTREZID)})
-}
+#  paths <- split(m[,3:4], as.factor(m$PATHWAY_TERM))
+#  lapply(paths, function(x){unique(x$ENTREZID)})
+#}
 
 ##' @title Test Whether a Specified Target Set is Enriched Within a Pooled Screen
 ##' @description This function takes in a \code{resultsDF} and a vector of \code{targets} (contained in the \code{geneID} column of

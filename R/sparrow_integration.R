@@ -148,7 +148,7 @@ ct.seasPrep <- function(dflist,
   
 }
                          
-##' @title Geneset Enrichment within a CRISPR screen using sparrow
+##' @title Geneset Enrichment within a CRISPR screen using `sparrow`
 ##' 
 ##' This function is a wrapper for the `sparrow::seas()` function, which identifies differentially enriched/depleted ontological 
 ##' categories within the hits identified by a pooled screening experiment, given a provided `GenseSetDb()` object and a list of 
@@ -158,8 +158,19 @@ ct.seasPrep <- function(dflist,
 ##' This function will attempt to coerce them into inputs appropriate for the above analyses via `ct.seasPrep()`, after checking 
 ##' the relevant parameters within the provided `GeneSetDb`. This is generally easier than going through the individual steps yourself, 
 ##' especially when 
+##' 
+##' Note that many pooled libraries specifically target biased sets of genes, often focusing on genes involved
+##' in a particular pathway or encoding proteins with a shared biological property. Consequently, the enrichment results
+##' returned by this function represent the disproportionate enrichment or depletion of targets annotated to pathways *within the context
+##' of the screen*, and may or may not be informative of the underlying biology in question. This means that
+##' pathways not targeted by a library will obviously never be enriched a positive target set regardless of
+##' their biological relevance, and pathways enriched within a focused library screen are similarly expected to partially
+##' reflect the composition of the library and other confounding issues (e.g., number of targets within a pathway).
+##' Analysts should therefore use this function with care. For example, it might be unsurprising to detect pathways related
+##' to histone modification within a screen employing a crispr library primarily targeting epigenetic regulators.
 ##'  
-##' @param dflist A  named list of gCrisprTools results objects (which will be passed to `ct.seasPrep()` with the associated `...` arguments).
+##' @param dflist A result object created by `ct.generateResults()`, or a named list containing many of them; will be passed as a list to 
+##' `ct.seasPrep()` with the associated `...` arguments.
 ##' @param gdb A `GenseSetDb` object containing annotations for the targets specified in `result`.
 ##' @param ... Additional arguments to pass to `ct.seasPrep()`. 
 ##' @return A named list of `SparrowResults` objects.
@@ -178,6 +189,11 @@ ct.seas <- function(dflist,
   identifier <- ifelse(sum(gdb@featureIdMap$feature_id %in% first$geneID) > sum(gdb@featureIdMap$feature_id %in% first$geneSymbol), 'geneID', 'geneSymbol')
   message(paste0('GeneSetDb feature_ids coded as ', identifier, 's.'))
   if(identifier %in% 'geneID'){message('Depending on the composition of your library, you might consider switching to a target-level analysis; see ?ct.GREATdb() for details.')}
+  
+  #listify results as needed
+  if((!is(dflist, 'list')) & ct.resultCheck(dflist)){
+    dflist <- list('result' = dflist)
+  }
   
   #Check that all provided objects are keyed to the proper values
   ipts <- ct.seasPrep(dflist, 
