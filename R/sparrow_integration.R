@@ -167,6 +167,7 @@ ct.seasPrep <- function(dflist,
 ##' data('resultsDF')
 ##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gsd = getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
 ##' @author Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.
+##' @export
 ct.seas <- function(dflist,
                     gdb, 
                     ...){
