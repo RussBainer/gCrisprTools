@@ -249,9 +249,10 @@ ct.buildSE <- function(es,
 ##' @examples data('resultsDF')
 ##' ct.simpleResult(resultsDF)
 ##' @export
-ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
+ct.simpleResult <- function(summaryDF, collapse = c('geneSymbol', 'geneID')){
   
-  #Check summary DF
+  #Check inputs
+  collapse <- match.arg(collapse)
   stopifnot(is(summaryDF, 'data.frame'), (collapse %in% names(summaryDF)))
   
   if(length(setdiff(c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction'), (names(summaryDF)))) == 0){
@@ -285,14 +286,18 @@ ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
                          }, numeric(1)) 
     out <- out[,c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction')]
     
-    out <- out[order(out$best.p, decreasing = FALSE),]
-    out <- out[!duplicated(out[,collapse]),]
-    if(any(is.na(out[,collapse]))){
-      warning(paste0('NA detected in column ', collapse, '! Omitting the associated entries.'))
-      out <- out[!is.na(out[,collapse]),]
-    }
-    row.names(out) <- out[,collapse]
+   
   }
+  
+  #Cleanup duplicates - always keep strongest signals.  
+  out <- out[order(out$best.p, decreasing = FALSE),]
+  out <- out[!duplicated(out[,collapse]),]
+  if(any(is.na(out[,collapse]))){
+    warning(paste0('NA detected in column ', collapse, '! Omitting the associated entries.'))
+    out <- out[!is.na(out[,collapse]),]
+  }
+  row.names(out) <- out[,collapse]
+  
   return(out)
 }
 
@@ -305,18 +310,19 @@ ct.simpleResult <- function(summaryDF, collapse = 'geneSymbol'){
 ##' This function is largely meant to be used by other gCrisprtools functions, although there are occasions when an analyst may want to call it directly. 
 ##' Often, it is useful to pass the `collapse` argument to `ct.simpleresult()` in cases where libraries and technologies differ between screens. 
 ##' @param dflist A list of results dataframes. Names will be preserved.
+##' @param collapse Column of the provided resultsDFs on which to collapse values; should be `geneSymbol` or `geneID`.
 ##' @return A list of the in-register `simpleResult` objects, with length and names identical to `dflist`.
 ##' @examples 
 ##' data('resultsDF')
 ##' lapply(ct.regularizeContrasts(list('df1' = resultsDF[1:300,], 'df2' = resultsDF[200:400,]), nrow)
 ##' @export
-ct.regularizeContrasts <- function(dflist, ...){
+ct.regularizeContrasts <- function(dflist, collapse = c('geneSymbol', 'geneID')){
   
   #input check 
   stopifnot(is.list(dflist))
 
   #convert to simple results
-  dflist <- sapply(dflist, ct.simpleResult, ..., simplify = FALSE)
+  dflist <- sapply(dflist, ct.simpleResult, collapse = collapse, simplify = FALSE)
   
   #find common rows
   rowcounts <- table(unlist(lapply(dflist, row.names)))
