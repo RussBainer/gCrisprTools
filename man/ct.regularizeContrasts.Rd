@@ -4,10 +4,12 @@
 \alias{ct.regularizeContrasts}
 \title{Regularize Two Screening Results Objects}
 \usage{
-ct.regularizeContrasts(dflist, ...)
+ct.regularizeContrasts(dflist, collapse = c("geneSymbol", "geneID"))
 }
 \arguments{
 \item{dflist}{A list of results dataframes. Names will be preserved.}
+
+\item{collapse}{Column of the provided resultsDFs on which to collapse values; should be `geneSymbol` or `geneID`.}
 }
 \value{
 A list of the in-register `simpleResult` objects, with length and names identical to `dflist`.

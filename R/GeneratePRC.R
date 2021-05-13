@@ -20,7 +20,6 @@
 ##' pr <- ct.PRC(resultsDF, essential.genes, 'enrich')
 ##' str(pr)
 ##' @export
-
 ct.PRC <-
   function(summaryDF,
            target.list,
@@ -31,9 +30,7 @@ ct.PRC <-
     direction <- match.arg(direction)
     stopifnot(is(plot.it, 'logical'))
     
-    if(!exists("collapse")){
-      collapse <- 'geneID'
-    }
+    collapse <- ifelse(sum(target.list %in% summaryDF$geneID) > sum(target.list %in% summaryDF$geneSymbol), 'geneID', 'geneSymbol')
     simpleDF <- ct.simpleResult(summaryDF, collapse)
     
     if(!is.character(target.list)){

@@ -26,6 +26,8 @@ the detected proportion of \code{target.list} changes. If set to \code{FALSE}, t
 indicate the curve value at every position (useful for performing curve arithmetic downstream).}
 
 \item{plot.it}{Logical value indicating whether to plot the curves.}
+
+\item{...}{Additional parameters for `ct.simpleResult()`}
 }
 \value{
 A list containing the the x and y coordinates of the curve, and the AUC statistic (invisibly).
@@ -43,7 +45,7 @@ somewhat anticonservative in cases where the gene ranks are not well differentia
 \examples{
 data('resultsDF')
 data('essential.genes') #Note that this is an artificial example.
-roc <- ct.ROC(resultsDF, essential.genes, 'deplete')
+roc <- ct.ROC(resultsDF, essential.genes, direction = 'deplete')
 str(roc)
 }
 \author{

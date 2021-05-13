@@ -43,10 +43,7 @@ reflect the composition of the library and other confounding issues (e.g., numbe
 Analysts should therefore use this function with care. For example, it might be unsurprising to detect pathways related
 to histone modification within a screen employing a crispr library targeting epigenetic regulators.
 }
-\examples{
-data('resultsDF')
-ct.PantherPathwayEnrichment(resultsDF, organism = 'mouse')
-}
 \author{
 Russell Bainer, Steve Lianoglou
 }
+\keyword{internal}

@@ -22,12 +22,9 @@
 ##' @param db.cut Minimum number of genes annotated to a given to a pathway within the screen in order to consider it in the enrichment test.
 ##' @return A dataframe of enriched pathways.
 ##' @author Russell Bainer, Steve Lianoglou
-##' @examples data('resultsDF')
-##' ct.PantherPathwayEnrichment(resultsDF, organism = 'mouse')
-##' @export
-
+##' @keywords internal
 ct.PantherPathwayEnrichment <- function(summaryDF, pvalue.cutoff = 0.01, enrich = TRUE, organism = 'human', db.cut = 10){
-  .Deprecated(msg = 'This function is on its way out in favor of the new functionality using sparrow. See the gCrisprTools vignettes.')
+  .Deprecated(msg = 'This function is on its way out in favor of the new functionality using sparrow. See ct.seas() and the gCrisprTools vignettes.')
   
   if (!requireNamespace("PANTHER.db")) {
     stop("The PANTHER.db bioconductor package is required")
@@ -116,8 +113,8 @@ ct.PantherPathwayEnrichment <- function(summaryDF, pvalue.cutoff = 0.01, enrich 
 ##' @return A named list of pathways from \code{PANTHER.db}.
 ##' @author Russell Bainer, Steve Lianoglou.
 ##' @keywords internal
-
 ct.getPanther <- function (species = c("human", "mouse")){
+  .Deprecated(msg = 'This function is on its way out in favor of the new functionality using sparrow. See ct.seas() and the gCrisprTools vignettes.')
   species <- match.arg(species, c("human", "mouse"))
 
   if (!requireNamespace("PANTHER.db")) {

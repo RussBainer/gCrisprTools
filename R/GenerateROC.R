@@ -16,11 +16,12 @@
 ##' the detected proportion of \code{target.list} changes. If set to \code{FALSE}, the returned \code{x} and \code{y} vectors will explicitly
 ##' indicate the curve value at every position (useful for performing curve arithmetic downstream).
 ##' @param plot.it Logical value indicating whether to plot the curves.
+##' @param ... Additional parameters for `ct.simpleResult()`
 ##' @return A list containing the the x and y coordinates of the curve, and the AUC statistic (invisibly).
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
 ##' data('essential.genes') #Note that this is an artificial example.
-##' roc <- ct.ROC(resultsDF, essential.genes, 'deplete')
+##' roc <- ct.ROC(resultsDF, essential.genes, direction = 'deplete')
 ##' str(roc)
 ##' @export
 ct.ROC <-
@@ -34,9 +35,7 @@ ct.ROC <-
     direction <- match.arg(direction)
     stopifnot(is(plot.it, 'logical'), is(condense, 'logical'))
     
-    if(!exists("collapse")){
-      collapse <- 'geneID'
-    }
+    collapse <- ifelse(sum(target.list %in% summaryDF$geneID) > sum(target.list %in% summaryDF$geneSymbol), 'geneID', 'geneSymbol')
     simpleDF <- ct.simpleResult(summaryDF, collapse)
     
     if(!is.character(target.list)){
