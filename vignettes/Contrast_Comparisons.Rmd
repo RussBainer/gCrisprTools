@@ -5,7 +5,7 @@ output:
     df_print: paged
 ---
 
-This is a brief description of the new capabilites for comparing and summarizing contrasts with gCrisprTools. 
+This is a brief description of the capabilites for comparing, summarizing, and integrating screening contrasts with gCrisprTools. 
 
 Historically, gCrisprTools was focused on making results data.frames, which exhaustively summarize the results of a screen contrast. They look like this: 
 

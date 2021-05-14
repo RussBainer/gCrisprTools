@@ -176,8 +176,6 @@ ct.resultCheck <- function(summaryDF){
 ##' @examples 
 ##' data('ann', 'es', 'fit', 'resultsDF')
 ##' ct.buildSE(es, ann = ann, fit = 'fit', summaryList = list('resA' = resultsDF, 'resB' = resultsDF))
-##' 
-##' @export
 ct.buildSE <- function(es, 
                        sampleKey = NULL, 
                        ann = NULL, 
