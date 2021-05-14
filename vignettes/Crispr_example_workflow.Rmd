@@ -1,5 +1,5 @@
 ---
-title: "Example Workflow For Processing a CRISPR-based Pooled Screen"
+title: "Example Workflow For Processing a Single Pooled Screen"
 author: "Russell Bainer"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -8,8 +8,12 @@ vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
-### Example Vanilla Workflow
-This is an example workflow for processing a pooled CRISPR-based screen using the provided sample data. See the various manpages for additional visualization options and algorithmic details. If you are considering integrating the results of many screens or scren contrasts, refer to the `Contrast Comparisons` vignette. 
+
+### Example Workflow For Processing a Single Screen
+
+This is an example workflow for processing a pooled screening eperiment using the provided sample data. See the various manpages for additional visualization options and algorithmic details. 
+
+Note that what follows describes a very basic analysis. If you are considering integrating the results of many different screen contrasts or even different experiments and/or technologies, refer to the `Advanced Screen Analysis: Contrast Comparisons` vignette. 
 
 Load dependencies and data
 ```{r, eval = FALSE}
@@ -108,7 +112,9 @@ resultsDF <- resultsDF[(row.names(resultsDF) %in% row.names(ann)),]
 targetResultDF <- ct.simpleResult(resultsDF) #For a simpler target-level result object
 ```
 
-Crispr-specific quality control and visualization tools (see man pages for details):
+### Quality Control
+
+gCrisprTools contains a variety of pooled screen-specific quality control and visualization tools (see man pages for details):
 ```{r, eval = FALSE}
 ct.alignmentChart(aln, sk)
 ct.rawCountDensities(es, sk)
@@ -163,6 +169,13 @@ ct.guideCDF(es, sk, plotType = "gRNA")
 ct.guideCDF(es, sk, plotType = "Target", annotation = ann)
 ```
 
+#### Target-Level Visualization and Analysis
+
+View the overall enrichment and depletion trends identified in the screen: 
+```{r}
+ct.contrastBarchart(resultsDF)
+```
+
 View top enriched/depleted candidates
 ```{r, eval = FALSE}
 ct.topTargets(fit,
@@ -193,6 +206,11 @@ ct.signalSummary(resultsDF,
 You could test a known gene set for enrichment within target candidates:
 ```{r, eval = FALSE}
 data("essential.genes", package = "gCrisprTools")
+ct.targetSetEnrichment(resultsDF, essential.genes)
+```
+
+Or optionally add a visualization:
+```{r rocprc, eval=FALSE}
 
 ROC <- ct.ROC(resultsDF, essential.genes, direction = "deplete")
 PRC <- ct.PRC(resultsDF, essential.genes, stat = "deplete")
@@ -200,7 +218,7 @@ show(ROC)
 show(PRC)
 ```
 
-Or alternatively uyou could test for ontological enrichment within the depleted/enriched targets via the `sparrow` package
+Or alternatively uyou could test for ontological enrichment within the depleted/enriched targets via the `sparrow` package: 
 ```{r, eval = FALSE}
 #Create a geneset database using one of the many helper functions
 genesetdb <- getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')

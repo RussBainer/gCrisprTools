@@ -2,13 +2,9 @@
 ##' @description This function returns a numeric vector of the same length as the input, where each element \code{n} contains the proportion
 ##' the sum of the full vector that is captured by its first \code{1-n} elements (arranged in descending order).  
 ##' @param vector An input numeric vector to be aggregated. 
-##' @return A CDF plot displaying the appropriate CDF curves on the default device. 
+##' @return A numeric vector of the cumulative sum
 ##' @author Russell Bainer
 ##' @keywords internal
-##' @examples v <- sort(sample(1:100, 30, replace = TRUE, 100:1))
-##' ct.ecdf(v)
-##' @export
-
 ct.ecdf <- function(vector){
   sorted <- as.numeric(sort(vector, decreasing = TRUE))
   out <- unlist(lapply(seq_along(sorted), function(x){sum(sorted[1:x])}))/sum(sorted)

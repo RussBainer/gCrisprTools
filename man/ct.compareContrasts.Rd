@@ -36,9 +36,9 @@ vise-versa). Default is `rep(TRUE, length(dflist))`.}
 }
 \value{
 If `return.stats` is `FALSE`, returns the first contrast as a `simplifiedResult` data.frame, with a `replicated` logical column 
-indicating whether each signal replicates. 
+indicating whether each signal replicates in all of the provided screens according to the specified logic. 
 
-If `return.stats` is `TRUE`, returns a dataframe indicating the hypergeometric test statistics summarizing the evidence for significantly 
+If `return.stats` is `TRUE`, returns a dataframe indicating the permutation-based test statistics summarizing the evidence for significantly 
 enriched signal replication across the provided contrasts (enrich, deplete, and all together).
 }
 \description{
