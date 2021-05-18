@@ -20,7 +20,7 @@
 ##' @examples 
 ##' data(resultsDF)
 ##' data(ann)
-##' gsdb <- ct.GREATdb(ann, gsdb = getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+##' gsdb <- ct.GREATdb(ann, gsdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
 ##' show(featureIds(gsdb))
 ##' @export
 ct.GREATdb <- function(annotation, 
@@ -253,7 +253,7 @@ ct.compileSparrow <- function(resultList){
                                   function(sparrowres){
                                     resultList[[sparrowres]]@results[[tests]][[testcols]]
                                   }, simplify = TRUE)
-                    row.names(ret) <- resultList[[sparrowres]]@results[[tests]][[1]]
+                    row.names(ret) <- resultList[[1]]@results[[tests]][[1]]
                     return(ret)
                   }, simplify = FALSE)
          }, simplify = FALSE)

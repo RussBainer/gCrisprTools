@@ -41,6 +41,6 @@ Operationally, this means that genewise sets in the provided object will be tran
 \examples{
 data(resultsDF)
 data(ann)
-gsdb <- ct.GREATdb(ann, gsdb = getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+gsdb <- ct.GREATdb(ann, gsdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
 show(featureIds(gsdb))
 }

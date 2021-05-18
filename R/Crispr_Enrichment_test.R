@@ -184,15 +184,27 @@ ct.targetSetEnrichment <- function(summaryDF, targets, enrich = TRUE, ignore = '
 
   #input checks
   stopifnot(is(enrich, 'logical'), is(ignore, 'character'))
-  summaryDF <- ct.simpleResult(summaryDF, ...)
+  
+  if(!is.character(targets)){
+    warning("Supplied targets are not a character vector. Coercing.")
+    targets <- as.character(targets)
+  }
+  
+  #Infer whether Gsdb is ID or feature centric
+  gids <- sum(targets %in% summaryDF$geneID)
+  gsids <- sum(targets %in% summaryDF$geneSymbol)
+  
+  if(all(c(gsids, gids) == 0)){
+    stop('None of the targets are present in either the geneID or geneSymbol slots of the first provided result.')
+  }
+  
+  collapse <- ifelse(gids > gsids, 'geneID', 'geneSymbol')
+  summaryDF <- ct.simpleResult(summaryDF, collapse)
 
   valid <- intersect(targets, row.names(summaryDF))
 
-  if(length(valid) == 0){
-    stop('None of the targets in the supplied vector are contained in the geneSymbol column of the summary dataframe.')
-  }
   if(length(setdiff(targets, valid)) != 0){
-    warning(paste('Not all of the supplied targets are present in the geneSymbol column of the summary dataframe. Proceeding with',
+    warning(paste('Not all of the supplied targets are present in the summary dataframe. Proceeding with',
             length(valid), 'targets.'))
   }
 

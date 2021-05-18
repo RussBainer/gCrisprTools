@@ -12,11 +12,14 @@ NULL
 ##' @import ggplot2
 ##' @import sparrow
 ##' @import parallel
+##' @import grid
 ##' @importFrom grDevices colorRampPalette rgb
-##' @importFrom graphics abline axis barplot layout legend lines mtext par plot points polygon segments hist
-##' @importFrom stats density lm median na.omit p.adjust pbeta phyper predict pt smooth.spline spline
-##' @importFrom utils capture.output getFromNamespace 
+##' @importFrom graphics abline axis barplot layout legend lines mtext par plot points polygon segments hist text
+##' @importFrom stats density lm median na.omit p.adjust pbeta phyper predict pt smooth.spline spline qnorm
+##' @importFrom utils capture.output getFromNamespace combn
 ##' @importFrom rmarkdown render draft 
+##' @importFrom ComplexHeatmap UpSet HeatmapAnnotation decorate_annotation %v% anno_barplot anno_points order.comb_mat
+##' @importFrom methods is
 NULL
 
 ##' @name es

@@ -172,7 +172,7 @@ ct.guideCDF(es, sk, plotType = "Target", annotation = ann)
 #### Target-Level Visualization and Analysis
 
 View the overall enrichment and depletion trends identified in the screen: 
-```{r}
+```{r, eval = FALSE}
 ct.contrastBarchart(resultsDF)
 ```
 
