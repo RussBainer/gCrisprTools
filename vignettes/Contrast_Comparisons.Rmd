@@ -199,7 +199,18 @@ Though not subject to specific set-level analyses yet, the `ct.seas()` function 
 ```{r}
 genesetdb <- getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
 
-sparrowlist <- ct.seas(allSimple, gsd = genesetdb)
+sparrowList <- ct.seas(allSimple, gsd = genesetdb)
+
+#Can also be returned as a series of matrices to facilitate downstream comparisons: 
+sparrowDf <- ct.compileSparrow(sparrowList)
+
+plot(-log10(sparrowDF$ora.enrich$pval$longer), 
+     -log10(sparrowDF$ora.enrich$pval$shorter), 
+     pch = 19, col = rgb(0,0,0.8,0.5), 
+     main = 'Evidence for Pathway Enrichment')
+abline(0,1,lty = 2)
+
+str(sparrowDf)
 ```
 
 

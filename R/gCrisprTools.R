@@ -10,7 +10,7 @@ NULL
 ##' @import limma
 ##' @import RobustRankAggreg
 ##' @import ggplot2
-##' @import PANTHER.db
+##' @import sparrow
 ##' @import parallel
 ##' @importFrom grDevices colorRampPalette rgb
 ##' @importFrom graphics abline axis barplot layout legend lines mtext par plot points polygon segments hist

@@ -172,38 +172,91 @@ ct.seasPrep <- function(dflist,
 ##' @param dflist A result object created by `ct.generateResults()`, or a named list containing many of them; will be passed as a list to 
 ##' `ct.seasPrep()` with the associated `...` arguments.
 ##' @param gdb A `GenseSetDb` object containing annotations for the targets specified in `result`.
-##' @param ... Additional arguments to pass to `ct.seasPrep()`. 
+##' @param as.dfs Logical indicating whether to return the various contrast statistics as in-register lists of data.frames to facilitate comparisons.
+##' @param ... Additional arguments to pass to `ct.seasPrep()` or `sparrow::seas()`. 
 ##' @return A named list of `SparrowResults` objects.
 ##' @examples 
 ##' data('resultsDF')
-##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gsd = getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
 ##' @author Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.
 ##' @export
 ct.seas <- function(dflist,
                     gdb, 
+                    as.dfs = FALSE,
                     ...){
-  
+  library('sparrow', quietly = TRUE)
   #Check GSDB and determine feature set
-  stopifnot(is(gdb, 'GeneSetDb'))
-  #Infer whether Gsdb is ID or feature centric
-  identifier <- ifelse(sum(gdb@featureIdMap$feature_id %in% first$geneID) > sum(gdb@featureIdMap$feature_id %in% first$geneSymbol), 'geneID', 'geneSymbol')
-  message(paste0('GeneSetDb feature_ids coded as ', identifier, 's.'))
-  if(identifier %in% 'geneID'){message('Depending on the composition of your library, you might consider switching to a target-level analysis; see ?ct.GREATdb() for details.')}
+  stopifnot(is(gdb, 'GeneSetDb'), is(as.dfs, 'logical'))
   
   #listify results as needed
-  if((!is(dflist, 'list')) & ct.resultCheck(dflist)){
-    dflist <- list('result' = dflist)
+  if(!is(dflist, 'list')){
+    if(ct.resultCheck(dflist)){
+      dflist <- list('result' = dflist)
+    }
   }
+
+  
+  #Infer whether Gsdb is ID or feature centric
+  gids <- sum(gdb@featureIdMap$feature_id %in% dflist[[1]]$geneID)
+  gsids <- sum(gdb@featureIdMap$feature_id %in% dflist[[1]]$geneSymbol)
+  
+  if(all(c(gsids, gids) == 0)){
+    stop('None of the features in the GeneSetDb are present in either the geneID or geneSymbol slots of the first provided result.')
+  }
+  
+  identifier <- ifelse(gids > gsids, 'geneID', 'geneSymbol')
+  message(paste0('GeneSetDb feature_ids coded as ', identifier, 's.'))
+  if(identifier %in% 'geneID'){
+    message('Depending on the composition of your library, you might consider switching to a target-level analysis; see ?ct.GREATdb() for details.')
+    }
   
   #Check that all provided objects are keyed to the proper values
   ipts <- ct.seasPrep(dflist, 
                       collapse.on = identifier, 
-                      gdb = gdb, 
-                      ...)
+                      gdb = gdb)
   
-  return(sapply(ipts, 
+  outs <- sapply(ipts, 
                 function(x){
                   seas(gdb, x, methods = c('ora', 'fgsea'), rank_by = 'rank_by', selected = 'selected', groups = 'direction', ...)
                 }, 
-                simplify = FALSE))
+                simplify = FALSE)
+  
+  if(as.dfs){
+    outs <- ct.compileSparrow(outs)
+  }
+  return(outs)
 }
+
+##' Compile the values from a set of SparrowResult Objects
+##' 
+##' This function takes in a named list of `SparrowResult` objects and breaks them into in0register data.frames for easy comprisons. 
+##' Specifically, the function assembles the values in each of the `@result` slots for each of the provided contrasts into standalone 
+##' `data.frame`s with the rows named for the pathways, and returns these objects as a list-of-lists for each result type.
+##' 
+##' Note that results are compiled as-is, so users need to orient the screen results themselves in whatever manner they deem appropriate. 
+##' 
+##' @param resultList A named list of `SparrowResult` objects
+##' @value A (test-level) list of (output-level) lists of (statistic-level) dataframes, such that category statistics can be easily 
+##' compared to one another.   
+##' @author Russell Bainer
+##' @export
+ct.compileSparrow <- function(resultList){
+  stopifnot(is(resultList, 'list'), all(sapply(resultList, is, "SparrowResult")), !is.null(names(resultList)))
+  
+  sapply(names(outs[[1]]@results),                
+         function(tests){
+           sapply(names(outs[[1]]@results[[tests]])[2:length(names(outs[[1]]@results[[tests]]))],       
+                  function(testcols){
+                    ret <- sapply(names(outs),
+                                  function(sparrowres){
+                                    outs[[sparrowres]]@results[[tests]][[testcols]]
+                                  }, simplify = TRUE)
+                    row.names(ret) <- outs[[sparrowres]]@results[[tests]][[1]]
+                    return(ret)
+                  }, simplify = FALSE)
+         }, simplify = FALSE)
+
+}
+
+
+
