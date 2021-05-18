@@ -23,7 +23,7 @@ reflect the composition of the library and other confounding issues (e.g., numbe
 Analysts should therefore use this function with care. For example, it might be unsurprising to detect pathways related
 to histone modification within a screen employing a crispr library primarily targeting epigenetic regulators.}
 \usage{
-ct.seas(dflist, gdb, ...)
+ct.seas(dflist, gdb, as.dfs = FALSE, ...)
 }
 \arguments{
 \item{dflist}{A result object created by `ct.generateResults()`, or a named list containing many of them; will be passed as a list to 
@@ -31,7 +31,9 @@ ct.seas(dflist, gdb, ...)
 
 \item{gdb}{A `GenseSetDb` object containing annotations for the targets specified in `result`.}
 
-\item{...}{Additional arguments to pass to `ct.seasPrep()`.}
+\item{as.dfs}{Logical indicating whether to return the various contrast statistics as in-register lists of data.frames to facilitate comparisons.}
+
+\item{...}{Additional arguments to pass to `ct.seasPrep()` or `sparrow::seas()`.}
 }
 \value{
 A named list of `SparrowResults` objects.
@@ -60,7 +62,7 @@ to histone modification within a screen employing a crispr library primarily tar
 }
 \examples{
 data('resultsDF')
-ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gsd = getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
 }
 \author{
 Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.
