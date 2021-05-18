@@ -22,6 +22,9 @@ ct.seasPrep(
 
 \item{statistic}{Should cutoffs be calculated based on FDR (`best.q`) or P-value (`best.p`)?}
 
+\item{regularize}{Logical indicating whether to regularize the result objects in `dflist` (e.g., use intersection set of 
+all targets), or keep as-is.}
+
 \item{gdb}{Optionally, a `GeneSetDb` object to enable proper registration of the output. If provided, the 
 collapsing features in the provided `simpleDF`s must be present in the `gsd@db$feature_id` slot. Note that a GREAT-style `GeneSetDb` that 
 has been conformed via `ct.GREATdb()` will use `geneID`s as the `feature_id`.}

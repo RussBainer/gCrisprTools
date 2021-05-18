@@ -32,7 +32,7 @@ vise-versa). Default is `rep(TRUE, length(dflist))`.}
 
 \item{nperm}{numeric indicating number of permutations when `return.stats` is true (default 10000).}
 
-\item{...}{Other arguments to \link{`ct.simpleResult`}, especially `collapse`.}
+\item{...}{Other arguments to `ct.simpleResult()`, especially `collapse`.}
 }
 \value{
 If `return.stats` is `FALSE`, returns the first contrast as a `simplifiedResult` data.frame, with a `replicated` logical column 

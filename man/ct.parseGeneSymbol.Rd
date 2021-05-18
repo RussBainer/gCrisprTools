@@ -17,7 +17,7 @@ Does not, strictly speaking, need to be a proper annotation object, but one of t
 A named `alt.annotation`-type list of character vectors encoding the target mappings for each reagent
 }
 \description{
-This is an accessory function to \link{\code{ct.expandAnnotation()}} function, which enables users to expand annotation objects 
+This is an accessory function to `ct.expandAnnotation()` function, which enables users to expand annotation objects 
 to accomodate reagent libraries where reagents are expected to impact a set of known targets. See documentation for that function for 
 additional details. 
 

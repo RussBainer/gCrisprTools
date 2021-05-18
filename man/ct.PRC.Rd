@@ -8,8 +8,7 @@ ct.PRC(
   summaryDF,
   target.list,
   direction = c("enrich", "deplete"),
-  plot.it = TRUE,
-  ...
+  plot.it = TRUE
 )
 }
 \arguments{
