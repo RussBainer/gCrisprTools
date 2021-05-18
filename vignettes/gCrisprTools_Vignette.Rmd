@@ -311,18 +311,21 @@ In some cases, it may be useful to ask whether a set of known targets is disprop
 ```{r, fig.width=6, fig.height = 6, warning=FALSE}
 data("essential.genes", package = "gCrisprTools")  #Artificial list created for demonstration
 data("resultsDF", package = "gCrisprTools")
-ROC <- ct.ROC(resultsDF, essential.genes, stat = "deplete.p")
+ROC <- ct.ROC(resultsDF, essential.genes, 'enrich')
 str(ROC)
 ```
 
 ```{r, fig.width=6, fig.height = 6, warning=FALSE}
-PRC <- ct.PRC(resultsDF, essential.genes, stat = "deplete.p")
+PRC <- ct.PRC(resultsDF, essential.genes, 'enrich')
 str(PRC)
 ```
 
 Alternatively, the significance of the enrichment within the target set may be assessed directly with `ct.targetSetEnrichment`.
 
 ```{r, fig.width=6, fig.height = 6, warning=FALSE}
+##' tar <-  sample(unique(resultsDF$geneSymbol), 20)
+##' res <- ct.targetSetEnrichment(resultsDF, tar)
+
 targetsTest <- ct.targetSetEnrichment(resultsDF, essential.genes, enrich = FALSE)
 str(targetsTest)
 ```

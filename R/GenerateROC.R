@@ -34,14 +34,23 @@ ct.ROC <-
 
     direction <- match.arg(direction)
     stopifnot(is(plot.it, 'logical'), is(condense, 'logical'))
-    
-    collapse <- ifelse(sum(target.list %in% summaryDF$geneID) > sum(target.list %in% summaryDF$geneSymbol), 'geneID', 'geneSymbol')
-    simpleDF <- ct.simpleResult(summaryDF, collapse)
-    
+
     if(!is.character(target.list)){
       warning("Supplied target.list is not a character vector. Coercing.")
       target.list <- as.character(target.list)
     }
+    
+    #Infer whether Gsdb is ID or feature centric
+    gids <- sum(target.list %in% summaryDF$geneID)
+    gsids <- sum(target.list %in% summaryDF$geneSymbol)
+    
+    if(all(c(gsids, gids) == 0)){
+      stop('None of the features in the GeneSetDb are present in either the geneID or geneSymbol slots of the first provided result.')
+    }
+    
+    collapse <- ifelse(gids > gsids, 'geneID', 'geneSymbol')
+    simpleDF <- ct.simpleResult(summaryDF, collapse)
+    
     present <- intersect(target.list, row.names(simpleDF))
     
     if(length(present) != length(target.list)){
