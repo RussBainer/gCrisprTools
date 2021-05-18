@@ -19,9 +19,9 @@ Description: Set of tools for evaluating pooled high-throughput screening experi
     hypothesis testing, and comprehensive reporting.
 License: Artistic-2.0
 Imports: Biobase, limma, RobustRankAggreg, ggplot2,
-        PANTHER.db, rmarkdown, grDevices, graphics,
-        stats, utils, parallel, SummarizedExperiment
-Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, RUnit, BiocGenerics
+        rmarkdown, grDevices, graphics, methods, ComplexHeatmap,
+        stats, utils, parallel, SummarizedExperiment, sparrow
+Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, BiocGenerics
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 Encoding: UTF-8

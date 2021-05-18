@@ -22,7 +22,7 @@
 ##' vise-versa). Default is `rep(TRUE, length(dflist))`.
 ##' @param return.stats When TRUE, return the significance of overlap instead of the logical vector (by permutation).
 ##' @param nperm numeric indicating number of permutations when `return.stats` is true (default 10000).  
-##' @param ... Other arguments to \link{`ct.simpleResult`}, especially `collapse`.
+##' @param ... Other arguments to `ct.simpleResult()`, especially `collapse`.
 ##' @return If `return.stats` is `FALSE`, returns the first contrast as a `simplifiedResult` data.frame, with a `replicated` logical column 
 ##' indicating whether each signal replicates in all of the provided screens according to the specified logic. 
 ##' 
@@ -136,7 +136,6 @@ ct.upSet <- function(dflist,
                      add.stats = TRUE,
                      nperm = 10000,
                      ...){
-  suppressPackageStartupMessages(library(ComplexHeatmap, quietly = TRUE))
   stopifnot(length(dflist) > 1, is.numeric(nperm))
   
   if(is.null(names(dflist))){stop('The names() attribute must be set on the provided dflist for this to make any sense.')}

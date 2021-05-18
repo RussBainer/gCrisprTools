@@ -179,7 +179,7 @@ ct.expandAnnotation <- function(ann, alt.annotation){
 
 
 ##' @title Parse `geneSymbol` values to construct an alternative annotation list
-##' @description This is an accessory function to \link{\code{ct.expandAnnotation()}} function, which enables users to expand annotation objects 
+##' @description This is an accessory function to `ct.expandAnnotation()` function, which enables users to expand annotation objects 
 ##' to accomodate reagent libraries where reagents are expected to impact a set of known targets. See documentation for that function for 
 ##' additional details. 
 ##' 

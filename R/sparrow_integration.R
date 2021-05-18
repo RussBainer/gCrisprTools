@@ -91,6 +91,8 @@ ct.GREATdb <- function(annotation,
 ##' @param collapse.on Should targets be annotated as `geneSymbol`s or `geneID`s (default)? 
 ##' @param cutoff Numeric maximum value of `statistic` to define significance.
 ##' @param statistic Should cutoffs be calculated based on FDR (`best.q`) or P-value (`best.p`)?
+##' @param regularize Logical indicating whether to regularize the result objects in `dflist` (e.g., use intersection set of 
+##' all targets), or keep as-is. 
 ##' @param gdb Optionally, a `GeneSetDb` object to enable proper registration of the output. If provided, the 
 ##' collapsing features in the provided `simpleDF`s must be present in the `gsd@db$feature_id` slot. Note that a GREAT-style `GeneSetDb` that 
 ##' has been conformed via `ct.GREATdb()` will use `geneID`s as the `feature_id`.
@@ -131,7 +133,7 @@ ct.seasPrep <- function(dflist,
 
   out <- sapply(dflist, 
                 function(x){
-                  z <- 10^-(gCrisprTools:::ct.softLog(x$best.p))
+                  z <- 10^-(ct.softLog(x$best.p))
                   z <- qnorm(z/2) * ifelse(x$direction == 'enrich', -1, 1)
                   
                   df <- data.frame('feature_id' = row.names(x),
@@ -184,7 +186,7 @@ ct.seas <- function(dflist,
                     gdb, 
                     as.dfs = FALSE,
                     ...){
-  library('sparrow', quietly = TRUE)
+
   #Check GSDB and determine feature set
   stopifnot(is(gdb, 'GeneSetDb'), is(as.dfs, 'logical'))
   
@@ -216,8 +218,8 @@ ct.seas <- function(dflist,
                       gdb = gdb)
   
   outs <- sapply(ipts, 
-                function(x){
-                  seas(gdb, x, methods = c('ora', 'fgsea'), rank_by = 'rank_by', selected = 'selected', groups = 'direction', ...)
+                function(ipt){
+                  seas(x = ipt, gsd = gdb, methods = c('ora', 'fgsea'), rank_by = 'rank_by', selected = 'selected', groups = 'direction', ...)
                 }, 
                 simplify = FALSE)
   
@@ -243,15 +245,15 @@ ct.seas <- function(dflist,
 ct.compileSparrow <- function(resultList){
   stopifnot(is(resultList, 'list'), all(sapply(resultList, is, "SparrowResult")), !is.null(names(resultList)))
   
-  sapply(names(outs[[1]]@results),                
+  sapply(names(resultList[[1]]@results),                
          function(tests){
-           sapply(names(outs[[1]]@results[[tests]])[2:length(names(outs[[1]]@results[[tests]]))],       
+           sapply(names(resultList[[1]]@results[[tests]])[2:length(names(resultList[[1]]@results[[tests]]))],       
                   function(testcols){
-                    ret <- sapply(names(outs),
+                    ret <- sapply(names(resultList),
                                   function(sparrowres){
-                                    outs[[sparrowres]]@results[[tests]][[testcols]]
+                                    resultList[[sparrowres]]@results[[tests]][[testcols]]
                                   }, simplify = TRUE)
-                    row.names(ret) <- outs[[sparrowres]]@results[[tests]][[1]]
+                    row.names(ret) <- resultList[[sparrowres]]@results[[tests]][[1]]
                     return(ret)
                   }, simplify = FALSE)
          }, simplify = FALSE)

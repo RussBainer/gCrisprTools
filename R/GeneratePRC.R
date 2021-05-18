@@ -24,8 +24,7 @@ ct.PRC <-
   function(summaryDF,
            target.list,
            direction = c("enrich", "deplete"), 
-           plot.it = TRUE, 
-           ...) {
+           plot.it = TRUE) {
 
     direction <- match.arg(direction)
     stopifnot(is(plot.it, 'logical'))
