@@ -146,9 +146,9 @@ ct.signalSummary <-
 ##' @return A summary plot on the current device. Invisibly, the data.frame tallying signals at various thresholds. 
 ##' @author Russell Bainer
 ##' @examples data('resultsDF')
-##' ct.contrastBarchart(list('First Result' = resultsDF, 'Second Result' = resultsDF))
-##' ct.contrastBarchart(list('First Result' = resultsDF, 'Second Result' = resultsDF), background = FALSE)
-##' ct.contrastBarchart(list('First Result' = resultsDF[1:100,], 'Second Result' = resultsDF))
+##' ct.contrastBarchart(list('FirstResult' = resultsDF, 'SecondResult' = resultsDF))
+##' ct.contrastBarchart(list('FirstResult' = resultsDF, 'SecondResult' = resultsDF), background = FALSE)
+##' ct.contrastBarchart(list('FirstResult' = resultsDF[1:1000,], 'SecondResult' = resultsDF))
 ##' @export
 ct.contrastBarchart <- function(dflist, background = TRUE, statistic = c('best.q', 'best.p'), ...){
 
@@ -157,8 +157,10 @@ ct.contrastBarchart <- function(dflist, background = TRUE, statistic = c('best.q
   statistic <- match.arg(statistic)
 
   #listify results as needed
-  if((!is(dflist, 'list')) & ct.resultCheck(dflist)){
-    dflist <- list('result' = dflist)
+  if((!is(dflist, 'list'))){
+    if(ct.resultCheck(dflist)){
+      dflist <- list('result' = dflist)
+    }
   }
   dflist <- sapply(dflist, 
                    function(x){ct.simpleResult(x, ...)}, 

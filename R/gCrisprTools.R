@@ -95,7 +95,7 @@ NULL
 ##' @docType data
 ##' @title Artificial list of 'essential' genes in the example Crispr screen 
 ##' included for plotting purposes 
-##' @description Example gene list, designed to demonstrate ROC and PRC functions
+##' @description Example gene list, designed to demonstrate functions using gene lists.
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
 ##' data("essential.genes")

@@ -18,10 +18,9 @@ Description: Set of tools for evaluating pooled high-throughput screening experi
     cassettes, aggregating signals to identify candidate targets for empirical validation,
     hypothesis testing, and comprehensive reporting.
 License: Artistic-2.0
-Imports: Biobase, limma, RobustRankAggreg, ggplot2, RUnit,
-        rmarkdown, grDevices, graphics, methods, ComplexHeatmap,
-        stats, utils, parallel, SummarizedExperiment, sparrow
-Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, BiocGenerics, markdown
+Imports: Biobase, limma, RobustRankAggreg, ggplot2,
+        rmarkdown, grDevices, graphics, methods, ComplexHeatmap, stats, utils, parallel
+Suggests: edgeR, knitr, grid, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, BiocGenerics, markdown, RUnit, SummarizedExperiment, sparrow
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 Encoding: UTF-8

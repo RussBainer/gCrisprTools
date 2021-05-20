@@ -9,6 +9,10 @@ ct.compileSparrow(resultList)
 \arguments{
 \item{resultList}{A named list of `SparrowResult` objects}
 }
+\value{
+A (test-level) list of (output-level) lists of (statistic-level) dataframes, such that category statistics can be easily 
+compared to one another.
+}
 \description{
 This function takes in a named list of `SparrowResult` objects and breaks them into in0register data.frames for easy comprisons. 
 Specifically, the function assembles the values in each of the `@result` slots for each of the provided contrasts into standalone 

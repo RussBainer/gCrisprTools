@@ -35,9 +35,9 @@ subsets of targets ascertained within a single experiment.
 }
 \examples{
 data('resultsDF')
-ct.contrastBarchart(list('First Result' = resultsDF, 'Second Result' = resultsDF))
-ct.contrastBarchart(list('First Result' = resultsDF, 'Second Result' = resultsDF), background = FALSE)
-ct.contrastBarchart(list('First Result' = resultsDF[1:100,], 'Second Result' = resultsDF))
+ct.contrastBarchart(list('FirstResult' = resultsDF, 'SecondResult' = resultsDF))
+ct.contrastBarchart(list('FirstResult' = resultsDF, 'SecondResult' = resultsDF), background = FALSE)
+ct.contrastBarchart(list('FirstResult' = resultsDF[1:1000,], 'SecondResult' = resultsDF))
 }
 \author{
 Russell Bainer

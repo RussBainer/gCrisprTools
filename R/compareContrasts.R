@@ -131,7 +131,7 @@ ct.compareContrasts  <-
 ##' @importFrom ComplexHeatmap %v% 
 ##' @examples 
 ##' data('resultsDF')
-##' sets <- ct.contrastUpset(list('first' = resultsDF, 'second' = resultsDF[1:5000,]))
+##' sets <- ct.upSet(list('first' = resultsDF, 'second' = resultsDF[1:5000,]))
 ##' @export
 ct.upSet <- function(dflist,
                      add.stats = TRUE,

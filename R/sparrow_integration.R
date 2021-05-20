@@ -241,7 +241,7 @@ ct.seas <- function(dflist,
 ##' Note that results are compiled as-is, so users need to orient the screen results themselves in whatever manner they deem appropriate. 
 ##' 
 ##' @param resultList A named list of `SparrowResult` objects
-##' @value A (test-level) list of (output-level) lists of (statistic-level) dataframes, such that category statistics can be easily 
+##' @return A (test-level) list of (output-level) lists of (statistic-level) dataframes, such that category statistics can be easily 
 ##' compared to one another.   
 ##' @author Russell Bainer
 ##' @examples 

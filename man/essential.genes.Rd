@@ -9,7 +9,7 @@ included for plotting purposes}
 Russell Bainer
 }
 \description{
-Example gene list, designed to demonstrate ROC and PRC functions
+Example gene list, designed to demonstrate functions using gene lists.
 All sample, gRNA, and Gene information has been anonymized and randomized.
 }
 \examples{

@@ -24,5 +24,5 @@ Often, it is useful to pass the `collapse` argument to `ct.simpleresult()` in ca
 }
 \examples{
 data('resultsDF')
-lapply(ct.regularizeContrasts(list('df1' = resultsDF[1:300,], 'df2' = resultsDF[200:400,]), nrow)
+lapply(ct.regularizeContrasts(list('df1' = resultsDF[1:300,], 'df2' = resultsDF[200:400,])), nrow)
 }

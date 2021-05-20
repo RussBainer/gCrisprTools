@@ -176,24 +176,24 @@ ct.resultCheck <- function(summaryDF){
 ##' @examples 
 ##' data('ann', 'es', 'fit', 'resultsDF')
 ##' ct.buildSE(es, ann = ann, fit = 'fit', summaryList = list('resA' = resultsDF, 'resB' = resultsDF))
+##' @export
 ct.buildSE <- function(es, 
                        sampleKey = NULL, 
                        ann = NULL, 
                        vm = NULL,
                        fit = NULL, 
                        summaryList = NULL){
-
   stopifnot(methods::is(es, 'ExpressionSet'))
   
   asy <- list('counts' = exprs(es))
   met <- list()
   rd <- fData(es)
   cd <- pData(es)
-  
+
   if(!is.null(sampleKey)){
     cd$sampleKey <- sampleKey[row.names(cd)]
  }
-  
+
   if(!is.null(vm)){
     stopifnot(setequal(colnames(vm), colnames(es)), 
               is(vm, 'EList'), 
@@ -312,7 +312,7 @@ ct.simpleResult <- function(summaryDF, collapse = c('geneSymbol', 'geneID')){
 ##' @return A list of the in-register `simpleResult` objects, with length and names identical to `dflist`.
 ##' @examples 
 ##' data('resultsDF')
-##' lapply(ct.regularizeContrasts(list('df1' = resultsDF[1:300,], 'df2' = resultsDF[200:400,]), nrow)
+##' lapply(ct.regularizeContrasts(list('df1' = resultsDF[1:300,], 'df2' = resultsDF[200:400,])), nrow)
 ##' @export
 ct.regularizeContrasts <- function(dflist, collapse = c('geneSymbol', 'geneID')){
   

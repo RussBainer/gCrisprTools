@@ -20,8 +20,8 @@
 ##' @author Russell Bainer
 ##' @examples 
 ##' data('resultsDF')
-##' cat <- ct.scatter(resultsDF[,100:2100], resultsDF[1:2000,])
-##' head(cat)
+##' scat <- ct.scatter(list("FirstResult" = resultsDF[100:2100,], "SecondResult" = resultsDF[1:2000,]))
+##' head(scat)
 ##' @export
 ct.scatter <- 
   function(dflist,
