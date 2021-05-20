@@ -1,11 +1,15 @@
 ---
 title: "Advanced Screen Analysis: Contrast Comparisons"
-output:
-  html_document:
-    df_print: paged
+author: "Russell Bainer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Contrast_Comparisons_gCrisprTools}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteEncoding{UTF-8}
 ---
 
-This is a companion vignette briefly describing the capabilites available for comparing, summarizing, and integrating screening contrasts with gCrisprTools. 
+This is a companion vignette briefly describing the advanced capabilites available for comparing, summarizing, and integrating screening contrasts with gCrisprTools, introduced with version 2.0. 
 
 #### Simplified Results Objects
 
@@ -13,9 +17,12 @@ Historically, gCrisprTools was focused on making results data.frames, which exha
 
 ```{r setup}
 library(gCrisprTools)
+knitr::opts_chunk$set(message = FALSE, fig.width = 8, fig.height = 8)
+
 data(resultsDF)
 
 head(resultsDF)
+
 ```
 
 In many applications, there are limitations to these objects. For example: 
@@ -60,7 +67,7 @@ The main utility of this function is twofold. First, it enables comparison of li
 The standardized format allows straightforward identification of signal overlaps observed within multiple screens via `ct.compareContrasts()`. By default, these comparisons are done conditionally, but users may specify more rigid criteria. 
 
 ```{r}
-comparison <- ct.compareContrasts(regularized,
+comparison <- ct.compareContrasts(dflist = regularized,
                                   statistics = c('best.q', 'best.p'), 
                                   cutoffs = c(0.1,0.001), 
                                   same.dir = rep(TRUE, length(dflist)))
@@ -74,11 +81,10 @@ This function returns a `simplifiedResult` version of the `mainresult` argument,
 For convenience, we can also return summary statistics characterizing the overlap between the screens: 
 
 ```{r}
-ct.compareContrasts(mainresult = resultsDF,
-                    validationresult = resultsDF[20:1000, ],
+ct.compareContrasts(dflist = regularized,
                     statistics = c('best.q', 'best.p'),
-                    cutoffs = c(0.1,0.001),
-                    same.dir = TRUE,
+                    cutoffs = c(0.1,0.001), 
+                    same.dir = rep(TRUE, length(dflist)),
                     return.stats = TRUE)
 ```
 
@@ -89,7 +95,7 @@ This can be useful when exploring appropriate cutoff thresholds, or when asking 
 We provide a number of methods for visualizing and contextualizing the overall signals present within sets of screens. One of the simplest is the cointrast barcharts, which represent the number of observed enrichment and depletion signals in each screen according to specified significance criteria: 
 
 ```{r contrastbarchart, eval = FALSE}
-ct.contrastBarchart(regularized)
+ct.contrastBarchart(regularized, background = FALSE, statistic = 'best.p')
 ```
 
 In the above figure, each contrast is represented as a horizontal bar, and targets enriched and depleted are represented as bars extending to the right and the left of the vertical dotted line, respectively. 
@@ -159,17 +165,17 @@ Using the logical columns we can Identify relevant sets of targets. For example,
 
 ```{r}
 
-time.effect <- ct.compareContrasts(allSimple$ControlTime,
-                                   allSimple$DeathOverTime)
+time.effect <- ct.compareContrasts(list("con" = allSimple$ControlTime,
+                                        "tx" = allSimple$DeathOverTime))
 summary(time.effect$replicated)
 ```
 
 or targets with a toxicity modifying effect that compromise intrinsic viability:
 
 ```{r}
-mod.control <- ct.compareContrasts(allSimple$Interaction,
-                                 allSimple$ControlTime,
-                                 same.dir = FALSE)
+mod.control <- ct.compareContrasts(list("con" = allSimple$ControlTime,
+                                        "Interaction" = allSimple$Interaction),
+                                 same.dir = c(TRUE, FALSE))
 summary(mod.control$replicated)
 ```
 

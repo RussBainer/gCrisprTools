@@ -6,8 +6,8 @@
 \usage{
 ct.GREATdb(
   annotation,
-  gsdb = getMSigGeneSetDb(collection = c("h", "c2"), species = "human", id.type =
-    "ensembl"),
+  gsdb = sparrow::getMSigGeneSetDb(collection = c("h", "c2"), species = "human",
+    id.type = "ensembl"),
   minsize = 10,
   ...
 )
@@ -42,5 +42,5 @@ Operationally, this means that genewise sets in the provided object will be tran
 data(resultsDF)
 data(ann)
 gsdb <- ct.GREATdb(ann, gsdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
-show(featureIds(gsdb))
+show(sparrow::featureIds(gsdb))
 }

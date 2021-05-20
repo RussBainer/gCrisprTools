@@ -17,6 +17,11 @@ Specifically, the function assembles the values in each of the `@result` slots f
 \details{
 Note that results are compiled as-is, so users need to orient the screen results themselves in whatever manner they deem appropriate.
 }
+\examples{
+data('resultsDF')
+sparrowres <- ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+ct.compileSparrow(sparrowres)
+}
 \author{
 Russell Bainer
 }

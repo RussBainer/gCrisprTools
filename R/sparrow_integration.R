@@ -21,12 +21,12 @@
 ##' data(resultsDF)
 ##' data(ann)
 ##' gsdb <- ct.GREATdb(ann, gsdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
-##' show(featureIds(gsdb))
+##' show(sparrow::featureIds(gsdb))
 ##' @export
 ct.GREATdb <- function(annotation, 
-                       gsdb = getMSigGeneSetDb(collection = c('h', 'c2'), 
-                                               species = 'human', 
-                                               id.type = 'ensembl'), 
+                       gsdb = sparrow::getMSigGeneSetDb(collection = c('h', 'c2'), 
+                                                        species = 'human',
+                                                        id.type = 'ensembl'), 
                        minsize = 10, 
                        ...){
   
@@ -56,15 +56,16 @@ ct.GREATdb <- function(annotation,
                            return(as.character(unique(annotation$geneSymbol[annotation$geneID %in% x])))
                          })
   names(targetsPerGene) <- genes
+  minsetsize <- floor(minsize/max(unlist(lapply(targetsPerGene, length))))
   
   #Pull the lists from the gsdb
+  gsdb <- sparrow::conform(gsdb, target = sparrow::featureIds(gsdb), min.gs.size = minsetsize)
   gsdb_list <- as.list(gsdb)
   
   new_gs <- lapply(gsdb_list,
                    function(x){
                      return(as.character(unique(unlist(targetsPerGene[x]))))
                    })
-  new_gs <- new_gs[unlist(lapply(new_gs, length)) >= minsize]
   message(paste0(length(new_gs), ' adjusted genesets created.'))
   if(length(new_gs) == 0){stop('Exiting.')}
   
@@ -72,12 +73,14 @@ ct.GREATdb <- function(annotation,
   sets <- vapply(names(new_gs), function(x){strsplit(x, split = ';;')[[1]][2]}, character(1))
   names(new_gs) <- sets
   
-  out <- lapply(unique(collections),
+  out <- sapply(unique(collections),
                 function(z){
                   new_gs[collections %in% z]
-                })
-  names(out) <- unique(collections)
-  return(sparrow::GeneSetDb(out, ...))
+                }, simplify = FALSE)
+  out_gdb <- sparrow::GeneSetDb(out, ...)
+  out_gdb <- sparrow::conform(out_gdb, target = sparrow::featureIds(out_gdb), min.gs.size = minsize)
+  
+  return(out_gdb)
 }
 
 ##' Prepare one or more resultsDF objects for analysis via Sparrow. 
@@ -122,7 +125,7 @@ ct.seasPrep <- function(dflist,
   if(!is.null(gdb)){
     dflist <- sapply(dflist, 
                      function(x){
-                       x[(row.names(x) %in% gdb@db$feature_id),]
+                       x[(row.names(x) %in% sparrow::featureIds(gdb)),]
                      }, simplify = FALSE)
     message('Removed genes absent from the provided GeneSetDb.')
   }
@@ -179,7 +182,7 @@ ct.seasPrep <- function(dflist,
 ##' @return A named list of `SparrowResults` objects.
 ##' @examples 
 ##' data('resultsDF')
-##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
 ##' @author Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.
 ##' @export
 ct.seas <- function(dflist,
@@ -199,8 +202,8 @@ ct.seas <- function(dflist,
 
   
   #Infer whether Gsdb is ID or feature centric
-  gids <- sum(gdb@featureIdMap$feature_id %in% dflist[[1]]$geneID)
-  gsids <- sum(gdb@featureIdMap$feature_id %in% dflist[[1]]$geneSymbol)
+  gids <- sum(sparrow::featureIdMap(gdb)$feature_id %in% dflist[[1]]$geneID)
+  gsids <- sum(sparrow::featureIdMap(gdb)$feature_id %in% dflist[[1]]$geneSymbol)
   
   if(all(c(gsids, gids) == 0)){
     stop('None of the features in the GeneSetDb are present in either the geneID or geneSymbol slots of the first provided result.')
@@ -219,7 +222,7 @@ ct.seas <- function(dflist,
   
   outs <- sapply(ipts, 
                 function(ipt){
-                  seas(x = ipt, gsd = gdb, methods = c('ora', 'fgsea'), rank_by = 'rank_by', selected = 'selected', groups = 'direction', ...)
+                  sparrow::seas(x = ipt, gsd = gdb, methods = c('ora', 'fgsea'), rank_by = 'rank_by', selected = 'selected', groups = 'direction', ...)
                 }, 
                 simplify = FALSE)
   
@@ -241,19 +244,23 @@ ct.seas <- function(dflist,
 ##' @value A (test-level) list of (output-level) lists of (statistic-level) dataframes, such that category statistics can be easily 
 ##' compared to one another.   
 ##' @author Russell Bainer
+##' @examples 
+##' data('resultsDF')
+##' sparrowres <- ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+##' ct.compileSparrow(sparrowres)
 ##' @export
 ct.compileSparrow <- function(resultList){
   stopifnot(is(resultList, 'list'), all(sapply(resultList, is, "SparrowResult")), !is.null(names(resultList)))
   
-  sapply(names(resultList[[1]]@results),                
+  sapply(sparrow::resultNames(resultList[[1]]),                
          function(tests){
-           sapply(names(resultList[[1]]@results[[tests]])[2:length(names(resultList[[1]]@results[[tests]]))],       
+           sapply(names(sparrow::result(resultList[[sparrowres]], tests))[3:length(names(sparrow::result(resultList[[sparrowres]], tests)))],       
                   function(testcols){
                     ret <- sapply(names(resultList),
                                   function(sparrowres){
-                                    resultList[[sparrowres]]@results[[tests]][[testcols]]
+                                    sparrow::result(resultList[[sparrowres]], tests)[[testcols]]
                                   }, simplify = TRUE)
-                    row.names(ret) <- resultList[[1]]@results[[tests]][[1]]
+                    row.names(ret) <- sparrow::result(resultList[[1]], tests)[[2]]
                     return(ret)
                   }, simplify = FALSE)
          }, simplify = FALSE)

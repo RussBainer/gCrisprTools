@@ -16,7 +16,7 @@ This is an example workflow for processing a pooled screening eperiment using th
 Note that what follows describes a very basic analysis. If you are considering integrating the results of many different screen contrasts or even different experiments and/or technologies, refer to the `Advanced Screen Analysis: Contrast Comparisons` vignette. 
 
 Load dependencies and data
-```{r, eval = FALSE}
+```{r setup, eval = TRUE}
 library(Biobase)
 library(limma)
 library(gCrisprTools)
@@ -24,28 +24,29 @@ library(gCrisprTools)
 data("es", package = "gCrisprTools")
 data("ann", package = "gCrisprTools")
 data("aln", package = "gCrisprTools")
+knitr::opts_chunk$set(message = FALSE, fig.width = 8, fig.height = 8)
 ```
 
 Make a sample key, structured as a factor with control samples in the first level
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
 names(sk) <- row.names(pData(es))
 ```
 
 Generate a contrast of interest using voom/limma; pairing replicates is a good idea if that information is available. 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 design <- model.matrix(~ 0 + REPLICATE_POOL + TREATMENT_NAME, pData(es))
 colnames(design) <- gsub('TREATMENT_NAME', '', colnames(design))
 contrasts <-makeContrasts(DeathExpansion - ControlExpansion, levels = design)
 ```
 
 Optionally, trim of trace reads from the unnormalized object (see man page for details)
-```{r, eval = FALSE}
+```{r, eval = TRUE, fig.width = 8, fig.height = 10}
 es <- ct.filterReads(es, trim = 1000, sampleKey = sk)
 ```
 
 Normalize, convert to a voom object, and generate a contrast
-```{r, eval = FALSE}
+```{r, eval = TRUE, fig.width = 8, fig.height = 10}
 es <- ct.normalizeGuides(es, method = "scale", plot.it = TRUE) #See man page for other options
 vm <- voom(exprs(es), design)
 
@@ -55,13 +56,13 @@ fit <- eBayes(fit)
 ```
 
 Edit the annotation file if you used `ct.filterReads` above
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ann <- ct.prepareAnnotation(ann, fit, controls = "NoTarget")
 ```
 
 Summarize gRNA signals to identify target genes of interest
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 resultsDF <-
   ct.generateResults(
     fit,
@@ -77,7 +78,7 @@ resultsDF <-
 
 In some cases, reagents might target multiple known elements (e.g., gRNAs in a CRISPRi library that target multiple promoters of the same gene). In such cases, you can specify this via the `alt.annotation` argument to `ct.generateResults()`. Alternative annotations are supplied as a list of character vectors named for the reagents.
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 
 # Create random alternative target associations 
 
@@ -102,7 +103,7 @@ resultsDF <-
 
 
 Optionally, just load an example results object for testing purposes (trimming out reads as necessary)
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 data("fit", package = "gCrisprTools")
 data("resultsDF", package = "gCrisprTools")
 
@@ -115,31 +116,31 @@ targetResultDF <- ct.simpleResult(resultsDF) #For a simpler target-level result 
 ### Quality Control
 
 gCrisprTools contains a variety of pooled screen-specific quality control and visualization tools (see man pages for details):
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.alignmentChart(aln, sk)
 ct.rawCountDensities(es, sk)
 ```
 
 Visualize gRNA abundance distributions
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.gRNARankByReplicate(es, sk) 
 ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "NoTarget")  #Show locations of NTC gRNAs
 ```
 
 Visualize control guide behavior across conditions
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.viewControls(es, ann, sk, normalize = FALSE)
 ct.viewControls(es, ann, sk, normalize = TRUE)
 ```
 
 Visualize GC bias across samples, or within an experimental contrast
-```{r, eval = FALSE}
+```{r, eval = TRUE, fig.width = 8, fig.height = 12}
 ct.GCbias(es, ann, sk)
 ct.GCbias(fit, ann, sk)
 ```
 
 View most variable gRNAs/Genes (as % of sequencing library)
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.stackGuides(es,
                sk,
                plotType = "gRNA",
@@ -147,14 +148,14 @@ ct.stackGuides(es,
                nguides = 40)
 ```
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.stackGuides(es, 
                sk, 
                plotType = "Target", 
                annotation = ann)
 ```
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.stackGuides(es,
                sk,
                plotType = "Target",
@@ -164,7 +165,7 @@ ct.stackGuides(es,
                
                
 View a CDF of genes/guides
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.guideCDF(es, sk, plotType = "gRNA")
 ct.guideCDF(es, sk, plotType = "Target", annotation = ann)
 ```
@@ -172,12 +173,12 @@ ct.guideCDF(es, sk, plotType = "Target", annotation = ann)
 #### Target-Level Visualization and Analysis
 
 View the overall enrichment and depletion trends identified in the screen: 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.contrastBarchart(resultsDF)
 ```
 
 View top enriched/depleted candidates
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ct.topTargets(fit,
               resultsDF,
               ann,
@@ -191,47 +192,51 @@ ct.topTargets(fit,
 ```
 
 View the behavior of reagents targeting a particular gene of interest
-```{r, eval = FALSE}
+```{r, eval = TRUE, fig.width = 8, fig.height = 10}
 ct.viewGuides("Target1633", fit, ann)
 ct.gRNARankByReplicate(es, sk, annotation = ann, geneSymb = "Target1633")
 ```
 
 Observe the effects detected for sets of targets within a screen contrast
-```{r. eval = FALSE}
+```{r. eval = TRUE}
 ct.signalSummary(resultsDF,
                  targets = list('TargetSetA' = c(sample(unique(ann$geneSymbol), 3)),
                                 'TargetSetB' = c(sample(unique(ann$geneSymbol), 2))))
 ```
 
 You could test a known gene set for enrichment within target candidates:
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 data("essential.genes", package = "gCrisprTools")
 ct.targetSetEnrichment(resultsDF, essential.genes)
 ```
 
 Or optionally add a visualization:
-```{r rocprc, eval=FALSE}
+```{r rocprc, eval = TRUE}
 
 ROC <- ct.ROC(resultsDF, essential.genes, direction = "deplete")
-PRC <- ct.PRC(resultsDF, essential.genes, stat = "deplete")
+PRC <- ct.PRC(resultsDF, essential.genes, direction = "deplete")
 show(ROC)
 show(PRC)
 ```
 
-Or alternatively uyou could test for ontological enrichment within the depleted/enriched targets via the `sparrow` package: 
-```{r, eval = FALSE}
+Or alternatively you could test for ontological enrichment within the depleted/enriched targets via the `sparrow` package: 
+```{r, eval = TRUE}
 #Create a geneset database using one of the many helper functions
-genesetdb <- getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
+genesetdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
 
-ct.seas(resultsDF, gsd = genesetdb)
+ct.seas(resultsDF, gdb = genesetdb)
 
 #If you have a library that targets elements unevenly (e.g., variable numbers of elements/promoters per genes), you can conform it via GREAT
 genesetdb.GREAT <- ct.GREATdb(ann, gsdb = genesetdb)
 
-ct.seas(resultsDF, gsd = genesetdb.GREAT)
+ct.seas(resultsDF, gdb = genesetdb.GREAT)
 ```
 
-Make reports in a directory of interest
+See the `Contrast_Comparisons` vignette for more advanced use cases of gCrisprTools and extension to complex experiments and study designs. 
+
+
+Finally, you can make reports in a directory of interest: 
+
 ```{r, eval = FALSE}
 path2report <-      #Make a report of the whole experiment
   ct.makeReport(fit = fit, 
@@ -263,5 +268,6 @@ path2Contrast <-    #Or Contrast-specific one
                         identifier = 'Crispr_Contrast_Report')            
 ```
 
-
-
+```{r}
+sessionInfo()
+```

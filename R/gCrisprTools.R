@@ -10,7 +10,6 @@ NULL
 ##' @import limma
 ##' @import RobustRankAggreg
 ##' @import ggplot2
-##' @import sparrow
 ##' @import parallel
 ##' @import grid
 ##' @importFrom grDevices colorRampPalette rgb

@@ -46,7 +46,7 @@ ct.compareContrasts  <-
     #Check the input: 
     dflist <- ct.regularizeContrasts(dflist, ...)
     stopifnot(all(statistics %in% c('best.p', 'best.q')), (length(statistics) <= 2), (length(statistics) > 0), is(return.stats, 'logical'),
-              is(cutoffs, 'numeric'), (length(cutoffs) <= 2), (length(cutoffs) > 0), is.logical(same.dir), length(same.dir) == length(dflist))
+              is(cutoffs, 'numeric'), (length(cutoffs) <= 2), (length(cutoffs) > 0), is.logical(same.dir), (length(same.dir) == length(dflist)))
     if(length(statistics) == 1){ 
       statistics <- rep(statistics, 2)
       }
@@ -128,6 +128,7 @@ ct.compareContrasts  <-
 ##' @return An UpSet plot on the current device. Silently, a combination matrix appropriate for plotting that plot, 
 ##' containing useful information about the observed intersections.  
 ##' @author Russell Bainer
+##' @importFrom ComplexHeatmap %v% 
 ##' @examples 
 ##' data('resultsDF')
 ##' sets <- ct.contrastUpset(list('first' = resultsDF, 'second' = resultsDF[1:5000,]))
@@ -188,7 +189,7 @@ ct.upSet <- function(dflist,
                set_on_rows = TRUE)
   attr(comb_mat, "param") <- param
   class(comb_mat) <- c("comb_mat", "matrix")
-  cmorder <- order.comb_mat(comb_mat)
+  cmorder <- ComplexHeatmap::order.comb_mat(comb_mat)
   comb_mat <- comb_mat[cmorder]
   comb_mat <- comb_mat[overlapct[cmorder] != 0]
 
@@ -214,21 +215,27 @@ ct.upSet <- function(dflist,
     
     #Make the UpSet Plot
     #us <- UpSet(comb_mat) %v%     
-    us <- do.call('UpSet', args = c(list(m = comb_mat), dots[names(dots) %in% names(formals('UpSet'))])) %v%     
-      HeatmapAnnotation("Log2FC" = anno_points(lfc, ylim = (rep(max(abs(range(lfc))), 2) * c(-1,1))), annotation_name_side = "left", annotation_name_rot = 0) %v%     
-      HeatmapAnnotation("-log10(P)" = anno_barplot(pv, ylim = c(0,(max(pv) + 1))), annotation_name_side = "left", annotation_name_rot = 0)
+    us <- do.call(getExportedValue('ComplexHeatmap', 'UpSet'), 
+                  args = c(list(m = comb_mat),
+                           dots[names(dots) %in% names(formals(getExportedValue('ComplexHeatmap', 'UpSet')))])) %v%     
+      ComplexHeatmap::HeatmapAnnotation("Log2FC" = anno_points(lfc, ylim = (rep(max(abs(range(lfc))), 2) * c(-1,1))), 
+                                        annotation_name_side = "left", annotation_name_rot = 0) %v%     
+      ComplexHeatmap::HeatmapAnnotation("-log10(P)" = anno_barplot(pv, ylim = c(0,(max(pv) + 1))), 
+                                        annotation_name_side = "left", annotation_name_rot = 0)
     show(us)
-    decorate_annotation("Log2FC", 
+    ComplexHeatmap::decorate_annotation("Log2FC", 
                         {pushViewport(viewport(xscale = c(0.5, 10.5), yscale = (rep(max(abs(range(lfc))), 2) * c(-1,1))))
                           grid.lines(c(0.5, 10.5), c(0, 0), gp = gpar(lty = 2), default.units = "native")
                           popViewport()})
-    decorate_annotation("-log10(P)", 
+    ComplexHeatmap::decorate_annotation("-log10(P)", 
                         {pushViewport(viewport(xscale = c(0.5, 10.5), yscale = c(0,(max(pv) + 1))))
                           grid.lines(c(0.5, 10.5), c(2, 2), gp = gpar(lty = 2), default.units = "native")
                           popViewport()})
   } else {
     #show(UpSet(comb_mat))
-    do.call('UpSet', args = c(list(m = comb_mat), dots[names(dots) %in% names(formals('UpSet'))]))
+    do.call(getExportedValue('ComplexHeatmap', 'UpSet'), 
+            args = c(list(m = comb_mat), 
+                     dots[names(dots) %in% names(formals(getExportedValue('ComplexHeatmap', 'UpSet')))]))
   }
     
   return(invisible(comb_mat))
