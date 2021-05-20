@@ -254,7 +254,7 @@ ct.compileSparrow <- function(resultList){
   
   sapply(sparrow::resultNames(resultList[[1]]),                
          function(tests){
-           sapply(names(sparrow::result(resultList[[sparrowres]], tests))[3:length(names(sparrow::result(resultList[[sparrowres]], tests)))],       
+           sapply(names(sparrow::result(resultList[[1]], tests))[3:length(names(sparrow::result(resultList[[1]], tests)))],       
                   function(testcols){
                     ret <- sapply(names(resultList),
                                   function(sparrowres){

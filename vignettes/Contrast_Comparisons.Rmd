@@ -69,8 +69,8 @@ The standardized format allows straightforward identification of signal overlaps
 ```{r}
 comparison <- ct.compareContrasts(dflist = regularized,
                                   statistics = c('best.q', 'best.p'), 
-                                  cutoffs = c(0.1,0.001), 
-                                  same.dir = rep(TRUE, length(dflist)))
+                                  cutoffs = c(0.5,0.05), 
+                                  same.dir = rep(TRUE, length(regularized)))
 
 head(comparison, 30)
 
@@ -83,8 +83,8 @@ For convenience, we can also return summary statistics characterizing the overla
 ```{r}
 ct.compareContrasts(dflist = regularized,
                     statistics = c('best.q', 'best.p'),
-                    cutoffs = c(0.1,0.001), 
-                    same.dir = rep(TRUE, length(dflist)),
+                    cutoffs = c(0.5,0.05), 
+                    same.dir = rep(TRUE, length(regularized)),
                     return.stats = TRUE)
 ```
 
@@ -94,7 +94,7 @@ This can be useful when exploring appropriate cutoff thresholds, or when asking 
 
 We provide a number of methods for visualizing and contextualizing the overall signals present within sets of screens. One of the simplest is the cointrast barcharts, which represent the number of observed enrichment and depletion signals in each screen according to specified significance criteria: 
 
-```{r contrastbarchart, eval = FALSE}
+```{r contrastbarchart, fig.width=6, fig.height = 5}
 ct.contrastBarchart(regularized, background = FALSE, statistic = 'best.p')
 ```
 
@@ -124,7 +124,7 @@ head(scat)
 
 As an aside, this simplified infrastructure allows straightforward dissection of interaction effects as well. Often, it is helpful to identify targets that are enriched or depleted with respect to one contrast but inactive with respect to another (e.g., to identify genes that impact a screening phenotype but do not deplete over time).  
 
-```{r contrast interaction, message = FALSE, warning=FALSE}
+```{r contrast interaction, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 12}
 library(Biobase)
 library(limma)
 library(gCrisprTools)
@@ -183,7 +183,7 @@ summary(mod.control$replicated)
 
 Sometimes you might be curious about the relationship between many contrasts. You can accomplish this by making an UpSet plot: 
 
-```{r}
+```{r, fig.height= 6, fig.width = 8}
 upset <- ct.upSet(allSimple)
 ```
 
@@ -202,23 +202,25 @@ See the documentation about combination matrices provided in the `ComplexHeatmap
 
 Though not subject to specific set-level analyses yet, the `ct.seas()` function can be likewise extended to use lists of results. The standardized objects can then be consolidated to ask broader questions about enrichment and depletion using standard methods:  
 
-```{r}
-genesetdb <- getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
+```{r, fig.width=6, fig.height=6, warnings= FALSE}
+genesetdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
 
-sparrowList <- ct.seas(allSimple, gsd = genesetdb)
+sparrowList <- ct.seas(allSimple, gdb = genesetdb)
 
 #Can also be returned as a series of matrices to facilitate downstream comparisons: 
-sparrowDf <- ct.compileSparrow(sparrowList)
+sparrowDF <- ct.compileSparrow(sparrowList)
 
-plot(-log10(sparrowDF$ora.enrich$pval$longer), 
-     -log10(sparrowDF$ora.enrich$pval$shorter), 
+plot(-log10(sparrowDF$ora$pval[,'ControlTime']), 
+     -log10(sparrowDF$ora$pval[,'DeathOverTime']), 
      pch = 19, col = rgb(0,0,0.8,0.5), 
+     ylab = "Treatment Over Time Pathway -log10(P)",
+     xlab = "Control Over Time Pathway -log10(P)",
      main = 'Evidence for Pathway Enrichment')
 abline(0,1,lty = 2)
 
-str(sparrowDf)
+str(sparrowDF)
 ```
 
-
-
-
+```{r}
+sessionInfo()
+```
