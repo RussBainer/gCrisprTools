@@ -1,7 +1,6 @@
 ---
 title: "gCrisprTools and the Analysis of Pooled Screening Data"
 author: "Russell Bainer"
-date: "`r Sys.Date()`"
 output:
   html_vignette:
     toc: true

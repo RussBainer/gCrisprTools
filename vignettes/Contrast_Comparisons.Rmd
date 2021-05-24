@@ -1,7 +1,6 @@
 ---
 title: "Advanced Screen Analysis: Contrast Comparisons"
 author: "Russell Bainer"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Contrast_Comparisons_gCrisprTools}
@@ -16,6 +15,7 @@ This is a companion vignette briefly describing the advanced capabilites availab
 Historically, gCrisprTools was focused on making results data.frames, which exhaustively summarize the results of a screen contrast. They look like this: 
 
 ```{r setup}
+library(Biobase)
 library(gCrisprTools)
 knitr::opts_chunk$set(message = FALSE, fig.width = 8, fig.height = 8)
 

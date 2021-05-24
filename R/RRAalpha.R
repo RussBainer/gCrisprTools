@@ -149,6 +149,8 @@ ct.RRAaPvals <- function(p, g.key, permute, permutation.seed = NULL, multi.core=
 ##' @param p numeric vector of rank statistics
 ##' @param nperm single integer, how many random samples to take.
 ##' @return numeric vector of Rho values
+##' @examples 
+##' ct.makeRhoNull(3, 1:9, 5)
 ##' @export 
 ct.makeRhoNull <- function(n,p,nperm) {
     message(paste("Making Rho null distribution for",n,"guides per gene."))

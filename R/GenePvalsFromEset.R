@@ -176,8 +176,11 @@ ct.generateResults <- function(fit,
 ##' fit object. \code{fc} indicates that the ranks of the gRNA coefficients should be used instead, and \code{combined} indicates that 
 ##' that the coefficents should be used as the ranking statistic but gRNAs are discarded in the aggregation step based on the corresponding nominal 
 ##' p-value in the fit object. 
-##' @return data.frame with guide-level pvals, fold change, and scores.deplete and scores.enrich which are the
-##'     input the RRAalpha
+##' @return data.frame with guide-level pvals, fold change, and scores.deplete and scores.enrich which are the input the RRAalpha
+##' @examples 
+##' fakestats <- matrix(runif(300), ncol = 3)
+##' colnames(fakestats) = c('Depletion.P', 'Enrichment.P', 'lfc')
+##' ct.applyAlpha(fakestats)
 ##' @author Russell Bainer
 ##' @export 
 ct.applyAlpha <- function(stats, RRAalphaCutoff=0.1, scoring = c("combined", "pvalue", "fc")) {
