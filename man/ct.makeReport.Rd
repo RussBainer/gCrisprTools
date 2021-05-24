@@ -33,7 +33,7 @@ the first \code{level}.}
 \item{results}{A data.frame summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
 
 \item{aln}{A numeric alignment matrix, where rows correspond to "targets", "nomatch", "rejections", and "double_match", and where columns 
-correspond to experimentasl samples.}
+correspond to experimentasl samples. Users may also pass `NULL` to suppress evaluation of alignment.}
 
 \item{outdir}{A directory in which to generate the report; if \code{NULL}, a temporary directory will be automatically generated. 
 The report will be located in a subdirectory whose name is internally generated (see below). The path to the report itself is returned by the function.}

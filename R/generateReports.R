@@ -80,7 +80,7 @@ renderReport <- function(reportNameBase,
 ##' @param annotation An annotation object for the experiment. See the man page for \code{ct.prepareAnnotation()} for details and example format. 
 ##' @param results A data.frame summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.
 ##' @param aln A numeric alignment matrix, where rows correspond to "targets", "nomatch", "rejections", and "double_match", and where columns 
-##' correspond to experimentasl samples.
+##' correspond to experimentasl samples. Users may also pass `NULL` to suppress evaluation of alignment. 
 ##' @param outdir A directory in which to generate the report; if \code{NULL}, a temporary directory will be automatically generated. 
 ##' The report will be located in a subdirectory whose name is internally generated (see below). The path to the report itself is returned by the function.
 ##' @param contrast.term A parameter passed to \code{ct.preprocessFit} in the event that the fit object contains data from multiple contrasts. See
@@ -121,9 +121,12 @@ ct.makeReport <- function(fit, eset, sampleKey, annotation, results, aln, outdir
   #filter the annotation file as necessary for downstream processes
   annotation <- ct.prepareAnnotation(annotation, fit, throw.error = FALSE)
 
-  if(!is.matrix(aln) | !setequal(row.names(aln), c("targets", "nomatch", "rejections", "double_match"))){
-    stop("I don't think that the provided alignment matrix is actually an alignment matrix.")
+  if(!is.null(aln)){
+    if(!is.matrix(aln) | !setequal(row.names(aln), c("targets", "nomatch", "rejections", "double_match"))){
+      stop("I don't think that the provided alignment matrix is actually an alignment matrix.")
+    }
   }
+  
   if(!ct.resultCheck(results)){
     stop("Execution halted.")
   }
@@ -200,7 +203,7 @@ return(outname)
 ##'   for \code{ct.prepareAnnotation} for details and example format.
 ##' @param aln A numeric alignment matrix, where rows correspond to "targets", 
 ##'   "nomatch", "rejections", and "double_match", and where columns correspond 
-##'   to experimentasl samples.
+##'   to experimentasl samples. May be `NULL`, to suppress alignment evaluation. 
 ##' @param identifier A character string to name the report and corresponding 
 ##'   subdirectories. If provided, the final report will be called 
 ##'   '\code{identifier}.html' and will be located in a directory called 

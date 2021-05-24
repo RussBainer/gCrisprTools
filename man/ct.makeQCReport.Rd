@@ -42,7 +42,7 @@ for \code{ct.prepareAnnotation} for details and example format.}
 
 \item{aln}{A numeric alignment matrix, where rows correspond to "targets", 
 "nomatch", "rejections", and "double_match", and where columns correspond 
-to experimentasl samples.}
+to experimentasl samples. May be `NULL`, to suppress alignment evaluation.}
 
 \item{identifier}{A character string to name the report and corresponding 
 subdirectories. If provided, the final report will be called 
