@@ -157,7 +157,7 @@ ct.expandAnnotation <- function(ann, alt.annotation){
     stop('Annotation must contain a reagent-level "ID" column to enable expansion.')
   }
   stopifnot(is.list(alt.annotation), all(names(alt.annotation) %in% ann$ID))
-  alt.annotation <- sapply(alt.annotation, as.character, simplify = FALSE)
+  alt.annotation <- lapply(alt.annotation, as.character)
   
   aa.len <- lengths(alt.annotation)
 

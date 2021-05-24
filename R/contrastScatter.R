@@ -43,11 +43,11 @@ ct.scatter <-
     colnames(out) <- c('geneID', 'geneSymbol', 
                        paste0(c('Rho.enrich.', 'Rho.deplete.', 'p.', 'q.'), names(dfs)[1]),
                        paste0(c('Rho.enrich.', 'Rho.deplete.', 'p.', 'q.'), names(dfs)[2]))
-    dfs <- sapply(dfs, 
+    dfs <- lapply(dfs, 
                   function(x){
                     x[,c("Rho_enrich", "Rho_deplete", "best.p", "best.q")] <- apply(x[,c("Rho_enrich", "Rho_deplete", "best.p", "best.q")], 2, ct.softLog)
                     return(x)
-                  }, simplify = FALSE)
+                  })
     
     c1.sig <- (dfs[[1]][,statistic] >= cutoff)# & (dfs[[1]][,"direction"] == dfs[[2]][,"direction"])
     c2.sig <- (dfs[[2]][,statistic] >= cutoff)# & (dfs[[1]][,"direction"] == dfs[[2]][,"direction"])

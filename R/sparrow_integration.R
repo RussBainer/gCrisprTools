@@ -73,10 +73,10 @@ ct.GREATdb <- function(annotation,
   sets <- vapply(names(new_gs), function(x){strsplit(x, split = ';;')[[1]][2]}, character(1))
   names(new_gs) <- sets
   
-  out <- sapply(unique(collections),
+  out <- lapply(unique(collections),
                 function(z){
                   new_gs[collections %in% z]
-                }, simplify = FALSE)
+                })
   out_gdb <- sparrow::GeneSetDb(out, ...)
   out_gdb <- sparrow::conform(out_gdb, target = sparrow::featureIds(out_gdb), min.gs.size = minsize)
   
@@ -117,16 +117,16 @@ ct.seasPrep <- function(dflist,
   if(regularize){
     dflist <- ct.regularizeContrasts(dflist, collapse = collapse.on)
   } else {
-    dflist <- sapply(dflist, ct.simpleResult, collapse = collapse.on, simplify = FALSE)
+    dflist <- lapply(dflist, ct.simpleResult, collapse = collapse.on)
   }
 
   statistic <- match.arg(statistic)
   
   if(!is.null(gdb)){
-    dflist <- sapply(dflist, 
+    dflist <- lapply(dflist, 
                      function(x){
                        x[(row.names(x) %in% sparrow::featureIds(gdb)),]
-                     }, simplify = FALSE)
+                     })
     message('Removed genes absent from the provided GeneSetDb.')
   }
 
@@ -134,7 +134,7 @@ ct.seasPrep <- function(dflist,
     stop('No valid `feature_id`s observed for one or more of the provided contrasts! check `collapse.on`?')
   }
 
-  out <- sapply(dflist, 
+  out <- lapply(dflist, 
                 function(x){
                   z <- 10^-(ct.softLog(x$best.p))
                   z <- qnorm(z/2) * ifelse(x$direction == 'enrich', -1, 1)
@@ -146,7 +146,7 @@ ct.seasPrep <- function(dflist,
                                    'rank_by' = z,
                                    stringsAsFactors = FALSE)
                   return(df)
-                },simplify = FALSE)
+                })
 
   names(out) <- names(dflist)
   return(out)
@@ -220,11 +220,10 @@ ct.seas <- function(dflist,
                       collapse.on = identifier, 
                       gdb = gdb)
   
-  outs <- sapply(ipts, 
+  outs <- lapply(ipts, 
                 function(ipt){
                   sparrow::seas(x = ipt, gsd = gdb, methods = c('ora', 'fgsea'), rank_by = 'rank_by', selected = 'selected', groups = 'direction', ...)
-                }, 
-                simplify = FALSE)
+                })
   
   if(as.dfs){
     outs <- ct.compileSparrow(outs)

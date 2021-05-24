@@ -320,7 +320,7 @@ ct.regularizeContrasts <- function(dflist, collapse = c('geneSymbol', 'geneID'))
   stopifnot(is.list(dflist))
 
   #convert to simple results
-  dflist <- sapply(dflist, ct.simpleResult, collapse = collapse, simplify = FALSE)
+  dflist <- lapply(dflist, ct.simpleResult, collapse = collapse)
   
   #find common rows
   rowcounts <- table(unlist(lapply(dflist, row.names)))
@@ -332,7 +332,7 @@ ct.regularizeContrasts <- function(dflist, collapse = c('geneSymbol', 'geneID'))
       message(paste0(length(samerows), ' targets in common. Omitting others.'))
     }
 
-  return(sapply(dflist, function(x){x[samerows,]}, simplify = FALSE))  
+  return(lapply(dflist, function(x){x[samerows,]}))  
 }
 
 ##' @title Rank Signals in a Simplified Pooled Screen Result Object 

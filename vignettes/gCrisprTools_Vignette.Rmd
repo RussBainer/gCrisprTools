@@ -124,7 +124,7 @@ path2QC <- ct.makeQCReport(es,
                  log2.ratio = 0.05,
                  sampleKey = sk,
                  annotation = ann, 
-                 aln = NULL,
+                 aln = aln,
                  identifier = 'Crispr_QC_report',
                  lib.size = NULL
                  )

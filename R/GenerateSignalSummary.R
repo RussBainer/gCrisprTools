@@ -162,9 +162,8 @@ ct.contrastBarchart <- function(dflist, background = TRUE, statistic = c('best.q
       dflist <- list('result' = dflist)
     }
   }
-  dflist <- sapply(dflist, 
-                   function(x){ct.simpleResult(x, ...)}, 
-                   simplify =  FALSE)
+  dflist <- lapply(dflist, 
+                   function(x){ct.simpleResult(x, ...)})
   
   colors <- c('grey', colorRampPalette(c('white', 'orange', 'red', 'darkred'))(5)[2:5])
   names(colors) <- c('N/S', '< 0.1', '< 0.01', '< 0.001', '< 0.00001')
