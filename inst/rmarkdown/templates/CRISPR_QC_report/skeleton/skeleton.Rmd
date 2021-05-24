@@ -4,7 +4,7 @@ output:
   html_document:
     fig_caption: yes
 params:
-  eset: !r ExpressionSet()
+  eset: !r Biobase::ExpressionSet()
   trim: !r numeric()
   log2.ratio: !r numeric()
   sampleKey: !r factor()
