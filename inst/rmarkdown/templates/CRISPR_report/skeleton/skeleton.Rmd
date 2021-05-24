@@ -22,7 +22,11 @@ This is a report visualizing the overall dynamics of a single contrast in a pool
 In a high-quality library the overwhelming majority of reads will contain valid gRNA target sequences (>80%). Reads not matching the gRNA library may correspond to experimental contamination by lentivirus derived from other libraries. Rejected reads contain to sequences not derived from the lentiviral cassette and may reflect problems with cassette isolation, library prep, or sequencing quality. Reads that "double match" contain apparent gRNA sequences in both mate pairs of a single paired-end read; this shouldn't happen given the structure of the lentiviral cassette, but may be rarely produced as an artifact of the library construction process. 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=6, fig.width=10, fig.cap= "Figure 1: Sample-Level gRNA Aligment Profile"}
-ct.alignmentChart(params$aln, params$sampleKey)
+if(!is.null(params$aln)){
+  ct.alignmentChart(aln = params$aln, sampleKey = params$sampleKey)
+} else {
+  print("No alignment matrix provided.")
+}
 ```
 
 <br/>

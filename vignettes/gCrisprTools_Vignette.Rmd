@@ -77,7 +77,7 @@ sk
 
 #### 2.5 Alignment Statistics
 
-Users may provide a matrix of alignment statistics to enhance some applications, including QC reporting. These should be provided as a numeric matrix in which rows correspond to `targets` (reads containing a target cassette), `nomatch` (reads containing a cassette sequence but not a known target sequence), `rejections` (reads not containg a cassette sequence), and `double_match` (reads derived from multiple cassettes). The column names should exactly match the `colnames()` of the ExpressionSet object. Simple charting functionality is also provided to inspect the alignment rates of each sample.
+Users must provide a matrix of alignment statistics to enhance some applications, including QC reporting. These should be provided as a numeric matrix in which rows correspond to `targets` (reads containing a target cassette), `nomatch` (reads containing a cassette sequence but not a known target sequence), `rejections` (reads not containg a cassette sequence), and `double_match` (reads derived from multiple cassettes). The column names should exactly match the `colnames()` of the ExpressionSet object. Simple charting functionality is also provided to inspect the alignment rates of each sample.
 
 ```{r, fig.width = 7, fig.height = 5}
 data("aln", package = "gCrisprTools")
@@ -123,9 +123,9 @@ path2QC <- ct.makeQCReport(es,
                  trim = 1000,
                  log2.ratio = 0.05,
                  sampleKey = sk,
-                 annotation = ann,
-                 aln = aln,
-                 identifier = 'Crispr_QC_Report',
+                 annotation = ann, 
+                 aln = NULL,
+                 identifier = 'Crispr_QC_report',
                  lib.size = NULL
                  )
 ```

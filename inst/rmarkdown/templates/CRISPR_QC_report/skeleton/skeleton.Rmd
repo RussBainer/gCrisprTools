@@ -31,7 +31,11 @@ the lentiviral cassette, but may be rarely produced as an artifact of the
 library construction process.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=6, fig.width=10, fig.cap= "Figure 1: Sample-Level gRNA Aligment Profile"}
-ct.alignmentChart(aln = params$aln, sampleKey = params$sampleKey)
+if(!is.null(params$aln)){
+  ct.alignmentChart(aln = params$aln, sampleKey = params$sampleKey)
+} else {
+  print("No alignment matrix provided.")
+}
 ```
 
 <br/>
