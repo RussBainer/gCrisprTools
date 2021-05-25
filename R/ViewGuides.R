@@ -117,7 +117,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
   layout(matrix(c(1,2),ncol=2,byrow=TRUE),widths=c(5,0.5),heights=3,respect=TRUE)
   par(mar = c(5,4,4,2))
   
-  plot(1:length(grna.inx), 
+  plot(seq_len(length(grna.inx)), 
        fit$coefficients[grna.inx,1],
        ylab = "Log2(Fold Change)", 
        main = gene, xlab = "", ylim = sort(ylims),
@@ -133,7 +133,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
            (fit$coefficients[grna.inx,1]+fit$stdev.unscaled[grna.inx,1]))
   
   
-  axis(1, at=1:length(grna.inx), labels=grna.inx, las = 2)
+  axis(1, at=seq_len(length(grna.inx)), labels=grna.inx, las = 2)
   abline(h = 0, lty = 4, col = "red")
   abline(v = (seq_len(length(grna.inx)) + 0.5), col = "grey")
   #title(main = )

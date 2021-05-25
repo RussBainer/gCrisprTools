@@ -39,7 +39,7 @@ ct.scatter <-
     dfs <- ct.regularizeContrasts(dflist, collapse = targets)
 
     #Form output & divide into quadrants: 
-    out <- cbind(dfs[[1]][,1:6], dfs[[2]][,3:6])
+    out <- cbind(dfs[[1]][,seq_len(6)], dfs[[2]][,3:6])
     colnames(out) <- c('geneID', 'geneSymbol', 
                        paste0(c('Rho.enrich.', 'Rho.deplete.', 'p.', 'q.'), names(dfs)[1]),
                        paste0(c('Rho.enrich.', 'Rho.deplete.', 'p.', 'q.'), names(dfs)[2]))

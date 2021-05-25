@@ -185,7 +185,7 @@ ct.generateResults <- function(fit,
 ##' @export 
 ct.applyAlpha <- function(stats, RRAalphaCutoff=0.1, scoring = c("combined", "pvalue", "fc")) {
     scoring <- match.arg(scoring)
-    pvals = stats[,1:2]
+    pvals = stats[,seq_len(2)]
     foldchange <- cbind(stats[,3], -stats[,3])
 
     ##RRAalphaCutoff format 

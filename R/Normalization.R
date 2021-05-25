@@ -65,7 +65,7 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
   ntcRanks <- samRanks[ntc,]
  
   fits <- lapply(colnames(e.dat), function(x){smooth.spline(ntcRanks[,x], y = ntcVals[,x])})
-  corrections <- lapply(fits, function(x){predict(fits[[1]], 1:nrow(e.dat))})
+  corrections <- lapply(fits, function(x){predict(fits[[1]], seq_len(nrow(e.dat)))})
   names(fits) <- colnames(e.dat)
   #Subtract out the appropriate values
   corrected <- vapply(colnames(e.dat), 

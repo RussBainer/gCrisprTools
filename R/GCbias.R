@@ -117,7 +117,7 @@ ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL){
          ylim = range(d), 
          xlim = c(0,1)
          )
-    invisible(lapply(1:ncol(d),  
+    invisible(lapply(seq_len(ncol(d)),  
           function(x){
             points(gc, d[,x], pch = 16, col = colors[x])
             lines(spline(gc, d[,x]), col = spline.color[x], lwd = 4)

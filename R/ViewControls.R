@@ -81,7 +81,7 @@ ct.viewControls <- function(eset, annotation, sampleKey, geneSymb = NULL, normal
     xlimit <- nrow(counts)
 
 par(mar = c(10,4,4,6), xpd = TRUE)
-plot(1:xlimit, counts[,1],
+plot(seq_len(xlimit), counts[,1],
          main = plottitle,
          ylab = "Log2 Normalized Counts",
          xlab = "",
@@ -90,8 +90,8 @@ plot(1:xlimit, counts[,1],
          ylim = ylimit,
          type = "l", lwd = 2,
          col = colorSpace[1])
-for(q in 2:ncol(counts)){lines(1:xlimit, counts[,q], lwd = 2, col = colorSpace[q])}
-axis(side = 1, labels = sampleKey[order(sampleKey)], at = 1:xlimit, las = 3)
+for(q in 2:ncol(counts)){lines(seq_len(xlimit), counts[,q], lwd = 2, col = colorSpace[q])}
+axis(side = 1, labels = sampleKey[order(sampleKey)], at = seq_len(xlimit), las = 3)
 legend(xlimit + 1, ylimit[2], legend = colnames(counts), fill = colorSpace, cex = 0.5)
 }
 

@@ -81,12 +81,12 @@ ct.compareContrasts  <-
       
       perm <- t(replicate(nperm, 
                         expr={
-                          pr <- lapply(1:ncol(stringent), function(x){sample(1:nrow(stringent))})
+                          pr <- lapply(seq_len(ncol(stringent)), function(x){sample(seq_len(nrow(stringent)))})
                           nr <- nrow(stringent)
 
-                          p.stringent <- vapply(1:length(pr), function(x){stringent[pr[[x]], x]}, logical(nr))
-                          p.lax <- vapply(1:length(pr), function(x){lax[pr[[x]], x]}, logical(nr))
-                          p.dirs <- vapply(1:length(pr), function(x){dirs[pr[[x]], x]}, logical(nr))
+                          p.stringent <- vapply(seq_len(length(pr)), function(x){stringent[pr[[x]], x]}, logical(nr))
+                          p.lax <- vapply(seq_len(length(pr)), function(x){lax[pr[[x]], x]}, logical(nr))
+                          p.dirs <- vapply(seq_len(length(pr)), function(x){dirs[pr[[x]], x]}, logical(nr))
                           
                           dn <- sum((rowSums(p.dirs) == 0) & (rowSums(p.stringent) > 0) & (rowSums(p.lax) == ncol(p.lax))) 
                           up <- sum((rowSums(p.dirs) == ncol(p.dirs)) & (rowSums(p.stringent) > 0) & (rowSums(p.lax) == ncol(p.lax)))
@@ -151,7 +151,7 @@ ct.upSet <- function(dflist,
   dflist <- do.call('ct.regularizeContrasts', args = c(list(dflist = dflist), dots[names(dots) %in% names(formals('ct.regularizeContrasts'))]))
   
   #Generate the relevant overlap counts
-  combos <- unlist(lapply(1:length(dflist), function(x){combn(1:length(dflist), x, simplify = FALSE)}), recursive = FALSE)
+  combos <- unlist(lapply(seq_len(length(dflist)), function(x){combn(seq_len(length(dflist)), x, simplify = FALSE)}), recursive = FALSE)
 
   #Calculate overlap counts
   overlaps <- lapply(combos, 
@@ -174,8 +174,8 @@ ct.upSet <- function(dflist,
   
   #Create the comb mat object.
   n <- length(dflist)
-  comb_mat <- matrix(FALSE, nrow = n, ncol = sum(choose(n, 1:n)))
-  for(x in 1:length(combos)){
+  comb_mat <- matrix(FALSE, nrow = n, ncol = sum(choose(n, seq_len(n))))
+  for(x in seq_len(length(combos))){
     comb_mat[combos[[x]],x] <- TRUE
   }
   rownames(comb_mat) <- names(dflist)

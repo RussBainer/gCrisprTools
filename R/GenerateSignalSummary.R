@@ -58,7 +58,7 @@ ct.signalSummary <-
     gwp <- gwp*vapply(simpleDF$direction, function(x){ifelse(x == 'enrich', 1, -1)}, numeric(1))
     names(gwp) <- row.names(simpleDF)
 
-    exes <- (1:length(gwp))/length(gwp)
+    exes <- (seq_len(length(gwp)))/length(gwp)
     
     #qcut <- c(min(gwp[(simpleDF$direction == 'enrich') & (simpleDF$best.q <= 0.1)]), min(gwp[(simpleDF$direction == 'deplete') & (simpleDF$best.q <= 0.1)]))
 
@@ -93,11 +93,11 @@ ct.signalSummary <-
    
     #Optionally add annotations
     if(length(targets) <= 5){ 
-      ylocs <- rev(seq((maxval * 0.95), (maxval/2), length.out = 5)[1:length(targets)]) 
+      ylocs <- rev(seq((maxval * 0.95), (maxval/2), length.out = 5)[seq_len(length(targets))]) 
       ybuff <- (maxval/20)/2
       
       invisible(
-        lapply(1:length(targets),
+        lapply(seq_len(length(targets)),
                function(x){
                  selected <- intersect(row.names(simpleDF),targets[[x]])
                  gw.ranks <- vapply(selected, 
@@ -115,7 +115,7 @@ ct.signalSummary <-
     }
     
     #Highlight Points
-    invisible(lapply(1:length(targets), 
+    invisible(lapply(seq_len(length(targets)), 
                      function(x){
                        picked <- intersect(row.names(simpleDF),targets[[x]])
                        gw.ranks <- vapply(picked, 
@@ -197,8 +197,8 @@ ct.contrastBarchart <- function(dflist, background = TRUE, statistic = c('best.q
        ylab = '', xlab = 'Significant Target Signals', 
        main = switch(statistic, 'best.p' = 'Target P Values', 'best.q' = 'Target Q Values'))
 
-  for(j in 1:length(dflist)){
-    for(k in 1:5){
+  for(j in seq_along(dflist)){
+    for(k in seq_len(5)){
      polygon(x = c(vals[k,j], vals[k,j], vals[(nrow(vals) - k + 1),j], vals[(nrow(vals) - k + 1),j]), 
              y = c((j-0.8), (j-0.2), (j-0.2), (j - 0.8)), col = colors[k])
     }

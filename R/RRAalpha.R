@@ -42,7 +42,7 @@ ct.numcores <- function()  {
 ##' @export
 ct.alphaBeta <- function(p.in){ 
     n <- length(p.in)  
-    return(min(pbeta(p.in, 1:n, n - (1:n) + 1)))
+    return(min(pbeta(p.in, seq_len(n), n - seq_len(n) + 1)))
 }
 
 
@@ -154,7 +154,7 @@ ct.RRAaPvals <- function(p, g.key, permute, permutation.seed = NULL, multi.core=
 ##' @export 
 ct.makeRhoNull <- function(n,p,nperm) {
     message(paste("Making Rho null distribution for",n,"guides per gene."))
-    vapply(1:nperm,
+    vapply(seq_len(nperm),
            function(i) {
                p.in = sort.int(sample(p,n,replace=FALSE))
                ct.alphaBeta(p.in)

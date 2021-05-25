@@ -7,7 +7,7 @@
 ##' @keywords internal
 ct.ecdf <- function(vector){
   sorted <- as.numeric(sort(vector, decreasing = TRUE))
-  out <- unlist(lapply(seq_along(sorted), function(x){sum(sorted[1:x])}))/sum(sorted)
+  out <- unlist(lapply(seq_along(sorted), function(x){sum(sorted[seq_len(x)])}))/sum(sorted)
   return(out)
   }
 

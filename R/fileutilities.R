@@ -255,7 +255,7 @@ ct.simpleResult <- function(summaryDF, collapse = c('geneSymbol', 'geneID')){
   
   if(length(setdiff(c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction'), (names(summaryDF)))) == 0){
     #already simplified
-    stopifnot(all(vapply(names(summaryDF)[1:7], 
+    stopifnot(all(vapply(names(summaryDF)[seq_len(7)], 
                          function(x){class(summaryDF[,x])}, 
                          character(1)) == rep(c('character', 'numeric', 'character'), times = c(2, 4, 1))))
     out <- summaryDF
@@ -264,19 +264,19 @@ ct.simpleResult <- function(summaryDF, collapse = c('geneSymbol', 'geneID')){
     stopifnot(ct.resultCheck(summaryDF))
     out <- summaryDF
     
-    out$direction <- vapply(1:nrow(out), 
+    out$direction <- vapply(seq_len(nrow(out)), 
                             function(x){
                               ifelse(out[x,"Target-level Enrichment P"] < out[x,"Target-level Depletion P"], 'enrich', 'deplete')
                             }, character(1))
     
-    out$best.p <- vapply(1:nrow(out), 
+    out$best.p <- vapply(seq_len(nrow(out)), 
                          function(x){
                            ifelse(out$direction[x] %in% 'enrich', 
                                   out[x,"Target-level Enrichment P"], 
                                   out[x,"Target-level Depletion P"])
                          }, numeric(1))
     
-    out$best.q <- vapply(1:nrow(out), 
+    out$best.q <- vapply(seq_len(nrow(out)), 
                          function(x){
                            ifelse(out$direction[x] %in% 'enrich', 
                                   out[x,"Target-level Enrichment Q"], 

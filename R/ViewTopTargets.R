@@ -85,7 +85,7 @@ ct.topTargets <- function(fit, summaryDF, annotation, targets = 10, enrich = TRU
       if((length(targets) != 1) | !is.numeric(targets)){stop('"targets" must be specified as a single number or a vector of elements in the geneSymbol column of the annotation object.')}
       ntargets <- targets
       plottitle <- paste('Top', ntargets, plottitle)
-      toptargets <- unique(summaryDF$geneSymbol)[1:ntargets]
+      toptargets <- unique(summaryDF$geneSymbol)[seq_len(ntargets)]
     } 
     if(ntargets <= 0){stop("No valid targets were specified.")}
     
