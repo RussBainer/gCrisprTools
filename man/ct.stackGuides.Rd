@@ -25,8 +25,8 @@ the first \code{level}.}
 
 \item{nguides}{The number of guides (or targets) to display.}
 
-\item{plotType}{A string indicating whether the individual guides should be displayed ("\code{gRNA}"), or if they should be aggregated into target-level
-estimates ("\code{Target}") according to the \code{geneSymbol} column in the \code{annotation} object.}
+\item{plotType}{A string indicating whether the individual guides should be displayed ('\code{gRNA}'), or if they should be aggregated into target-level
+estimates ('\code{Target}') according to the \code{geneSymbol} column in the \code{annotation} object.}
 
 \item{annotation}{An optional data.frame containing an annotation object to be used to aggregate the guides into targets. gRNAs are annotated by row, 
 and must minimally contain a column \code{geneSymbol} indicating the target elements.}
@@ -49,7 +49,7 @@ are more likely to be identified.
 \examples{
 data('es')
 data('ann')
-ct.stackGuides(es, nguides = 20, plotType = "Target", annotation = ann, ylimit = NULL, subset = NULL)
+ct.stackGuides(es, nguides = 20, plotType = 'Target', annotation = ann, ylimit = NULL, subset = NULL)
 }
 \author{
 Russell Bainer

@@ -21,7 +21,7 @@ column of the provided \code{summaryDF} are considered.}
 
 \item{direction}{Direction by which to order target signals (`enrich` or `deplete`).}
 
-\item{condense}{Logical indicating whether the returned x and y coordinates should be "condensed", returning only the points at which
+\item{condense}{Logical indicating whether the returned x and y coordinates should be 'condensed', returning only the points at which
 the detected proportion of \code{target.list} changes. If set to \code{FALSE}, the returned \code{x} and \code{y} vectors will explicitly
 indicate the curve value at every position (useful for performing curve arithmetic downstream).}
 

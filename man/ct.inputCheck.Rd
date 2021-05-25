@@ -29,7 +29,7 @@ library(limma)
 library(Biobase)
 
 #Build the sample key
-sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
+sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
 names(sk) <- row.names(pData(es))
 ct.inputCheck(sk, es)
 }

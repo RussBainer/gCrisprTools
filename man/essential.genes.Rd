@@ -13,7 +13,7 @@ Example gene list, designed to demonstrate functions using gene lists.
 All sample, gRNA, and Gene information has been anonymized and randomized.
 }
 \examples{
-data("essential.genes")
+data('essential.genes')
 essential.genes
 }
 \seealso{

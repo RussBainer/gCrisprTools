@@ -32,7 +32,7 @@ the first \code{level}.}
 
 \item{results}{A data.frame summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
 
-\item{aln}{A numeric alignment matrix, where rows correspond to "targets", "nomatch", "rejections", and "double_match", and where columns 
+\item{aln}{A numeric alignment matrix, where rows correspond to 'targets', 'nomatch', 'rejections', and 'double_match', and where columns 
 correspond to experimentasl samples. Users may also pass `NULL` to suppress evaluation of alignment.}
 
 \item{outdir}{A directory in which to generate the report; if \code{NULL}, a temporary directory will be automatically generated. 
@@ -60,13 +60,13 @@ data('es')
 
 ##' #Build the sample key
 library(Biobase)
-sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
+sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
 names(sk) <- row.names(pData(es))
 
 data('ann')
 data('resultsDF')
 data('aln')
-path2report <- ct.makeReport(fit, es, sk, ann, resultsDF, aln, outdir = ".") 
+path2report <- ct.makeReport(fit, es, sk, ann, resultsDF, aln, outdir = '.') 
 }
 \author{
 Russell Bainer

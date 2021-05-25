@@ -7,7 +7,7 @@
 ##' @param eset An ExpressionSet object containing, at minimum, count data accessible by \code{exprs}. 
 ##' @param annotation An annotation dataframe indicating the nontargeting controls in the geneID column. 
 ##' @param geneSymb The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.gRNARankByReplicate} will
-##' attempt to infer nontargeting guides by searching for \code{"no_gid"} or \code{NA} in the appropriate columns.  
+##' attempt to infer nontargeting guides by searching for \code{'no_gid'} or \code{NA} in the appropriate columns.  
 ##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
 ##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
 ##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
@@ -18,7 +18,7 @@
 ##' 
 ##' #Build the sample key and library sizes for visualization
 ##' library(Biobase)
-##' sk <- (relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' sk <- (relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' ls <- colSums(exprs(es))
 ##' 
@@ -27,58 +27,63 @@
 ##' ct.gRNARankByReplicate(es.norm, sk, lib.size = ls)
 ##' @export
 
-ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NULL){
-  
-  if(!methods::is(eset, "ExpressionSet")){stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))}
-  
-  #Check the annotation and find the NTC rows
-  if(!is.data.frame(annotation)){
-    stop("An annotation dataframe must be supplied if controls is TRUE.")
-  }
-  annotation <- invisible(ct.prepareAnnotation(annotation, eset, throw.error = FALSE))  
-  
-  if(!is.null(geneSymb)){   
-    if(geneSymb %in% annotation$geneSymbol){
-      ntc <- row.names(annotation)[annotation$geneSymbol %in% geneSymb]      
-      } else {
-          stop(paste(deparse(substitute(geneSymb)),"is not present in the geneSymbol column of the annotation file."))
-          }
-    } else if("NoTarget" %in% annotation$geneSymbol){
-      message('Using gRNAs targeting "NoTarget"')  
-      ntc <- row.names(annotation)[annotation$geneSymbol %in% "NoTarget"]      
-      } else { 
-        stop("I can't tell which guides are nontargeting. Please specify a geneSymbol that you would like for me to use.")
+ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NULL) {
+
+    if (!methods::is(eset, "ExpressionSet")) {
+        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
+    }
+
+    # Check the annotation and find the NTC rows
+    if (!is.data.frame(annotation)) {
+        stop("An annotation dataframe must be supplied if controls is TRUE.")
+    }
+    annotation <- invisible(ct.prepareAnnotation(annotation, eset, throw.error = FALSE))
+
+    if (!is.null(geneSymb)) {
+        if (geneSymb %in% annotation$geneSymbol) {
+            ntc <- row.names(annotation)[annotation$geneSymbol %in% geneSymb]
+        } else {
+            stop(paste(deparse(substitute(geneSymb)), "is not present in the geneSymbol column of the annotation file."))
         }
-  
-  
-  #log the data and fit curves to the NTCs. 
-  counts <- exprs(eset)
-  
-  if (is.null(lib.size)){
-    lib.size <- colSums(counts)
-  } 
-  
-  e.dat <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
-  ntcVals <- e.dat[ntc,]
-  
-  samRanks <- apply(e.dat, 2, rank)
-  ntcRanks <- samRanks[ntc,]
- 
-  fits <- lapply(colnames(e.dat), function(x){smooth.spline(ntcRanks[,x], y = ntcVals[,x])})
-  corrections <- lapply(fits, function(x){predict(fits[[1]], seq_len(nrow(e.dat)))})
-  names(fits) <- colnames(e.dat)
-  #Subtract out the appropriate values
-  corrected <- vapply(colnames(e.dat), 
-                      function(x){(e.dat[,x] - predict(fits[[x]], samRanks[,x])[[2]]) + median(e.dat)}, 
-                      numeric(nrow(e.dat)) 
-                      )
-  #colnames(corrected) <- names(fits)
-  corrected <- 2^corrected
-  corrected <- round(t(t(corrected) * ((lib.size + 1) / 1e+06)) - 0.5)
-  
-  #update and return the eset
-  exprs(eset)<- corrected
-  return(eset)
+    } else if ("NoTarget" %in% annotation$geneSymbol) {
+        message("Using gRNAs targeting \"NoTarget\"")
+        ntc <- row.names(annotation)[annotation$geneSymbol %in% "NoTarget"]
+    } else {
+        stop("I can't tell which guides are nontargeting. Please specify a geneSymbol that you would like for me to use.")
+    }
+
+
+    # log the data and fit curves to the NTCs.
+    counts <- exprs(eset)
+
+    if (is.null(lib.size)) {
+        lib.size <- colSums(counts)
+    }
+
+    e.dat <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+    ntcVals <- e.dat[ntc, ]
+
+    samRanks <- apply(e.dat, 2, rank)
+    ntcRanks <- samRanks[ntc, ]
+
+    fits <- lapply(colnames(e.dat), function(x) {
+        smooth.spline(ntcRanks[, x], y = ntcVals[, x])
+    })
+    corrections <- lapply(fits, function(x) {
+        predict(fits[[1]], seq_len(nrow(e.dat)))
+    })
+    names(fits) <- colnames(e.dat)
+    # Subtract out the appropriate values
+    corrected <- vapply(colnames(e.dat), function(x) {
+        (e.dat[, x] - predict(fits[[x]], samRanks[, x])[[2]]) + median(e.dat)
+    }, numeric(nrow(e.dat)))
+    # colnames(corrected) <- names(fits)
+    corrected <- 2^corrected
+    corrected <- round(t(t(corrected) * ((lib.size + 1)/1e+06)) - 0.5)
+
+    # update and return the eset
+    exprs(eset) <- corrected
+    return(eset)
 }
 
 
@@ -93,7 +98,7 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
 ##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
 ##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
 ##' @param geneSymb The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.gRNARankByReplicate} will
-##' attempt to infer nontargeting guides by searching for \code{"no_gid"} or \code{NA} in the appropriate columns via \code{ct.prepareAnnotation()}.  
+##' attempt to infer nontargeting guides by searching for \code{'no_gid'} or \code{NA} in the appropriate columns via \code{ct.prepareAnnotation()}.  
 ##' @return A normalized \code{eset}. 
 ##' @author Russell Bainer
 ##' @examples data('es')
@@ -101,7 +106,7 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
 ##' 
 ##' #Build the sample key and library sizes for visualization
 ##' library(Biobase)
-##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' ls <- colSums(exprs(es))
 ##' 
@@ -111,46 +116,48 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
 ##' ct.gRNARankByReplicate(es.norm, sk, lib.size = ls)
 ##' @export
 
-ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL){
-  
-  if(!methods::is(eset, "ExpressionSet")){stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))}
-  
-  #Check the annotation and find the NTC rows
-  if(!is.data.frame(annotation)){
-    stop("An annotation dataframe must be supplied to normalize to nontargeting controls.")
-  }
-  annotation <- invisible(ct.prepareAnnotation(annotation, eset))  
-  
-  if(!is.null(geneSymb)){   
-    if(geneSymb %in% annotation$geneSymbol){
-      ntc <- row.names(annotation)[annotation$geneSymbol %in% geneSymb]      
-    } else {
-      stop(paste(deparse(substitute(geneSymb)),"is not present in the geneSymbol column of the annotation file."))
+ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL) {
+
+    if (!methods::is(eset, "ExpressionSet")) {
+        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
     }
-  } else if("NoTarget" %in% annotation$geneSymbol){
-    message('Using gRNAs targeting "NoTarget"')  
-    ntc <- row.names(annotation)[annotation$geneSymbol %in% "NoTarget"]      
-  } else { 
-    stop("I can't tell which guides are nontargeting. Please specify a geneSymbol that you would like for me to use.")
-  }
-  
-  #Update the eset and return it.
-  counts <- exprs(eset)
-  
-  if (is.null(lib.size)){
-    lib.size <- colSums(counts)
-  } 
-  
-  y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
-  ntcVals <- y[ntc,]
-  cmed <- rowMedians(t(ntcVals), na.rm = TRUE)
-  cmed <- (cmed - mean(cmed))
-  
-  y <- t(t(y)-cmed)
-  y <- 2^y
-  y <- round(t(t(y) * ((lib.size + 1) / 1e+06)) - 0.5)
-  exprs(eset) <- y
-  return(eset)
+
+    # Check the annotation and find the NTC rows
+    if (!is.data.frame(annotation)) {
+        stop("An annotation dataframe must be supplied to normalize to nontargeting controls.")
+    }
+    annotation <- invisible(ct.prepareAnnotation(annotation, eset))
+
+    if (!is.null(geneSymb)) {
+        if (geneSymb %in% annotation$geneSymbol) {
+            ntc <- row.names(annotation)[annotation$geneSymbol %in% geneSymb]
+        } else {
+            stop(paste(deparse(substitute(geneSymb)), "is not present in the geneSymbol column of the annotation file."))
+        }
+    } else if ("NoTarget" %in% annotation$geneSymbol) {
+        message("Using gRNAs targeting \"NoTarget\"")
+        ntc <- row.names(annotation)[annotation$geneSymbol %in% "NoTarget"]
+    } else {
+        stop("I can't tell which guides are nontargeting. Please specify a geneSymbol that you would like for me to use.")
+    }
+
+    # Update the eset and return it.
+    counts <- exprs(eset)
+
+    if (is.null(lib.size)) {
+        lib.size <- colSums(counts)
+    }
+
+    y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+    ntcVals <- y[ntc, ]
+    cmed <- rowMedians(t(ntcVals), na.rm = TRUE)
+    cmed <- (cmed - mean(cmed))
+
+    y <- t(t(y) - cmed)
+    y <- 2^y
+    y <- round(t(t(y) * ((lib.size + 1)/1e+06)) - 0.5)
+    exprs(eset) <- y
+    return(eset)
 }
 
 
@@ -174,7 +181,7 @@ ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL){
 ##' 
 ##' #Build the sample key and library sizes for visualization
 ##' library(Biobase)
-##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' ls <- colSums(exprs(es))
 ##' 
@@ -182,54 +189,54 @@ ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL){
 ##' ct.gRNARankByReplicate(es, sk, lib.size= ls)
 ##' ct.gRNARankByReplicate(es.norm, sk, lib.size= ls)
 ##' @export
-ct.normalizeBySlope <-
-  function(ExpressionObject,
-           trim = 0.25,
-           lib.size = NULL,
-           ...) {
-    
-    if(!(class(ExpressionObject) %in% c("ExpressionSet", "EList"))){stop(paste(deparse(substitute(ExpressionObject)), "is not an ExpressionSet or Elist."))}
-    
-    #log them
-    if(methods::is(ExpressionObject, "EList")){
-      e.dat <- ExpressionObject$E
-    }else{
-      counts <- exprs(ExpressionObject)
-      if (is.null(lib.size)){
-        lib.size <- colSums(counts)
-      }else if(!is.numeric(lib.size) | length(lib.size) != ncol(counts)){
-        stop('If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.')
-      }  
-      e.dat <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+ct.normalizeBySlope <- function(ExpressionObject, trim = 0.25, lib.size = NULL, ...) {
+
+    if (!(class(ExpressionObject) %in% c("ExpressionSet", "EList"))) {
+        stop(paste(deparse(substitute(ExpressionObject)), "is not an ExpressionSet or Elist."))
     }
-    
-    #extract the inner 50% and fit a lm
+
+    # log them
+    if (methods::is(ExpressionObject, "EList")) {
+        e.dat <- ExpressionObject$E
+    } else {
+        counts <- exprs(ExpressionObject)
+        if (is.null(lib.size)) {
+            lib.size <- colSums(counts)
+        } else if (!is.numeric(lib.size) | length(lib.size) != ncol(counts)) {
+            stop("If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.")
+        }
+        e.dat <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+    }
+
+    # extract the inner 50% and fit a lm
     shuffle <- apply(e.dat, 2, sort, decreasing = TRUE, index.return = TRUE)
-    locs <- round((nrow(e.dat)*trim)): round(nrow(e.dat)*(1-trim))
-    slopes <- lapply(shuffle, function(x){lm(unlist(x[[1]][locs]) ~ locs)$coefficients[2]})
-    
-    
-    #correct the values
-    corrected <- vapply(names(slopes), function(x){
-      outlist <- shuffle[[x]][[1]] + ((length(shuffle[[x]][[1]]):1) * slopes[[x]])
-      return(outlist[row.names(e.dat)])}, 
-      numeric(nrow(e.dat)))
-    
-    #Back to counts: 
+    locs <- round((nrow(e.dat) * trim)):round(nrow(e.dat) * (1 - trim))
+    slopes <- lapply(shuffle, function(x) {
+        lm(unlist(x[[1]][locs]) ~ locs)$coefficients[2]
+    })
+
+
+    # correct the values
+    corrected <- vapply(names(slopes), function(x) {
+        outlist <- shuffle[[x]][[1]] + ((length(shuffle[[x]][[1]]):1) * slopes[[x]])
+        return(outlist[row.names(e.dat)])
+    }, numeric(nrow(e.dat)))
+
+    # Back to counts:
     correctedCounts <- 2^corrected
-    correctedCounts <- round(t(t(correctedCounts) * ((lib.size + 1) / 1e+06)) - 0.5)
-    
-    #update and return the object
-    if(is(ExpressionObject, "ExpressionSet")){
-      exprs(ExpressionObject) <- correctedCounts
-      ExpressionObject <- ct.normalizeMedians(ExpressionObject, lib.size)
-      return(ExpressionObject)
-    }else{
-      co <- 2^corrected
-      new.v <- voom(correctedCounts, design = ExpressionObject$design, normalize.method="scale")
-      return(new.v)
+    correctedCounts <- round(t(t(correctedCounts) * ((lib.size + 1)/1e+06)) - 0.5)
+
+    # update and return the object
+    if (is(ExpressionObject, "ExpressionSet")) {
+        exprs(ExpressionObject) <- correctedCounts
+        ExpressionObject <- ct.normalizeMedians(ExpressionObject, lib.size)
+        return(ExpressionObject)
+    } else {
+        co <- 2^corrected
+        new.v <- voom(correctedCounts, design = ExpressionObject$design, normalize.method = "scale")
+        return(new.v)
     }
-  }
+}
 
 
 ##' @title Normalize an ExpressionSet Containing a Crispr Screen
@@ -261,7 +268,7 @@ ct.normalizeBySlope <-
 ##' 
 ##' #Build the sample key as needed
 ##' library(Biobase)
-##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' 
 ##' es.norm <- ct.normalizeGuides(es, 'scale', annotation = ann, sampleKey = sk, plot.it = TRUE)
@@ -269,55 +276,44 @@ ct.normalizeBySlope <-
 ##' es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 ##' es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 ##' @export
-ct.normalizeGuides <- function(eset, method = c("scale", 'FQ', "slope", "controlScale", "controlSpline"), annotation = NULL, sampleKey = NULL, lib.size = NULL, plot.it = FALSE, ...){
-  if(!methods::is(eset, "ExpressionSet")){
-    stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
-  }
-  
-  choices <- c("scale", 'FQ', "slope", "controlScale", "controlSpline")
-  method <- match.arg(method, choices)
-  
-  if(method %in% c("controlScale", "controlSpline")){
-    if(is.null(annotation)){
-      stop("An annotation object must be provided to perform", deparse(substitute(method)), "normalization.")
+ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "controlScale", "controlSpline"), annotation = NULL, sampleKey = NULL, lib.size = NULL, plot.it = FALSE, 
+    ...) {
+    if (!methods::is(eset, "ExpressionSet")) {
+        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
     }
-    annotation <- ct.prepareAnnotation(
-      ann = annotation,
-      object =  eset,
-      controls = TRUE,
-      throw.error = FALSE
-    )
-  }
-  
-  if(is.null(lib.size)){
-    lib.size <- colSums(exprs(eset))
-  } else if(!is.numeric(lib.size) | (length(lib.size) != ncol(eset))){
-    stop('If specified, lib.size must be a numeric vector of length equal to the number of samples.')
-  }
-  
-  
-  new.eset <- switch(method, 
-                     scale = ct.normalizeMedians(eset, lib.size = lib.size), 
-                     FQ = ct.normalizeFQ(eset, sets = sampleKey, lib.size = lib.size),
-                     slope = ct.normalizeBySlope(eset, lib.size = lib.size, ...), 
-                     controlScale = ct.normalizeNTC(eset, annotation, lib.size = lib.size, ...), 
-                     controlSpline = ct.normalizeSpline(eset, annotation, lib.size = lib.size, ...)
-  )
-  # set negative counts to 0's if they happen to be present after normalization
-  exprs(new.eset) <- apply(
-    X = exprs(new.eset), 
-    MARGIN = 2, 
-    FUN = function(col) {
-      col[col < 0] <- 0
-      col
+
+    choices <- c("scale", "FQ", "slope", "controlScale", "controlSpline")
+    method <- match.arg(method, choices)
+
+    if (method %in% c("controlScale", "controlSpline")) {
+        if (is.null(annotation)) {
+            stop("An annotation object must be provided to perform", deparse(substitute(method)), "normalization.")
+        }
+        annotation <- ct.prepareAnnotation(ann = annotation, object = eset, controls = TRUE, throw.error = FALSE)
+    }
+
+    if (is.null(lib.size)) {
+        lib.size <- colSums(exprs(eset))
+    } else if (!is.numeric(lib.size) | (length(lib.size) != ncol(eset))) {
+        stop("If specified, lib.size must be a numeric vector of length equal to the number of samples.")
+    }
+
+
+    new.eset <- switch(method, scale = ct.normalizeMedians(eset, lib.size = lib.size), FQ = ct.normalizeFQ(eset, sets = sampleKey, lib.size = lib.size), slope = ct.normalizeBySlope(eset, 
+        lib.size = lib.size, ...), controlScale = ct.normalizeNTC(eset, annotation, lib.size = lib.size, ...), controlSpline = ct.normalizeSpline(eset, annotation, 
+        lib.size = lib.size, ...))
+    # set negative counts to 0's if they happen to be present after normalization
+    exprs(new.eset) <- apply(X = exprs(new.eset), MARGIN = 2, FUN = function(col) {
+        col[col < 0] <- 0
+        col
     })
-  
-  if(plot.it){
-    par(mfrow = c(2, 1))
-    ct.gRNARankByReplicate(eset, sampleKey, lib.size = lib.size) 
-    ct.gRNARankByReplicate(new.eset, sampleKey, lib.size = lib.size)
-  }
-  return(new.eset)  
+
+    if (plot.it) {
+        par(mfrow = c(2, 1))
+        ct.gRNARankByReplicate(eset, sampleKey, lib.size = lib.size)
+        ct.gRNARankByReplicate(new.eset, sampleKey, lib.size = lib.size)
+    }
+    return(new.eset)
 }
 
 
@@ -337,7 +333,7 @@ ct.normalizeGuides <- function(eset, method = c("scale", 'FQ', "slope", "control
 ##' 
 ##' #Build the sample key and library sizes for visualization
 ##' library(Biobase)
-##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' ls <- colSums(exprs(es))
 ##' 
@@ -345,27 +341,27 @@ ct.normalizeGuides <- function(eset, method = c("scale", 'FQ', "slope", "control
 ##' ct.gRNARankByReplicate(es, sampleKey = sk, lib.size= ls)
 ##' ct.gRNARankByReplicate(es.norm, sampleKey = sk, lib.size= ls)
 ##' @export
-ct.normalizeMedians <- function(eset, lib.size = NULL){
-  if(!methods::is(eset, 'ExpressionSet')){
-    stop("Please provide an ExpressionSet object for normalization.")
-  }
-  
-  counts <- exprs(eset)
-  
-  if (is.null(lib.size)){
-    lib.size <- colSums(counts)
-  }else if(!is.numeric(lib.size) | length(lib.size) != ncol(counts)){
-    stop('If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.')
-  } 
-  
-  y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
-  cmed <- apply(y, 2, median, na.rm = TRUE)
-  cmed <- cmed - mean(cmed)
-  correctedCounts <- 2^t(t(y) - cmed)
-  correctedCounts <- (t(t(correctedCounts) * ((lib.size + 1) / 1e+06)) - 0.5)
-  
-  exprs(eset) <- round(correctedCounts)
-  return(eset)
+ct.normalizeMedians <- function(eset, lib.size = NULL) {
+    if (!methods::is(eset, "ExpressionSet")) {
+        stop("Please provide an ExpressionSet object for normalization.")
+    }
+
+    counts <- exprs(eset)
+
+    if (is.null(lib.size)) {
+        lib.size <- colSums(counts)
+    } else if (!is.numeric(lib.size) | length(lib.size) != ncol(counts)) {
+        stop("If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.")
+    }
+
+    y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+    cmed <- apply(y, 2, median, na.rm = TRUE)
+    cmed <- cmed - mean(cmed)
+    correctedCounts <- 2^t(t(y) - cmed)
+    correctedCounts <- (t(t(correctedCounts) * ((lib.size + 1)/1e+06)) - 0.5)
+
+    exprs(eset) <- round(correctedCounts)
+    return(eset)
 }
 
 ##' @title Apply Factored Quantile Normalization to an eset
@@ -391,7 +387,7 @@ ct.normalizeMedians <- function(eset, lib.size = NULL){
 ##' 
 ##' #Build the sample key and library sizes for visualization
 ##' library(Biobase)
-##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' ls <- colSums(exprs(es))
 ##' 
@@ -399,34 +395,36 @@ ct.normalizeMedians <- function(eset, lib.size = NULL){
 ##' ct.gRNARankByReplicate(es, sampleKey = sk, lib.size= ls)
 ##' ct.gRNARankByReplicate(es.norm, sampleKey = sk, lib.size= ls)
 ##' @export
-ct.normalizeFQ <- function(eset, sets, lib.size = NULL){
-  if(!methods::is(eset, 'ExpressionSet')){
-    stop("Please provide an ExpressionSet object for normalization.")
-  }
-  
-  stopifnot(length(na.omit(sets)) == ncol(eset), !any(vapply(sets, is.null, logical(1))))
-  
-  counts <- exprs(eset)
-  
-  if (is.null(lib.size)){
-    lib.size <- colSums(counts)
-  }else if(!is.numeric(lib.size) | length(lib.size) != ncol(counts)){
-    stop('If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.')
-  } 
-  
-  y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
-  
-  #Apply Factored Quantiles
-  quant <- lapply(unique(sets), function(x){limma::normalizeQuantiles(y[,(sets == x)])})
-  y <- do.call('cbind', quant)
-  
-  cmed <- apply(y, 2, median, na.rm = TRUE)
-  cmed <- cmed - mean(cmed)
-  correctedCounts <- 2^t(t(y) - cmed)
-  correctedCounts <- (t(t(correctedCounts) * ((lib.size + 1) / 1e+06)) - 0.5)
-  
-  exprs(eset) <- round(correctedCounts)
-  return(eset)
+ct.normalizeFQ <- function(eset, sets, lib.size = NULL) {
+    if (!methods::is(eset, "ExpressionSet")) {
+        stop("Please provide an ExpressionSet object for normalization.")
+    }
+
+    stopifnot(length(na.omit(sets)) == ncol(eset), !any(vapply(sets, is.null, logical(1))))
+
+    counts <- exprs(eset)
+
+    if (is.null(lib.size)) {
+        lib.size <- colSums(counts)
+    } else if (!is.numeric(lib.size) | length(lib.size) != ncol(counts)) {
+        stop("If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.")
+    }
+
+    y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+
+    # Apply Factored Quantiles
+    quant <- lapply(unique(sets), function(x) {
+        limma::normalizeQuantiles(y[, (sets == x)])
+    })
+    y <- do.call("cbind", quant)
+
+    cmed <- apply(y, 2, median, na.rm = TRUE)
+    cmed <- cmed - mean(cmed)
+    correctedCounts <- 2^t(t(y) - cmed)
+    correctedCounts <- (t(t(correctedCounts) * ((lib.size + 1)/1e+06)) - 0.5)
+
+    exprs(eset) <- round(correctedCounts)
+    return(eset)
 }
 
 

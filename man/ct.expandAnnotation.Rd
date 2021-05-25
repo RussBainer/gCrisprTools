@@ -29,7 +29,7 @@ and are passed through directly.
 }
 \examples{
 data('ann')
-alt.annotation <- list("Target2089_b" = c('foo', 'bar'), "Target2089_c" = 'foo', "Target2089_a" = 'bar')
+alt.annotation <- list('Target2089_b' = c('foo', 'bar'), 'Target2089_c' = 'foo', 'Target2089_a' = 'bar')
 ct.expandAnnotation(ann, alt.annotation)
 }
 \author{

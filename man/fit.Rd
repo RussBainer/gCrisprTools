@@ -13,7 +13,7 @@ and control expansion arms of a crispr screen performed at Genentech, Inc.
 All sample, gRNA, and Gene information has been anonymized and randomized.
 }
 \examples{
-data("fit")
+data('fit')
 show(fit)
 }
 \seealso{

@@ -18,7 +18,7 @@ ct.compareContrasts(
 \item{dflist}{A list of (possibly simplified) results data.frames produced by \code{\link{ct.generateResults}}.}
 
 \item{statistics}{Statistics to use to define congruence; may be a single value, but internally coerced to a vector of length 2 where the first 
-value corresponds to the stringent cutoff annd the second value is used for the relaxed cutoff. Must be "best.p" or "best.q".}
+value corresponds to the stringent cutoff annd the second value is used for the relaxed cutoff. Must be 'best.p' or 'best.q'.}
 
 \item{cutoffs}{Numeric value(s) corresponding to the significance cutoff(s) used to define stringent and relaxed values of `statistics`. 
 Internally coerced to a vector of length 2.}

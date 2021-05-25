@@ -16,7 +16,7 @@ and transformed to reflect the appropriate library size. These adjustment factor
 and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.}
 
 \item{geneSymb}{The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.gRNARankByReplicate} will
-attempt to infer nontargeting guides by searching for \code{"no_gid"} or \code{NA} in the appropriate columns via \code{ct.prepareAnnotation()}.}
+attempt to infer nontargeting guides by searching for \code{'no_gid'} or \code{NA} in the appropriate columns via \code{ct.prepareAnnotation()}.}
 }
 \value{
 A normalized \code{eset}.
@@ -33,7 +33,7 @@ data('ann')
 
 #Build the sample key and library sizes for visualization
 library(Biobase)
-sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 names(sk) <- row.names(pData(es))
 ls <- colSums(exprs(es))
 

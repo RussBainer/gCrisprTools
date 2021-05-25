@@ -21,93 +21,83 @@
 ##' @examples data('es')
 ##' ct.filterReads(es)
 ##' @export
-ct.filterReads <- function(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL, plot.it = TRUE, read.floor = NULL){
+ct.filterReads <- function(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL, plot.it = TRUE, read.floor = NULL) {
 
-  if(!methods::is(eset, "ExpressionSet")) {
-    stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
-  }
-  if(!is.numeric(trim)) {
-    stop("trim is not a numeric value.")
-  }
-  if (!is.numeric(log2.ratio)) {
-    stop("log2.ratio is not a numeric value.")
-  }
-  if (!is.null(read.floor) & (!is.numeric(read.floor) | (length(read.floor) > 1))) {
-    stop("If provided, read.floor must be a numeric value of length 1.")
-  }
-  
-  e <- log2(exprs(eset) + 1)
-  trim < nrow(e) ||
-    stop(
-      "'trim' must be less than the total number of features in the 'eset': ",
-      "trim:", trim,
-      ", total number of features: ", nrow(e), "."
-    )
-  if (!is.null(sampleKey)) {
-    if (ct.inputCheck(sampleKey, eset)) {
-      control.samples <-
-        names(sampleKey)[sampleKey == levels(sampleKey)[1]]
-      e <- e[, control.samples]
+    if (!methods::is(eset, "ExpressionSet")) {
+        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
     }
-  }
-
-  #Trim and discard the elements that never cross the minimum threshold
-  e.cuts <- apply(e, 2, sort, decreasing = TRUE)[trim, ] - log2.ratio
-  if(!is.null(read.floor)){
-    message(paste('Using the supplied minimum threshold of', read.floor, 'reads for each guide.'))
-    read.floor <- log2(read.floor)
-    newcuts <- vapply(e.cuts, function(x){ifelse(x < read.floor, read.floor, x)}, numeric(1))
-    names(newcuts) <- names(e.cuts)
-    e.cuts <- newcuts
-  }
-  
-  whitelist <- row.names(e)[colSums(apply((t(e) - e.cuts), 2, sign)) != -ncol(e)]
-
-  new.es <- eset[whitelist, ]
-
-  #Raw
-  if(plot.it){
-    par(mfrow = c(2, 1))
-    ds <- apply(log2(exprs(eset) + 1), 2, density)
-    ymax <- max(unlist(lapply(ds, function(x) {
-      x$y
-    })))
-    xr <- range(unlist(lapply(ds, function(d) {
-      d$x
-    })))
-    plot(ds[[1]], main = 'Untrimmed gRNA Density',
-         ylim = c(0, ymax), xlim = xr,
-         xlab = "Raw Log2 gRNA Count",
-         ylab = "Density")
-    invisible(lapply(ds, lines))
-    if(!is.null(sampleKey)){
-      ds <- apply(log2(exprs(eset))[,control.samples], 2, density)
-      invisible(lapply(ds, lines, col = "red"))
-      legend("topright", "Control", fill = "red")
+    if (!is.numeric(trim)) {
+        stop("trim is not a numeric value.")
+    }
+    if (!is.numeric(log2.ratio)) {
+        stop("log2.ratio is not a numeric value.")
+    }
+    if (!is.null(read.floor) & (!is.numeric(read.floor) | (length(read.floor) > 1))) {
+        stop("If provided, read.floor must be a numeric value of length 1.")
     }
 
-    #corrected
-    ds <- apply(log2(exprs(new.es) + 1), 2, density)
-    ymax <- max(unlist(lapply(ds, function(x){x$y})))
-    xr <- range(unlist(lapply(ds, function(d){d$x})))
-    plot(
-      ds[[1]],
-      main = 'Trimmed gRNA Density',
-      ylim = c(0, ymax),
-      xlim = xr,
-      xlab = "Trimmed Log2 gRNA Count",
-      ylab = "Density"
-    )
-    invisible(lapply(ds, lines))
+    e <- log2(exprs(eset) + 1)
+    trim < nrow(e) || stop("'trim' must be less than the total number of features in the 'eset': ", "trim:", trim, ", total number of features: ", nrow(e), ".")
     if (!is.null(sampleKey)) {
-      ds <- apply(log2(exprs(new.es))[, control.samples], 2, density)
-      invisible(lapply(ds, lines, col = "red"))
-      legend("topright", "Control", fill = "red")
+        if (ct.inputCheck(sampleKey, eset)) {
+            control.samples <- names(sampleKey)[sampleKey == levels(sampleKey)[1]]
+            e <- e[, control.samples]
+        }
     }
-  }
 
-  return(new.es)
-  }
+    # Trim and discard the elements that never cross the minimum threshold
+    e.cuts <- apply(e, 2, sort, decreasing = TRUE)[trim, ] - log2.ratio
+    if (!is.null(read.floor)) {
+        message(paste("Using the supplied minimum threshold of", read.floor, "reads for each guide."))
+        read.floor <- log2(read.floor)
+        newcuts <- vapply(e.cuts, function(x) {
+            ifelse(x < read.floor, read.floor, x)
+        }, numeric(1))
+        names(newcuts) <- names(e.cuts)
+        e.cuts <- newcuts
+    }
+
+    whitelist <- row.names(e)[colSums(apply((t(e) - e.cuts), 2, sign)) != -ncol(e)]
+
+    new.es <- eset[whitelist, ]
+
+    # Raw
+    if (plot.it) {
+        par(mfrow = c(2, 1))
+        ds <- apply(log2(exprs(eset) + 1), 2, density)
+        ymax <- max(unlist(lapply(ds, function(x) {
+            x$y
+        })))
+        xr <- range(unlist(lapply(ds, function(d) {
+            d$x
+        })))
+        plot(ds[[1]], main = "Untrimmed gRNA Density", ylim = c(0, ymax), xlim = xr, xlab = "Raw Log2 gRNA Count", ylab = "Density")
+        invisible(lapply(ds, lines))
+        if (!is.null(sampleKey)) {
+            ds <- apply(log2(exprs(eset))[, control.samples], 2, density)
+            invisible(lapply(ds, lines, col = "red"))
+            legend("topright", "Control", fill = "red")
+        }
+
+        # corrected
+        ds <- apply(log2(exprs(new.es) + 1), 2, density)
+        ymax <- max(unlist(lapply(ds, function(x) {
+            x$y
+        })))
+        xr <- range(unlist(lapply(ds, function(d) {
+            d$x
+        })))
+        plot(ds[[1]], main = "Trimmed gRNA Density", ylim = c(0, ymax), xlim = xr, xlab = "Trimmed Log2 gRNA Count", ylab = "Density")
+        invisible(lapply(ds, lines))
+        if (!is.null(sampleKey)) {
+            ds <- apply(log2(exprs(new.es))[, control.samples], 2, density)
+            invisible(lapply(ds, lines, col = "red"))
+            legend("topright", "Control", fill = "red")
+        }
+    }
+
+    return(new.es)
+}
 
 
 

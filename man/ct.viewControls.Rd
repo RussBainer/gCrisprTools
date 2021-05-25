@@ -24,7 +24,7 @@ variables. The \code{names} attribute should exactly match those present in \cod
 the first \code{level}.}
 
 \item{geneSymb}{The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.ViewControls} will
-attempt to infer nontargeting guides by searching for \code{"no_gid"} or \code{NA} in the appropriate columns.}
+attempt to infer nontargeting guides by searching for \code{'no_gid'} or \code{NA} in the appropriate columns.}
 
 \item{normalize}{Logical indicating whether to attempt to normalize the data in the \code{eset} by DESeq size factors present in the metadata. If \code{TRUE},
 then the metadata must contain a column containing these factors, named \code{sizeFactor.crispr-gRNA}.}
@@ -39,7 +39,7 @@ An image of nontargeting control gRNA abundances on the default device.
 \description{
 This function tries to identify, and then plot the abundance of, the full set of non-targeting controls from an ExpressionSet
 object. Ideally, the user will supply a geneSymbol present in the appropriate annotation file that uniquely identifies the nontargeting gRNAs.
-Absent this, the the function will search for common identifier used by nontargeting controls (geneID "no_gid", or geneSymbol NA).
+Absent this, the the function will search for common identifier used by nontargeting controls (geneID 'no_gid', or geneSymbol NA).
 }
 \examples{
 data('es')
@@ -47,7 +47,7 @@ data('ann')
 
 #Build the sample key
 library(Biobase)
-sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 names(sk) <- row.names(pData(es))
 
 ct.viewControls(es, ann, sk, geneSymb = NULL, normalize = FALSE)

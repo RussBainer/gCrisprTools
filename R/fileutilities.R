@@ -1,6 +1,5 @@
 
-## -----------------------------------------------------------------------------
-## File Utilities 
+## ----------------------------------------------------------------------------- File Utilities
 
 
 ##' Initializes the output directory
@@ -14,29 +13,29 @@
 ##' @keywords internal
 ##' @author Steve Lianoglou, Russell Bainer
 initOutDir <- function(outdir) {
-  if (is.null(outdir)) {
-    return(FALSE)
-  }
-  if (!is.character(outdir) && length(outdir) != 1) {
-    stop("character required for `outdir`")
-  }
-  outdir.created <- FALSE
-  if (dir.exists(outdir)) {
-    if (!dir.writable(outdir)) {
-      stop("Can't write to output directory: ", outdir)
+    if (is.null(outdir)) {
+        return(FALSE)
     }
-  } else {
-    pdir <- dirname(outdir)
-    if (!dir.exists(pdir)) {
-      stop("Path to outdir does not exist: ", pdir)
+    if (!is.character(outdir) && length(outdir) != 1) {
+        stop("character required for `outdir`")
     }
-    if (!dir.writable(pdir)) {
-      stop("Can't create output directory in: ", pdir)
+    outdir.created <- FALSE
+    if (dir.exists(outdir)) {
+        if (!dir.writable(outdir)) {
+            stop("Can't write to output directory: ", outdir)
+        }
+    } else {
+        pdir <- dirname(outdir)
+        if (!dir.exists(pdir)) {
+            stop("Path to outdir does not exist: ", pdir)
+        }
+        if (!dir.writable(pdir)) {
+            stop("Can't create output directory in: ", pdir)
+        }
+        dir.create(outdir)
+        outdir.created <- TRUE
     }
-    dir.create(outdir)
-    outdir.created <- TRUE
-  }
-  outdir.created
+    outdir.created
 }
 
 
@@ -52,18 +51,18 @@ initOutDir <- function(outdir) {
 ##' @keywords internal
 ##' @author Steve Lianoglou
 dir.writable <- function(path) {
-  if (!dir.exists(path)) {
-    stop("The directory provided does not exist: ", path)
-  }
-  tmp.fn <- tempfile(tmpdir=path, fileext='.test.tmp')
-  on.exit({
-    if (file.exists(tmp.fn)) unlink(tmp.fn)
-  })
-  
-  tryCatch({
-    suppressWarnings(writeLines('test', tmp.fn))
-    TRUE
-  }, error=function(e) FALSE)
+    if (!dir.exists(path)) {
+        stop("The directory provided does not exist: ", path)
+    }
+    tmp.fn <- tempfile(tmpdir = path, fileext = ".test.tmp")
+    on.exit({
+        if (file.exists(tmp.fn)) unlink(tmp.fn)
+    })
+
+    tryCatch({
+        suppressWarnings(writeLines("test", tmp.fn))
+        TRUE
+    }, error = function(e) FALSE)
 }
 
 
@@ -85,33 +84,39 @@ dir.writable <- function(path) {
 ##' library(Biobase)
 ##' 
 ##' #Build the sample key
-##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
+##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
 ##' names(sk) <- row.names(pData(es))
 ##' ct.inputCheck(sk, es)
 ##' @export
-ct.inputCheck <- function(sampleKey, object){
-  
-  #Check input formats
-  if(!any(is(object, "ExpressionSet"), is(object, "EList"), is(object, "matrix"))){
-    stop(paste(deparse(substitute(object)), "is not an ExpressionSet, Elist, or matrix. Class is: ", class(object)))
-  }
-  
-  if(!(is.factor(sampleKey))){stop(paste(deparse(substitute(sampleKey)), "is not an ordered factor."))}
-  if(is.null(names(sampleKey))){stop(paste(deparse(substitute(sampleKey)), "must have a names attribute, specifying the sample assignments in", deparse(substitute(object)), "."))}
-  
-  #Check to see if the names match properly
-  if(methods::is(object, "EList")){
-    dat <- object$E
-  }else if(methods::is(object, "ExpressionSet")){
-    dat <- exprs(object)
-  }else{
-    dat <- object
-  }
-  
-  if(!setequal(colnames(dat), names(sampleKey))){stop(paste("The names of", deparse(substitute(sampleKey)), "must exactly match the colnames of the data contained in", deparse(substitute(object)), "."))}
-  
-  return(TRUE)  
-}  
+ct.inputCheck <- function(sampleKey, object) {
+
+    # Check input formats
+    if (!any(is(object, "ExpressionSet"), is(object, "EList"), is(object, "matrix"))) {
+        stop(paste(deparse(substitute(object)), "is not an ExpressionSet, Elist, or matrix. Class is: ", class(object)))
+    }
+
+    if (!(is.factor(sampleKey))) {
+        stop(paste(deparse(substitute(sampleKey)), "is not an ordered factor."))
+    }
+    if (is.null(names(sampleKey))) {
+        stop(paste(deparse(substitute(sampleKey)), "must have a names attribute, specifying the sample assignments in", deparse(substitute(object)), "."))
+    }
+
+    # Check to see if the names match properly
+    if (methods::is(object, "EList")) {
+        dat <- object$E
+    } else if (methods::is(object, "ExpressionSet")) {
+        dat <- exprs(object)
+    } else {
+        dat <- object
+    }
+
+    if (!setequal(colnames(dat), names(sampleKey))) {
+        stop(paste("The names of", deparse(substitute(sampleKey)), "must exactly match the colnames of the data contained in", deparse(substitute(object)), "."))
+    }
+
+    return(TRUE)
+}
 
 
 ##' @title Determine whether a supplied object contains the results of a Pooled Screen
@@ -129,36 +134,34 @@ ct.inputCheck <- function(sampleKey, object){
 ##' @examples data('resultsDF')
 ##' ct.resultCheck(resultsDF)
 ##' @export
-ct.resultCheck <- function(summaryDF){
-  
-  #Check input formats
-  if(!is.data.frame(summaryDF)){
-    summaryDF <- as.data.frame(summaryDF, stringsAsFactors = FALSE)
-    message('The supplied screen results are not a data.frame.')
-    return(FALSE)
+ct.resultCheck <- function(summaryDF) {
+
+    # Check input formats
+    if (!is.data.frame(summaryDF)) {
+        summaryDF <- as.data.frame(summaryDF, stringsAsFactors = FALSE)
+        message("The supplied screen results are not a data.frame.")
+        return(FALSE)
     }
-   
-  expectedNames <- c("geneID","geneSymbol","gRNA Log2 Fold Change","gRNA Depletion P",
-                     "gRNA Depletion Q","gRNA Enrichment P","gRNA Enrichment Q", "Target-level Enrichment P",
-                     "Target-level Enrichment Q", "Target-level Depletion P",  "Target-level Depletion Q",
-                     "Median log2 Fold Change", "Rho_enrich", "Rho_deplete")
-  
-  if(!all(expectedNames %in% names(summaryDF))){
-    missing <- setdiff(expectedNames, names(summaryDF))
-    warning('The supplied result object seems to have some incorrect columns. I was expecting: ')
-    print(missing)
-    stop('Please supply a summaryDF object generated from ct.generateResults() in the gCrisprTools package.')
-    return(FALSE)
-  } 
-  
-  if(!setequal(vapply(summaryDF, class, character(1)), rep(c('character', 'numeric'), times = c(4,12)))){
-    stop('Some of the columns in the supplied result object seem to be of the wrong type. Please supply a summaryDF object generated from ct.generateResults() in the gCrisprTools package.')
-    return(FALSE) 
-  } 
-  
-  return(TRUE)
+
+    expectedNames <- c("geneID", "geneSymbol", "gRNA Log2 Fold Change", "gRNA Depletion P", "gRNA Depletion Q", "gRNA Enrichment P", "gRNA Enrichment Q", "Target-level Enrichment P", 
+        "Target-level Enrichment Q", "Target-level Depletion P", "Target-level Depletion Q", "Median log2 Fold Change", "Rho_enrich", "Rho_deplete")
+
+    if (!all(expectedNames %in% names(summaryDF))) {
+        missing <- setdiff(expectedNames, names(summaryDF))
+        warning("The supplied result object seems to have some incorrect columns. I was expecting: ")
+        print(missing)
+        stop("Please supply a summaryDF object generated from ct.generateResults() in the gCrisprTools package.")
+        return(FALSE)
+    }
+
+    if (!setequal(vapply(summaryDF, class, character(1)), rep(c("character", "numeric"), times = c(4, 12)))) {
+        stop("Some of the columns in the supplied result object seem to be of the wrong type. Please supply a summaryDF object generated from ct.generateResults() in the gCrisprTools package.")
+        return(FALSE)
+    }
+
+    return(TRUE)
 }
-  
+
 ##' @title Package Screen Data into a `SummarizedExperiment` Object 
 ##' @description Convenience function to package major components of a screen into a `SummarizedExperiment` container
 ##' for downstream visualization and analysis. All arguments are optional except for `es`. 
@@ -177,59 +180,49 @@ ct.resultCheck <- function(summaryDF){
 ##' data('ann', 'es', 'fit', 'resultsDF')
 ##' ct.buildSE(es, ann = ann, fit = 'fit', summaryList = list('resA' = resultsDF, 'resB' = resultsDF))
 ##' @export
-ct.buildSE <- function(es, 
-                       sampleKey = NULL, 
-                       ann = NULL, 
-                       vm = NULL,
-                       fit = NULL, 
-                       summaryList = NULL){
-  stopifnot(methods::is(es, 'ExpressionSet'))
-  
-  asy <- list('counts' = exprs(es))
-  met <- list()
-  rd <- fData(es)
-  cd <- pData(es)
+ct.buildSE <- function(es, sampleKey = NULL, ann = NULL, vm = NULL, fit = NULL, summaryList = NULL) {
+    stopifnot(methods::is(es, "ExpressionSet"))
 
-  if(!is.null(sampleKey)){
-    cd$sampleKey <- sampleKey[row.names(cd)]
- }
+    asy <- list(counts = exprs(es))
+    met <- list()
+    rd <- fData(es)
+    cd <- pData(es)
 
-  if(!is.null(vm)){
-    stopifnot(setequal(colnames(vm), colnames(es)), 
-              is(vm, 'EList'), 
-              setequal(row.names(vm), row.names(es)))
-      asy['voom'] <- vm$E
-      asy['weights'] <- vm$weights
-      met['design'] <- vm$design
-      
-      newCols <- (ncol(cd) + 1):(ncol(cd) + ncol(vm$targets))
-      cd <- cbind(cd, vm$targets[row.names(cd),])
-      colnames(cd)[newCols] <- colnames(vm$targets) 
+    if (!is.null(sampleKey)) {
+        cd$sampleKey <- sampleKey[row.names(cd)]
     }
 
-  if(!is.null(fit)){
-    met['fit'] <- fit
-  }
-  
-  if(!is.null(summaryList)){
-    if((!is(summaryList, 'list')) | (is.null(names(summaryList)))){
-      stop('When supplied, results dataframes must be provided as a named list.')
-      }
-    invisible(lapply(summaryList, ct.resultCheck))
-    met$results <- summaryList
-  }
-  
-  if(!is.null(ann)){
-    ann <- ct.prepareAnnotation(ann, es)
-    rd <- cbind(rd, ann[row.names(rd),])
-  }
- 
-  se <- SummarizedExperiment::SummarizedExperiment(assays = asy, 
-                                                   rowData = rd, 
-                                                   colData = cd, 
-                                                   metadata = met)
+    if (!is.null(vm)) {
+        stopifnot(setequal(colnames(vm), colnames(es)), is(vm, "EList"), setequal(row.names(vm), row.names(es)))
+        asy["voom"] <- vm$E
+        asy["weights"] <- vm$weights
+        met["design"] <- vm$design
 
-  return(se)
+        newCols <- (ncol(cd) + 1):(ncol(cd) + ncol(vm$targets))
+        cd <- cbind(cd, vm$targets[row.names(cd), ])
+        colnames(cd)[newCols] <- colnames(vm$targets)
+    }
+
+    if (!is.null(fit)) {
+        met["fit"] <- fit
+    }
+
+    if (!is.null(summaryList)) {
+        if ((!is(summaryList, "list")) | (is.null(names(summaryList)))) {
+            stop("When supplied, results dataframes must be provided as a named list.")
+        }
+        invisible(lapply(summaryList, ct.resultCheck))
+        met$results <- summaryList
+    }
+
+    if (!is.null(ann)) {
+        ann <- ct.prepareAnnotation(ann, es)
+        rd <- cbind(rd, ann[row.names(rd), ])
+    }
+
+    se <- SummarizedExperiment::SummarizedExperiment(assays = asy, rowData = rd, colData = cd, metadata = met)
+
+    return(se)
 }
 
 ##' @title Convert a verbose results DF object to a gene-level result object
@@ -247,56 +240,49 @@ ct.buildSE <- function(es,
 ##' @examples data('resultsDF')
 ##' ct.simpleResult(resultsDF)
 ##' @export
-ct.simpleResult <- function(summaryDF, collapse = c('geneSymbol', 'geneID')){
-  
-  #Check inputs
-  collapse <- match.arg(collapse)
-  stopifnot(is(summaryDF, 'data.frame'), (collapse %in% names(summaryDF)))
-  
-  if(length(setdiff(c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction'), (names(summaryDF)))) == 0){
-    #already simplified
-    stopifnot(all(vapply(names(summaryDF)[seq_len(7)], 
-                         function(x){class(summaryDF[,x])}, 
-                         character(1)) == rep(c('character', 'numeric', 'character'), times = c(2, 4, 1))))
-    out <- summaryDF
-    
-  } else {
-    stopifnot(ct.resultCheck(summaryDF))
-    out <- summaryDF
-    
-    out$direction <- vapply(seq_len(nrow(out)), 
-                            function(x){
-                              ifelse(out[x,"Target-level Enrichment P"] < out[x,"Target-level Depletion P"], 'enrich', 'deplete')
-                            }, character(1))
-    
-    out$best.p <- vapply(seq_len(nrow(out)), 
-                         function(x){
-                           ifelse(out$direction[x] %in% 'enrich', 
-                                  out[x,"Target-level Enrichment P"], 
-                                  out[x,"Target-level Depletion P"])
-                         }, numeric(1))
-    
-    out$best.q <- vapply(seq_len(nrow(out)), 
-                         function(x){
-                           ifelse(out$direction[x] %in% 'enrich', 
-                                  out[x,"Target-level Enrichment Q"], 
-                                  out[x,"Target-level Depletion Q"])
-                         }, numeric(1)) 
-    out <- out[,c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", 'best.p', 'best.q', 'direction')]
-    
-   
-  }
-  
-  #Cleanup duplicates - always keep strongest signals.  
-  out <- out[order(out$best.p, decreasing = FALSE),]
-  out <- out[!duplicated(out[,collapse]),]
-  if(any(is.na(out[,collapse]))){
-    warning(paste0('NA detected in column ', collapse, '! Omitting the associated entries.'))
-    out <- out[!is.na(out[,collapse]),]
-  }
-  row.names(out) <- out[,collapse]
-  
-  return(out)
+ct.simpleResult <- function(summaryDF, collapse = c("geneSymbol", "geneID")) {
+
+    # Check inputs
+    collapse <- match.arg(collapse)
+    stopifnot(is(summaryDF, "data.frame"), (collapse %in% names(summaryDF)))
+
+    if (length(setdiff(c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", "best.p", "best.q", "direction"), (names(summaryDF)))) == 0) {
+        # already simplified
+        stopifnot(all(vapply(names(summaryDF)[seq_len(7)], function(x) {
+            class(summaryDF[, x])
+        }, character(1)) == rep(c("character", "numeric", "character"), times = c(2, 4, 1))))
+        out <- summaryDF
+
+    } else {
+        stopifnot(ct.resultCheck(summaryDF))
+        out <- summaryDF
+
+        out$direction <- vapply(seq_len(nrow(out)), function(x) {
+            ifelse(out[x, "Target-level Enrichment P"] < out[x, "Target-level Depletion P"], "enrich", "deplete")
+        }, character(1))
+
+        out$best.p <- vapply(seq_len(nrow(out)), function(x) {
+            ifelse(out$direction[x] %in% "enrich", out[x, "Target-level Enrichment P"], out[x, "Target-level Depletion P"])
+        }, numeric(1))
+
+        out$best.q <- vapply(seq_len(nrow(out)), function(x) {
+            ifelse(out$direction[x] %in% "enrich", out[x, "Target-level Enrichment Q"], out[x, "Target-level Depletion Q"])
+        }, numeric(1))
+        out <- out[, c("geneID", "geneSymbol", "Rho_enrich", "Rho_deplete", "best.p", "best.q", "direction")]
+
+
+    }
+
+    # Cleanup duplicates - always keep strongest signals.
+    out <- out[order(out$best.p, decreasing = FALSE), ]
+    out <- out[!duplicated(out[, collapse]), ]
+    if (any(is.na(out[, collapse]))) {
+        warning(paste0("NA detected in column ", collapse, "! Omitting the associated entries."))
+        out <- out[!is.na(out[, collapse]), ]
+    }
+    row.names(out) <- out[, collapse]
+
+    return(out)
 }
 
 
@@ -314,25 +300,27 @@ ct.simpleResult <- function(summaryDF, collapse = c('geneSymbol', 'geneID')){
 ##' data('resultsDF')
 ##' lapply(ct.regularizeContrasts(list('df1' = resultsDF[1:300,], 'df2' = resultsDF[200:400,])), nrow)
 ##' @export
-ct.regularizeContrasts <- function(dflist, collapse = c('geneSymbol', 'geneID')){
-  
-  #input check 
-  stopifnot(is.list(dflist))
+ct.regularizeContrasts <- function(dflist, collapse = c("geneSymbol", "geneID")) {
 
-  #convert to simple results
-  dflist <- lapply(dflist, ct.simpleResult, collapse = collapse)
-  
-  #find common rows
-  rowcounts <- table(unlist(lapply(dflist, row.names)))
-  samerows <- names(rowcounts)[rowcounts == length(dflist)]
-  
-  if(length(samerows) == 0){
-    stop("The supplied DFs have no targets in common! Consider specifying `collapse` argument for ct.simpleResult().")
-  } else if (!all(rowcounts == length(dflist))){
-      message(paste0(length(samerows), ' targets in common. Omitting others.'))
+    # input check
+    stopifnot(is.list(dflist))
+
+    # convert to simple results
+    dflist <- lapply(dflist, ct.simpleResult, collapse = collapse)
+
+    # find common rows
+    rowcounts <- table(unlist(lapply(dflist, row.names)))
+    samerows <- names(rowcounts)[rowcounts == length(dflist)]
+
+    if (length(samerows) == 0) {
+        stop("The supplied DFs have no targets in common! Consider specifying `collapse` argument for ct.simpleResult().")
+    } else if (!all(rowcounts == length(dflist))) {
+        message(paste0(length(samerows), " targets in common. Omitting others."))
     }
 
-  return(lapply(dflist, function(x){x[samerows,]}))  
+    return(lapply(dflist, function(x) {
+        x[samerows, ]
+    }))
 }
 
 ##' @title Rank Signals in a Simplified Pooled Screen Result Object 
@@ -353,41 +341,39 @@ ct.regularizeContrasts <- function(dflist, collapse = c('geneSymbol', 'geneID'))
 ##' sr <- ct.rankSimple(resultsDF, 'deplete')
 ##' all((df.simple$best.p[sr == 1] == 0), (df.simple$direction[sr == 1] == 'deplete'))
 ##' @export
-ct.rankSimple <- function(df, top = c('enrich', 'deplete')){
-  df.simple <- ct.simpleResult(df)
-  top <- match.arg(top)
-  
-  ranktype <- switch(top, 
-                     'enrich' = 'min', 
-                     'deplete' = 'max')
-  
-  #rank the enriched:
-  enr <- rank(df.simple$best.p[df.simple$direction %in% 'enrich'], na.last = TRUE, ties.method = ranktype)
-  
-  #Depleted is trickier:
-  dep <- rank(df.simple$best.p[df.simple$direction %in% 'deplete'], na.last = TRUE, ties.method = ranktype)
-  dep <- ((max(dep) + 1) - dep) + max(enr)
-  
-  #put them back in order:
-  out <- rep(0, nrow(df.simple))
-  out[df.simple$direction %in% 'enrich'] <- enr
-  out[df.simple$direction %in% 'deplete'] <- dep
+ct.rankSimple <- function(df, top = c("enrich", "deplete")) {
+    df.simple <- ct.simpleResult(df)
+    top <- match.arg(top)
 
-  #Switch the values if depletion
-  if(top %in% 'deplete'){
-    out <- (max(out) + 1) - out
-  }
-  
-  return(out)
+    ranktype <- switch(top, enrich = "min", deplete = "max")
+
+    # rank the enriched:
+    enr <- rank(df.simple$best.p[df.simple$direction %in% "enrich"], na.last = TRUE, ties.method = ranktype)
+
+    # Depleted is trickier:
+    dep <- rank(df.simple$best.p[df.simple$direction %in% "deplete"], na.last = TRUE, ties.method = ranktype)
+    dep <- ((max(dep) + 1) - dep) + max(enr)
+
+    # put them back in order:
+    out <- rep(0, nrow(df.simple))
+    out[df.simple$direction %in% "enrich"] <- enr
+    out[df.simple$direction %in% "deplete"] <- dep
+
+    # Switch the values if depletion
+    if (top %in% "deplete") {
+        out <- (max(out) + 1) - out
+    }
+
+    return(out)
 }
 
 ##' @title Log10 transform empirical P-values with a pseudocount
 ##' @description This function -log10 transforms empirical P-values by adding a pseudocount of 1/2 the minimum nonzero value. 
 ##' @param x numeric vector. 
 ##' @return -log10-transformed version of X.
-ct.softLog <- function(x){
-  stopifnot(is.numeric(x), all(!is.na(x)), !all(x == 0))
-  return(-log10((x + (min(x[x != 0])/2))))
+ct.softLog <- function(x) {
+    stopifnot(is.numeric(x), all(!is.na(x)), !all(x == 0))
+    return(-log10((x + (min(x[x != 0])/2))))
 }
 
 

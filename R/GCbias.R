@@ -28,100 +28,80 @@
 ##' ct.GCbias(fit, ann)
 ##' @export
 
-ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL){
+ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL) {
 
-  #check inputs
-  if(methods::is(data.obj, 'ExpressionSet')){
-      is.fit <- FALSE
-      d <- exprs(data.obj)
-      
-      if (is.null(lib.size)){
-        lib.size <- colSums(d)
-      }else if(!is.numeric(lib.size) | (length(lib.size) != ncol(d))){
-        stop('If specified, lib.size must be a numeric vector of the same 
-             length as the number of samples in the eset.')
-      } 
-    
-      d <- t(log2(t(d + 0.5)/(lib.size + 1) * 1e+06))
+    # check inputs
+    if (methods::is(data.obj, "ExpressionSet")) {
+        is.fit <- FALSE
+        d <- exprs(data.obj)
 
-      if(is.null(sampleKey)){
-        sampleKey <- factor(colnames(d))
-        names(sampleKey) <- colnames(d)
-      }
-
-    invisible(ct.inputCheck(sampleKey, data.obj))
-    ann <- ct.prepareAnnotation(ann, object = data.obj, throw.error = FALSE)
-        
-    } else if(is(data.obj, 'MArrayLM')){
-
-      is.fit <- TRUE
-      ann <- ct.prepareAnnotation(ann, object = data.obj, throw.error = FALSE)
-
-      } else {
-        stop('Please provide an Expressionset or MArrayLM object for GC analysis.')
+        if (is.null(lib.size)) {
+            lib.size <- colSums(d)
+        } else if (!is.numeric(lib.size) | (length(lib.size) != ncol(d))) {
+            stop("If specified, lib.size must be a numeric vector of the same 
+             length as the number of samples in the eset.")
         }
 
-    if(!('target' %in% names(ann))){
-      stop('The provided annotation object does not contain a "target" column annotating the gRNA sequences.')
-    } else if(!is.character(ann$target)){
-      message('The "target" column of the provided annotation object is not a character vector. Coercing.')
+        d <- t(log2(t(d + 0.5)/(lib.size + 1) * 1e+06))
+
+        if (is.null(sampleKey)) {
+            sampleKey <- factor(colnames(d))
+            names(sampleKey) <- colnames(d)
+        }
+
+        invisible(ct.inputCheck(sampleKey, data.obj))
+        ann <- ct.prepareAnnotation(ann, object = data.obj, throw.error = FALSE)
+
+    } else if (is(data.obj, "MArrayLM")) {
+
+        is.fit <- TRUE
+        ann <- ct.prepareAnnotation(ann, object = data.obj, throw.error = FALSE)
+
+    } else {
+        stop("Please provide an Expressionset or MArrayLM object for GC analysis.")
     }
 
-  #Calculate GC
-  seq <- toupper(ann$target)
-  seqlen <- vapply(seq, nchar, numeric(1))
-  gc <- vapply(gregexpr("[CG]", seq, perl = TRUE), length, integer(1))/seqlen
-
-  if(any(seqlen == 0)){
-      gc[seqlen == 0] <- NA
-      warning(paste('Could not calculate GC% for', sum(seqlen == 0), 'guides. Omitting.'))
-  }
-  
-  #if a fit object, plot relationship between GC and P, coefficients, variance
-  if(is.fit){
-    ltp <- -log10(data.obj$p.value)
-    ylims <- range(c(ltp, data.obj$coefficients[,1]))
-    
-    par(mfrow = c(2,2))
-    hist(gc, 
-         xlim = c(0,1),
-         xlab = 'gRNA %GC', 
-         main = 'GC Content by gRNA', 
-         breaks = max(seqlen))    
-    
-    plot(gc, data.obj$coefficients[,1], xlim = c(0,1), 
-         xlab = 'gRNA %GC', ylab = '',
-         main = 'Log2 Fold Change', 
-         pch = 16, col = rgb(0,0,1, 0.2))
-    lines(spline(gc, data.obj$coefficients[,1]), col = 'black', lwd = 2)
-    
-    plot(gc, data.obj$stdev.unscaled[,1], xlim = c(0,1), 
-         xlab = 'gRNA %GC', ylab = '',
-         main = 'Standard Deviation', 
-         pch = 16, col = rgb(1,0,0, 0.2))
-    lines(spline(gc, data.obj$stdev.unscaled[,1]), col = 'black', lwd = 2)
-
-    plot(gc, ltp, xlim = c(0,1), 
-         xlab = 'gRNA %GC', ylab = '',
-         main = '-Log10 P-value', 
-         pch = 16, col = rgb(0,1,0, 0.2))
-    lines(spline(gc, ltp), col = 'black', lwd = 2)
-    return(invisible())
-  } else {
-    colors <- colorRampPalette(c(rgb(1, 0, 0, 0.2), rgb(0, 0, 1, 0.2)), alpha = TRUE)(ncol(d))
-    spline.color <- substr(colors, 1, 7)
-    plot(NA, NA, 
-         xlab = 'gRNA %GC',
-         ylab = 'Log2 Counts Per Million',
-         main = 'GC Content vs. Measured Abundance',
-         ylim = range(d), 
-         xlim = c(0,1)
-         )
-    invisible(lapply(seq_len(ncol(d)),  
-          function(x){
-            points(gc, d[,x], pch = 16, col = colors[x])
-            lines(spline(gc, d[,x]), col = spline.color[x], lwd = 4)
-            }))
-    legend('topleft', names(sampleKey), fill = spline.color)
+    if (!("target" %in% names(ann))) {
+        stop("The provided annotation object does not contain a \"target\" column annotating the gRNA sequences.")
+    } else if (!is.character(ann$target)) {
+        message("The \"target\" column of the provided annotation object is not a character vector. Coercing.")
     }
-  }  
+
+    # Calculate GC
+    seq <- toupper(ann$target)
+    seqlen <- vapply(seq, nchar, numeric(1))
+    gc <- vapply(gregexpr("[CG]", seq, perl = TRUE), length, integer(1))/seqlen
+
+    if (any(seqlen == 0)) {
+        gc[seqlen == 0] <- NA
+        warning(paste("Could not calculate GC% for", sum(seqlen == 0), "guides. Omitting."))
+    }
+
+    # if a fit object, plot relationship between GC and P, coefficients, variance
+    if (is.fit) {
+        ltp <- -log10(data.obj$p.value)
+        ylims <- range(c(ltp, data.obj$coefficients[, 1]))
+
+        par(mfrow = c(2, 2))
+        hist(gc, xlim = c(0, 1), xlab = "gRNA %GC", main = "GC Content by gRNA", breaks = max(seqlen))
+
+        plot(gc, data.obj$coefficients[, 1], xlim = c(0, 1), xlab = "gRNA %GC", ylab = "", main = "Log2 Fold Change", pch = 16, col = rgb(0, 0, 1, 0.2))
+        lines(spline(gc, data.obj$coefficients[, 1]), col = "black", lwd = 2)
+
+        plot(gc, data.obj$stdev.unscaled[, 1], xlim = c(0, 1), xlab = "gRNA %GC", ylab = "", main = "Standard Deviation", pch = 16, col = rgb(1, 0, 0, 0.2))
+        lines(spline(gc, data.obj$stdev.unscaled[, 1]), col = "black", lwd = 2)
+
+        plot(gc, ltp, xlim = c(0, 1), xlab = "gRNA %GC", ylab = "", main = "-Log10 P-value", pch = 16, col = rgb(0, 1, 0, 0.2))
+        lines(spline(gc, ltp), col = "black", lwd = 2)
+        return(invisible())
+    } else {
+        colors <- colorRampPalette(c(rgb(1, 0, 0, 0.2), rgb(0, 0, 1, 0.2)), alpha = TRUE)(ncol(d))
+        spline.color <- substr(colors, 1, 7)
+        plot(NA, NA, xlab = "gRNA %GC", ylab = "Log2 Counts Per Million", main = "GC Content vs. Measured Abundance", ylim = range(d), xlim = c(0, 1))
+        invisible(lapply(seq_len(ncol(d)), function(x) {
+            points(gc, d[, x], pch = 16, col = colors[x])
+            lines(spline(gc, d[, x]), col = spline.color[x], lwd = 4)
+        }))
+        legend("topleft", names(sampleKey), fill = spline.color)
+    }
+}

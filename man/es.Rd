@@ -12,7 +12,7 @@ Expressionset of raw counts from a screen in mouse cells performed at Genentech,
 All sample, gRNA, and Gene information has been anonymized and randomized.
 }
 \examples{
-data("es")
+data('es')
 print(es)
 }
 \seealso{

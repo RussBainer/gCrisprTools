@@ -12,7 +12,7 @@ Example alignment matrix file for the provided example Crispr screen.
 All sample, gRNA, and Gene information has been anonymized and randomized.
 }
 \examples{
-data("aln")
+data('aln')
 head(aln)
 }
 \seealso{

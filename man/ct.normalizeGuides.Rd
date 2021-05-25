@@ -52,7 +52,7 @@ data('ann')
 
 #Build the sample key as needed
 library(Biobase)
-sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 names(sk) <- row.names(pData(es))
 
 es.norm <- ct.normalizeGuides(es, 'scale', annotation = ann, sampleKey = sk, plot.it = TRUE)

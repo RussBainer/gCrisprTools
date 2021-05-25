@@ -43,7 +43,7 @@ data('ann')
 
 #Build the sample key
 library(Biobase)
-sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 names(sk) <- row.names(pData(es))
 
 ct.gRNARankByReplicate(es, sk, ann, 'Ripk3')

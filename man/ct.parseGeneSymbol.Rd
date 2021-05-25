@@ -8,7 +8,7 @@ ct.parseGeneSymbol(ann, format = c("cellecta", "underscore"))
 }
 \arguments{
 \item{ann}{A \code{data.frame} containing reagent-level information encoded as rows. The `ID` column should correspond to the individual 
-reagent identifiers, and the "geneSymbol" column should contain target annotation strings to be parsed (both are coerced to strings). 
+reagent identifiers, and the 'geneSymbol' column should contain target annotation strings to be parsed (both are coerced to strings). 
 Does not, strictly speaking, need to be a proper annotation object, but one of those will work.}
 
 \item{format}{Format of the geneSymbol column strings.}
@@ -23,9 +23,9 @@ additional details.
 
 Often, libraries that contain multiply-targeting reagents are annotated using a structured format that can be decomposed by regex matching. 
 This function takes in an annotation object containing an `ID` column indicating the reagent ID and a `geneSymbol` column containing the 
-target mappings, and parses the target mappings according to a known annotation format. Currently supported formats are "cellecta" 
-(e.g., "TARGET_P1P2P3" indicating multiple promoters associated with a known target), and "underscore", where different targets are 
-concatenated using the underscore separator (e.g., "TARGET1_TARGET2_TARGET3").
+target mappings, and parses the target mappings according to a known annotation format. Currently supported formats are 'cellecta' 
+(e.g., 'TARGET_P1P2P3' indicating multiple promoters associated with a known target), and 'underscore', where different targets are 
+concatenated using the underscore separator (e.g., 'TARGET1_TARGET2_TARGET3').
 
 Returns an `alt.annotation`-type list of character vectors encoding the target mappings for each reagent.
 }

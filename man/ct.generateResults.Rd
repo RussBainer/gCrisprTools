@@ -80,7 +80,7 @@ head(output)
     Enrichment.P=rev(p),
     fc=fc
   )
-  ct.applyAlpha(stats,scoring="combined")
+  ct.applyAlpha(stats,scoring='combined')
 }
 \author{
 Russell Bainer

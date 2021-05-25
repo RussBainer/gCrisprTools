@@ -13,7 +13,7 @@
 ##' 
 ##' @param dflist A list of (possibly simplified) results data.frames produced by \code{\link{ct.generateResults}}. 
 ##' @param statistics Statistics to use to define congruence; may be a single value, but internally coerced to a vector of length 2 where the first 
-##' value corresponds to the stringent cutoff annd the second value is used for the relaxed cutoff. Must be "best.p" or "best.q". 
+##' value corresponds to the stringent cutoff annd the second value is used for the relaxed cutoff. Must be 'best.p' or 'best.q'. 
 ##' @param cutoffs Numeric value(s) corresponding to the significance cutoff(s) used to define stringent and relaxed values of `statistics`. 
 ##' Internally coerced to a vector of length 2.
 ##' @param same.dir Logical vector of the same length as `dflist` indicating whether replicating signals are expected to go in the same direction 
@@ -34,76 +34,76 @@
 ##' summary(ct.compareContrasts(list(resultsDF, resultsDF[1:5000,]))$replicated)
 ##' ct.compareContrasts(list(resultsDF, resultsDF[1:5000,]), return.stats = TRUE)
 ##' @export
-ct.compareContrasts  <- 
-  function(dflist, 
-           statistics = c('best.q', 'best.p'),
-           cutoffs = c(0.1, 0.1), 
-           same.dir = rep(TRUE, length(dflist)),
-           return.stats = FALSE,
-           nperm=10000,
-           ...) {
+ct.compareContrasts <- function(dflist, statistics = c("best.q", "best.p"), cutoffs = c(0.1, 0.1), same.dir = rep(TRUE, length(dflist)), return.stats = FALSE, nperm = 10000, 
+    ...) {
 
-    #Check the input: 
+    # Check the input:
     dflist <- ct.regularizeContrasts(dflist, ...)
-    stopifnot(all(statistics %in% c('best.p', 'best.q')), (length(statistics) <= 2), (length(statistics) > 0), is(return.stats, 'logical'),
-              is(cutoffs, 'numeric'), (length(cutoffs) <= 2), (length(cutoffs) > 0), is.logical(same.dir), (length(same.dir) == length(dflist)))
-    if(length(statistics) == 1){ 
-      statistics <- rep(statistics, 2)
-      }
-    if(length(cutoffs) == 1){ 
-      cutoffs <- rep(cutoffs, 2)
+    stopifnot(all(statistics %in% c("best.p", "best.q")), (length(statistics) <= 2), (length(statistics) > 0), is(return.stats, "logical"), is(cutoffs, "numeric"), 
+        (length(cutoffs) <= 2), (length(cutoffs) > 0), is.logical(same.dir), (length(same.dir) == length(dflist)))
+    if (length(statistics) == 1) {
+        statistics <- rep(statistics, 2)
     }
- 
-    if(return.stats){
-      stopifnot(is(nperm, 'numeric'))
+    if (length(cutoffs) == 1) {
+        cutoffs <- rep(cutoffs, 2)
     }
-    
-    #Find validated signals. 
-    stringent <- vapply(dflist, function(x){x[,statistics[1]] <= cutoffs[1]}, logical(nrow(dflist[[1]])))
-    lax <- vapply(dflist, function(x){x[,statistics[2]] <= cutoffs[2]}, logical(nrow(dflist[[1]])))
-    dirs <- vapply(dflist, function(x){x$direction %in% 'enrich'}, logical(nrow(dflist[[1]])))
-    dirs[,!same.dir] <- !dirs[,!same.dir]
+
+    if (return.stats) {
+        stopifnot(is(nperm, "numeric"))
+    }
+
+    # Find validated signals.
+    stringent <- vapply(dflist, function(x) {
+        x[, statistics[1]] <= cutoffs[1]
+    }, logical(nrow(dflist[[1]])))
+    lax <- vapply(dflist, function(x) {
+        x[, statistics[2]] <= cutoffs[2]
+    }, logical(nrow(dflist[[1]])))
+    dirs <- vapply(dflist, function(x) {
+        x$direction %in% "enrich"
+    }, logical(nrow(dflist[[1]])))
+    dirs[, !same.dir] <- !dirs[, !same.dir]
     valid <- (rowSums(dirs) %in% c(ncol(dirs), 0)) & (rowSums(stringent) > 0) & (rowSums(lax) == ncol(lax))
-    
+
     mainresult <- dflist[[1]]
     mainresult$replicated <- valid
-    
-    if(return.stats){
-      obs <- c(sum((rowSums(dirs) == ncol(dirs)) & valid), sum((rowSums(dirs) == 0) & valid), sum(valid))
 
-      if(length(dflist) == 1){
-        out <- data.frame('expected' = obs, 
-                          'observed' = obs, 
-                          'p' = c(1,1,1)) 
-        row.names(out) <- c('enrich', 'deplete', 'all') 
+    if (return.stats) {
+        obs <- c(sum((rowSums(dirs) == ncol(dirs)) & valid), sum((rowSums(dirs) == 0) & valid), sum(valid))
+
+        if (length(dflist) == 1) {
+            out <- data.frame(expected = obs, observed = obs, p = c(1, 1, 1))
+            row.names(out) <- c("enrich", "deplete", "all")
+            return(out)
+        }
+
+        perm <- t(replicate(nperm, expr = {
+            pr <- lapply(seq_len(ncol(stringent)), function(x) {
+                sample(seq_len(nrow(stringent)))
+            })
+            nr <- nrow(stringent)
+
+            p.stringent <- vapply(seq_len(length(pr)), function(x) {
+                stringent[pr[[x]], x]
+            }, logical(nr))
+            p.lax <- vapply(seq_len(length(pr)), function(x) {
+                lax[pr[[x]], x]
+            }, logical(nr))
+            p.dirs <- vapply(seq_len(length(pr)), function(x) {
+                dirs[pr[[x]], x]
+            }, logical(nr))
+
+            dn <- sum((rowSums(p.dirs) == 0) & (rowSums(p.stringent) > 0) & (rowSums(p.lax) == ncol(p.lax)))
+            up <- sum((rowSums(p.dirs) == ncol(p.dirs)) & (rowSums(p.stringent) > 0) & (rowSums(p.lax) == ncol(p.lax)))
+            return(c(up, dn, up + dn))
+        }, simplify = TRUE))
+        out <- data.frame(expected = colMeans(perm), observed = obs, p = c(sum(perm[, 1] > obs[1])/nperm, sum(perm[, 2] > obs[2])/nperm, sum(perm[, 3] > obs[3])/nperm))
+
+        row.names(out) <- c("enrich", "deplete", "all")
         return(out)
-      }
-      
-      perm <- t(replicate(nperm, 
-                        expr={
-                          pr <- lapply(seq_len(ncol(stringent)), function(x){sample(seq_len(nrow(stringent)))})
-                          nr <- nrow(stringent)
-
-                          p.stringent <- vapply(seq_len(length(pr)), function(x){stringent[pr[[x]], x]}, logical(nr))
-                          p.lax <- vapply(seq_len(length(pr)), function(x){lax[pr[[x]], x]}, logical(nr))
-                          p.dirs <- vapply(seq_len(length(pr)), function(x){dirs[pr[[x]], x]}, logical(nr))
-                          
-                          dn <- sum((rowSums(p.dirs) == 0) & (rowSums(p.stringent) > 0) & (rowSums(p.lax) == ncol(p.lax))) 
-                          up <- sum((rowSums(p.dirs) == ncol(p.dirs)) & (rowSums(p.stringent) > 0) & (rowSums(p.lax) == ncol(p.lax)))
-                          return(c(up, dn, up+dn))
-                        }, 
-                        simplify = TRUE))
-      out <- data.frame('expected' = colMeans(perm), 
-                        'observed' = obs, 
-                        'p' = c(sum(perm[,1] > obs[1])/nperm, 
-                                sum(perm[,2] > obs[2])/nperm, 
-                                sum(perm[,3] > obs[3])/nperm)) 
-      
-      row.names(out) <- c('enrich', 'deplete', 'all') 
-      return(out)
     }
     return(mainresult)
-  }
+}
 
 
 ##' @title Consolidate shared signals across many contrasts in an UpSet Plot
@@ -133,123 +133,100 @@ ct.compareContrasts  <-
 ##' data('resultsDF')
 ##' sets <- ct.upSet(list('first' = resultsDF, 'second' = resultsDF[1:5000,]))
 ##' @export
-ct.upSet <- function(dflist,
-                     add.stats = TRUE,
-                     nperm = 10000,
-                     ...){
-  stopifnot(length(dflist) > 1, is.numeric(nperm))
-  
-  if(is.null(names(dflist))){stop('The names() attribute must be set on the provided dflist for this to make any sense.')}
-  
-  #Subfunction args: 
-  #dflist <- ct.regularizeContrasts(dflist, ...)
-  dots <- list(...)
-  dirs <- rep(TRUE, length(dflist))
-  if('same.dir' %in% names(dots)){dirs <- dots$same.dir}
-  dots <- dots[!(names(dots) %in% c('dflist', 'return.stats', 'same.dir'))]
+ct.upSet <- function(dflist, add.stats = TRUE, nperm = 10000, ...) {
+    stopifnot(length(dflist) > 1, is.numeric(nperm))
 
-  dflist <- do.call('ct.regularizeContrasts', args = c(list(dflist = dflist), dots[names(dots) %in% names(formals('ct.regularizeContrasts'))]))
-  
-  #Generate the relevant overlap counts
-  combos <- unlist(lapply(seq_len(length(dflist)), function(x){combn(seq_len(length(dflist)), x, simplify = FALSE)}), recursive = FALSE)
+    if (is.null(names(dflist))) {
+        stop("The names() attribute must be set on the provided dflist for this to make any sense.")
+    }
 
-  #Calculate overlap counts
-  overlaps <- lapply(combos, 
-                      function(x){
-                        return(do.call('ct.compareContrasts', 
-                                       args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = FALSE),
-                                                dots[names(dots) %in% names(formals('ct.compareContrasts'))])
-                                       )
-                        )
-                      })
-  #overlaps <- lapply(combos, 
-  #                   function(x){
-  #                     if(exists('same.dir')){
-  #                       dirarg <- same.dir[x]
-  #                     } else {dirarg <- rep(TRUE, length(x))}
-  #                     return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = FALSE))
-  #                   })
-  
-  overlapct <- vapply(overlaps, function(x){sum(x$replicated, na.rm = TRUE)}, numeric(1))
-  
-  #Create the comb mat object.
-  n <- length(dflist)
-  comb_mat <- matrix(FALSE, nrow = n, ncol = sum(choose(n, seq_len(n))))
-  for(x in seq_len(length(combos))){
-    comb_mat[combos[[x]],x] <- TRUE
-  }
-  rownames(comb_mat) <- names(dflist)
-  comb_mat <- comb_mat + 0
+    # Subfunction args: dflist <- ct.regularizeContrasts(dflist, ...)
+    dots <- list(...)
+    dirs <- rep(TRUE, length(dflist))
+    if ("same.dir" %in% names(dots)) {
+        dirs <- dots$same.dir
+    }
+    dots <- dots[!(names(dots) %in% c("dflist", "return.stats", "same.dir"))]
 
-  attributes(overlapct) <- NULL
-  attr(comb_mat, "set_size") <- rep(nrow(dflist[[1]]),length(dflist))
-  attr(comb_mat, "comb_size") <- overlapct
-  attr(comb_mat, "data") <- lapply(overlaps, function(x){x$geneID[x$replicated]})
-  param <- list(mode = 'conditional', value_fun = 'gCrisprTools', universal_set = NULL, 
-               set_on_rows = TRUE)
-  attr(comb_mat, "param") <- param
-  class(comb_mat) <- c("comb_mat", "matrix")
-  cmorder <- ComplexHeatmap::order.comb_mat(comb_mat)
-  comb_mat <- comb_mat[cmorder]
-  comb_mat <- comb_mat[overlapct[cmorder] != 0]
+    dflist <- do.call("ct.regularizeContrasts", args = c(list(dflist = dflist), dots[names(dots) %in% names(formals("ct.regularizeContrasts"))]))
 
-  # If appropriate, generate stats: 
-  if(add.stats){
-    combo_stats <- lapply(combos, 
-                       function(x){
-                         return(do.call('ct.compareContrasts', 
-                                        args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = TRUE),
-                                                 dots[names(dots) %in% names(formals('ct.compareContrasts'))]))
-                                )
-                       })
-    #combo_stats <- lapply(combos, 
-    #                      function(x){
-    #                        if(exists('same.dir')){
-    #                          dirarg <- same.dir[x]
-    #                        } else {dirarg <- rep(TRUE, length(x))}
-    #                        return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = TRUE, nperm = nperm))
-    #                      })
-    lfc <- log2(vapply(combo_stats, function(x){log2(x[3,2]/x[3,1])}, numeric(1))[cmorder])
-    lfc[!is.finite(lfc)] <- 0
-    pv <- ct.softLog(vapply(combo_stats, function(x){x[3,3]}, numeric(1))[cmorder])
-    
-    #Make the UpSet Plot
-    #us <- UpSet(comb_mat) %v%     
-    us <- do.call(getExportedValue('ComplexHeatmap', 'UpSet'), 
-                  args = c(list(m = comb_mat),
-                           dots[names(dots) %in% names(formals(getExportedValue('ComplexHeatmap', 'UpSet')))])) %v%     
-      ComplexHeatmap::HeatmapAnnotation("Log2FC" = anno_points(lfc, ylim = (rep(max(abs(range(lfc))), 2) * c(-1,1))), 
-                                        annotation_name_side = "left", annotation_name_rot = 0) %v%     
-      ComplexHeatmap::HeatmapAnnotation("-log10(P)" = anno_barplot(pv, ylim = c(0,(max(pv) + 1))), 
-                                        annotation_name_side = "left", annotation_name_rot = 0)
-    show(us)
-    ComplexHeatmap::decorate_annotation("Log2FC", 
-                        {pushViewport(viewport(xscale = c(0.5, 10.5), yscale = (rep(max(abs(range(lfc))), 2) * c(-1,1))))
-                          grid.lines(c(0.5, 10.5), c(0, 0), gp = gpar(lty = 2), default.units = "native")
-                          popViewport()})
-    ComplexHeatmap::decorate_annotation("-log10(P)", 
-                        {pushViewport(viewport(xscale = c(0.5, 10.5), yscale = c(0,(max(pv) + 1))))
-                          grid.lines(c(0.5, 10.5), c(2, 2), gp = gpar(lty = 2), default.units = "native")
-                          popViewport()})
-  } else {
-    #show(UpSet(comb_mat))
-    do.call(getExportedValue('ComplexHeatmap', 'UpSet'), 
-            args = c(list(m = comb_mat), 
-                     dots[names(dots) %in% names(formals(getExportedValue('ComplexHeatmap', 'UpSet')))]))
-  }
-    
-  return(invisible(comb_mat))
-    
-  }
-  
+    # Generate the relevant overlap counts
+    combos <- unlist(lapply(seq_len(length(dflist)), function(x) {
+        combn(seq_len(length(dflist)), x, simplify = FALSE)
+    }), recursive = FALSE)
 
+    # Calculate overlap counts
+    overlaps <- lapply(combos, function(x) {
+        return(do.call("ct.compareContrasts", args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = FALSE), dots[names(dots) %in% names(formals("ct.compareContrasts"))])))
+    })
+    # overlaps <- lapply(combos, function(x){ if(exists('same.dir')){ dirarg <- same.dir[x] } else {dirarg <- rep(TRUE, length(x))}
+    # return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = FALSE)) })
 
-  
-  
-  
-  
-  
-  
+    overlapct <- vapply(overlaps, function(x) {
+        sum(x$replicated, na.rm = TRUE)
+    }, numeric(1))
+
+    # Create the comb mat object.
+    n <- length(dflist)
+    comb_mat <- matrix(FALSE, nrow = n, ncol = sum(choose(n, seq_len(n))))
+    for (x in seq_len(length(combos))) {
+        comb_mat[combos[[x]], x] <- TRUE
+    }
+    rownames(comb_mat) <- names(dflist)
+    comb_mat <- comb_mat + 0
+
+    attributes(overlapct) <- NULL
+    attr(comb_mat, "set_size") <- rep(nrow(dflist[[1]]), length(dflist))
+    attr(comb_mat, "comb_size") <- overlapct
+    attr(comb_mat, "data") <- lapply(overlaps, function(x) {
+        x$geneID[x$replicated]
+    })
+    param <- list(mode = "conditional", value_fun = "gCrisprTools", universal_set = NULL, set_on_rows = TRUE)
+    attr(comb_mat, "param") <- param
+    class(comb_mat) <- c("comb_mat", "matrix")
+    cmorder <- ComplexHeatmap::order.comb_mat(comb_mat)
+    comb_mat <- comb_mat[cmorder]
+    comb_mat <- comb_mat[overlapct[cmorder] != 0]
+
+    # If appropriate, generate stats:
+    if (add.stats) {
+        combo_stats <- lapply(combos, function(x) {
+            return(do.call("ct.compareContrasts", args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = TRUE), dots[names(dots) %in% names(formals("ct.compareContrasts"))])))
+        })
+        # combo_stats <- lapply(combos, function(x){ if(exists('same.dir')){ dirarg <- same.dir[x] } else {dirarg <- rep(TRUE, length(x))}
+        # return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = TRUE, nperm = nperm)) })
+        lfc <- log2(vapply(combo_stats, function(x) {
+            log2(x[3, 2]/x[3, 1])
+        }, numeric(1))[cmorder])
+        lfc[!is.finite(lfc)] <- 0
+        pv <- ct.softLog(vapply(combo_stats, function(x) {
+            x[3, 3]
+        }, numeric(1))[cmorder])
+
+        # Make the UpSet Plot us <- UpSet(comb_mat) %v%
+        us <- do.call(getExportedValue("ComplexHeatmap", "UpSet"), args = c(list(m = comb_mat), dots[names(dots) %in% names(formals(getExportedValue("ComplexHeatmap", 
+            "UpSet")))])) %v% ComplexHeatmap::HeatmapAnnotation(Log2FC = anno_points(lfc, ylim = (rep(max(abs(range(lfc))), 2) * c(-1, 1))), annotation_name_side = "left", 
+            annotation_name_rot = 0) %v% ComplexHeatmap::HeatmapAnnotation(`-log10(P)` = anno_barplot(pv, ylim = c(0, (max(pv) + 1))), annotation_name_side = "left", 
+            annotation_name_rot = 0)
+        show(us)
+        ComplexHeatmap::decorate_annotation("Log2FC", {
+            pushViewport(viewport(xscale = c(0.5, 10.5), yscale = (rep(max(abs(range(lfc))), 2) * c(-1, 1))))
+            grid.lines(c(0.5, 10.5), c(0, 0), gp = gpar(lty = 2), default.units = "native")
+            popViewport()
+        })
+        ComplexHeatmap::decorate_annotation("-log10(P)", {
+            pushViewport(viewport(xscale = c(0.5, 10.5), yscale = c(0, (max(pv) + 1))))
+            grid.lines(c(0.5, 10.5), c(2, 2), gp = gpar(lty = 2), default.units = "native")
+            popViewport()
+        })
+    } else {
+        # show(UpSet(comb_mat))
+        do.call(getExportedValue("ComplexHeatmap", "UpSet"), args = c(list(m = comb_mat), dots[names(dots) %in% names(formals(getExportedValue("ComplexHeatmap", "UpSet")))]))
+    }
+
+    return(invisible(comb_mat))
+
+}
 
 
 

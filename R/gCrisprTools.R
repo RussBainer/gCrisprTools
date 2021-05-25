@@ -29,7 +29,7 @@ NULL
 ##' Expressionset of raw counts from a screen in mouse cells performed at Genentech, Inc. 
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("es")
+##' data('es')
 ##' print(es)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
 ##' @source Genentech, Inc.
@@ -43,7 +43,7 @@ NULL
 ##' Example annotation file for the screen data provided in \code{es}. 
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("ann")
+##' data('ann')
 ##' head(ann)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
 ##' @source Genentech, Inc.
@@ -57,7 +57,7 @@ NULL
 ##' and control expansion arms of a crispr screen performed at Genentech, Inc. 
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("fit")
+##' data('fit')
 ##' show(fit)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for model details.
 ##' @source Genentech, Inc.
@@ -71,7 +71,7 @@ NULL
 ##' the provided example Crispr screen (using 8 cores, seed = 2). 
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("resultsDF")
+##' data('resultsDF')
 ##' head(resultsDF)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for model details.
 ##' @source Genentech, Inc.
@@ -84,7 +84,7 @@ NULL
 ##' @description Example alignment matrix file for the provided example Crispr screen.
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("aln")
+##' data('aln')
 ##' head(aln)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
 ##' @source Genentech, Inc.
@@ -98,7 +98,7 @@ NULL
 ##' @description Example gene list, designed to demonstrate functions using gene lists.
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("essential.genes")
+##' data('essential.genes')
 ##' essential.genes
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
 ##' @source Russell Bainer

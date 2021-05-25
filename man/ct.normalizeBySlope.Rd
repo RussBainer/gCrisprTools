@@ -33,7 +33,7 @@ data('ann')
 
 #Build the sample key and library sizes for visualization
 library(Biobase)
-sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 names(sk) <- row.names(pData(es))
 ls <- colSums(exprs(es))
 

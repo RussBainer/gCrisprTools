@@ -17,7 +17,7 @@ ct.scatter(
 
 \item{targets}{Column of the provided \code{summaryDF} to consider. Must be \code{geneID} or \code{geneSymbol}.}
 
-\item{statistic}{Statistic to plot on each axis (after -log10 transformation). Must be "p", "q", or "rho".}
+\item{statistic}{Statistic to plot on each axis (after -log10 transformation). Must be 'p', 'q', or 'rho'.}
 
 \item{cutoff}{significance cutoff used to define the significance quadrants (cannot be exactly zero).}
 
@@ -41,7 +41,7 @@ associated with the most significant *P*-value.
 }
 \examples{
 data('resultsDF')
-scat <- ct.scatter(list("FirstResult" = resultsDF[100:2100,], "SecondResult" = resultsDF[1:2000,]))
+scat <- ct.scatter(list('FirstResult' = resultsDF[100:2100,], 'SecondResult' = resultsDF[1:2000,]))
 head(scat)
 }
 \author{
