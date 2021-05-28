@@ -142,13 +142,16 @@ ct.upSet <- function(dflist, add.stats = TRUE, nperm = 10000, ...) {
 
     # Subfunction args: dflist <- ct.regularizeContrasts(dflist, ...)
     dots <- list(...)
+
     dirs <- rep(TRUE, length(dflist))
     if ("same.dir" %in% names(dots)) {
         dirs <- dots$same.dir
     }
     dots <- dots[!(names(dots) %in% c("dflist", "return.stats", "same.dir"))]
+    collapse <- ifelse('collapse' %in% names(dots), dots$collapse, 'geneSymbol')
 
-    dflist <- do.call("ct.regularizeContrasts", args = c(list(dflist = dflist), dots[names(dots) %in% names(formals("ct.regularizeContrasts"))]))
+    #dflist <- do.call("ct.regularizeContrasts", args = list('dflist' = dflist, 'collapse' = collapse))
+    dflist <- ct.regularizeContrasts(dflist, collapse)
 
     # Generate the relevant overlap counts
     combos <- unlist(lapply(seq_len(length(dflist)), function(x) {
@@ -157,11 +160,16 @@ ct.upSet <- function(dflist, add.stats = TRUE, nperm = 10000, ...) {
 
     # Calculate overlap counts
     overlaps <- lapply(combos, function(x) {
-        return(do.call("ct.compareContrasts", args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = FALSE), dots[names(dots) %in% names(formals("ct.compareContrasts"))])))
+        funargs <- dots
+        funargs$dflist <- dflist[x]
+        funargs$same.dir <- dirs[x]
+        funargs$return.stats <- FALSE
+        return(do.call("ct.compareContrasts", args = funargs))
+      
+        #return(do.call("ct.compareContrasts", args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = FALSE), dots[names(dots) %in% names(formals("ct.compareContrasts"))])))
     })
     # overlaps <- lapply(combos, function(x){ if(exists('same.dir')){ dirarg <- same.dir[x] } else {dirarg <- rep(TRUE, length(x))}
     # return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = FALSE)) })
-
     overlapct <- vapply(overlaps, function(x) {
         sum(x$replicated, na.rm = TRUE)
     }, numeric(1))
@@ -191,7 +199,11 @@ ct.upSet <- function(dflist, add.stats = TRUE, nperm = 10000, ...) {
     # If appropriate, generate stats:
     if (add.stats) {
         combo_stats <- lapply(combos, function(x) {
-            return(do.call("ct.compareContrasts", args = c(list(dflist = dflist[x], same.dir = dirs[x], return.stats = TRUE), dots[names(dots) %in% names(formals("ct.compareContrasts"))])))
+          funargs <- dots
+          funargs$dflist <- dflist[x]
+          funargs$same.dir <- dirs[x]
+          funargs$return.stats <- TRUE
+          return(do.call("ct.compareContrasts", args = funargs))
         })
         # combo_stats <- lapply(combos, function(x){ if(exists('same.dir')){ dirarg <- same.dir[x] } else {dirarg <- rep(TRUE, length(x))}
         # return(ct.compareContrasts(dflist[x], same.dir = dirarg, return.stats = TRUE, nperm = nperm)) })

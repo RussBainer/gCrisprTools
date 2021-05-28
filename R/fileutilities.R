@@ -371,9 +371,13 @@ ct.rankSimple <- function(df, top = c("enrich", "deplete")) {
 ##' @description This function -log10 transforms empirical P-values by adding a pseudocount of 1/2 the minimum nonzero value. 
 ##' @param x numeric vector. 
 ##' @return -log10-transformed version of X.
+##' @examples ct.softLog(runif(20))
+##' @export
 ct.softLog <- function(x) {
     stopifnot(is.numeric(x), all(!is.na(x)), !all(x == 0))
-    return(-log10((x + (min(x[x != 0])/2))))
+    out <- -log10((x + (min(x[x != 0])/2)))
+    out[out <= 0] <- 0 #Sometimes correction can deflate below zero 
+    return()
 }
 
 

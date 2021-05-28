@@ -15,3 +15,6 @@ ct.softLog(x)
 \description{
 This function -log10 transforms empirical P-values by adding a pseudocount of 1/2 the minimum nonzero value.
 }
+\examples{
+ct.softLog(runif(20))
+}

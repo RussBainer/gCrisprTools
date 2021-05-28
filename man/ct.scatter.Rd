@@ -29,15 +29,17 @@ Invisibly, a list of length 4 containing the genes passing significance for the 
 \description{
 This is a function for comparing the results of two screening experiments. Given two \code{summaryDF}, 
 the function places them in register with one another, generates a simplified scatter plot where enrichment or depletion 
-in each contrast is represented by the associated -log10 *P*-value, and returns an 
-invisible list of targets present in the four significance quadrants. 
+in each contrast is represented by the associated "signed" log10 (*P*/*Q*)-value (where enriched signals are represented 
+in the positive direction and depleted signals are shown in the negative direction), and returns an invisible `data.frame`
+containing the target X-axis and Y-axis coordinates and corresponding quadrant. 
 
 This is a target-level analysis, and some minor simplifications are introduced to screen signals for the sake of clarity. 
-Principal among these is the decision to collapse gene signals to a single directional enrichment statistic; as target-level
-signals aretypically aggregates of many guide-level signals, it is formally possible for targets to be both significantly 
-enriched and significantly depleted within a single screen contrast as a result of substntially divergent reagent activity. 
+Principal among these is the decision to collapse gene signals to a single directional enrichment statistic. Target-level
+signals are typically aggregates of many guide-level signals, it is formally possible for targets to be both significantly 
+enriched and significantly depleted within a single screen contrast as a result of substantially divergent reagent activity. 
 This behavior is uncommon, however, and so targets are represented by selecting the direction of enrichment or depletion 
-associated with the most significant *P*-value.
+associated with the most significant (*P*/*Q*)-value. This directionality is then encoded into the X-axis and Y-axis 
+position of the target as the sign of the signal as described above.
 }
 \examples{
 data('resultsDF')
