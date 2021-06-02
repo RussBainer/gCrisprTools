@@ -17,8 +17,7 @@ compared to one another.
 This function takes in a named list of `SparrowResult` objects and breaks them into in0register data.frames for easy comprisons. 
 Specifically, the function assembles the values in each of the `@result` slots for each of the provided contrasts into standalone 
 `data.frame`s with the rows named for the pathways, and returns these objects as a list-of-lists for each result type.
-}
-\details{
+
 Note that results are compiled as-is, so users need to orient the screen results themselves in whatever manner they deem appropriate.
 }
 \examples{

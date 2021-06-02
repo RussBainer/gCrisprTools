@@ -2,28 +2,9 @@
 % Please edit documentation in R/sparrow_integration.R
 \name{ct.seas}
 \alias{ct.seas}
-\title{Geneset Enrichment within a CRISPR screen using `sparrow`
-
-This function is a wrapper for the `sparrow::seas()` function, which identifies differentially enriched/depleted ontological 
-categories within the hits identified by a pooled screening experiment, given a provided `GenseSetDb()` object and a list of 
-results objects created by `ct.generateResults()`. By default testing is performed using `fgsea` and a hypergeometric test 
-(`sparrow::ora()`), and results are returned as a `SparrowResult` object. 
-
-This function will attempt to coerce them into inputs appropriate for the above analyses via `ct.seasPrep()`, after checking 
-the relevant parameters within the provided `GeneSetDb`. This is generally easier than going through the individual steps yourself, 
-especially when 
-
-Note that many pooled libraries specifically target biased sets of genes, often focusing on genes involved
-in a particular pathway or encoding proteins with a shared biological property. Consequently, the enrichment results
-returned by this function represent the disproportionate enrichment or depletion of targets annotated to pathways *within the context
-of the screen*, and may or may not be informative of the underlying biology in question. This means that
-pathways not targeted by a library will obviously never be enriched a positive target set regardless of
-their biological relevance, and pathways enriched within a focused library screen are similarly expected to partially
-reflect the composition of the library and other confounding issues (e.g., number of targets within a pathway).
-Analysts should therefore use this function with care. For example, it might be unsurprising to detect pathways related
-to histone modification within a screen employing a crispr library primarily targeting epigenetic regulators.}
+\title{Geneset Enrichment within a CRISPR screen using `sparrow`}
 \usage{
-ct.seas(dflist, gdb, as.dfs = FALSE, ...)
+ct.seas(dflist, gdb, as.dfs = FALSE, active = "replicated", ...)
 }
 \arguments{
 \item{dflist}{A result object created by `ct.generateResults()`, or a named list containing many of them; will be passed as a list to 
@@ -33,14 +14,14 @@ ct.seas(dflist, gdb, as.dfs = FALSE, ...)
 
 \item{as.dfs}{Logical indicating whether to return the various contrast statistics as in-register lists of data.frames to facilitate comparisons.}
 
+\item{active}{Name of a column in the supplied result(s) that should be used to indicate active/selected targets.}
+
 \item{...}{Additional arguments to pass to `ct.seasPrep()` or `sparrow::seas()`.}
 }
 \value{
 A named list of `SparrowResults` objects.
 }
 \description{
-Geneset Enrichment within a CRISPR screen using `sparrow`
-
 This function is a wrapper for the `sparrow::seas()` function, which identifies differentially enriched/depleted ontological 
 categories within the hits identified by a pooled screening experiment, given a provided `GenseSetDb()` object and a list of 
 results objects created by `ct.generateResults()`. By default testing is performed using `fgsea` and a hypergeometric test 
@@ -48,7 +29,12 @@ results objects created by `ct.generateResults()`. By default testing is perform
 
 This function will attempt to coerce them into inputs appropriate for the above analyses via `ct.seasPrep()`, after checking 
 the relevant parameters within the provided `GeneSetDb`. This is generally easier than going through the individual steps yourself, 
-especially when 
+especially when the user is minimally postprocessing the contrast results in question. 
+
+Sometimes, it can be useful to directly indicate the set of targets to be included in an enrichment analysis (e.g., if you wish to expand
+or contract the set of active targets based on signal validation or other secondary information about the experiment). To accomodate this 
+use case, users may include a logical column in the provided result object(s) indicating which elements should be included among the 
+positive signals exposed to the test. 
 
 Note that many pooled libraries specifically target biased sets of genes, often focusing on genes involved
 in a particular pathway or encoding proteins with a shared biological property. Consequently, the enrichment results

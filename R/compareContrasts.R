@@ -233,7 +233,8 @@ ct.upSet <- function(dflist, add.stats = TRUE, nperm = 10000, ...) {
         })
     } else {
         # show(UpSet(comb_mat))
-        do.call(getExportedValue("ComplexHeatmap", "UpSet"), args = c(list(m = comb_mat), dots[names(dots) %in% names(formals(getExportedValue("ComplexHeatmap", "UpSet")))]))
+        us <- do.call(getExportedValue("ComplexHeatmap", "UpSet"), args = c(list(m = comb_mat), dots[names(dots) %in% names(formals(getExportedValue("ComplexHeatmap", "UpSet")))]))
+        show(us)
     }
 
     return(invisible(comb_mat))

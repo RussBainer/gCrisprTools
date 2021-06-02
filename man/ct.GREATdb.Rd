@@ -26,8 +26,7 @@ A new \code{GeneSetDb} object with the features annotated genewise to pathways.
 }
 \description{
 Update a gene-centric `GeneSetDb` object for GREAT-style enrichment analysis using a specified annotation.
-}
-\details{
+
 Often, pooled screening libraries are constructed such that the gene targets of interest are associated 
 with variable numbers of semi-independent screen signals (associated with, e.g., sets of alternative promoters 
 or cis regulatory units). Such an arrangement is often unavoidable but produces to complications when 

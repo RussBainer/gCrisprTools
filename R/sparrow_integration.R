@@ -1,6 +1,6 @@
-##' Update a gene-centric msdb object for GREAT-style enrichment analysis using a specified CRISPR annotation.
+##' @title Update a gene-centric msdb object for GREAT-style enrichment analysis using a specified CRISPR annotation.
 ##'
-##' Update a gene-centric `GeneSetDb` object for GREAT-style enrichment analysis using a specified annotation.
+##' @description Update a gene-centric `GeneSetDb` object for GREAT-style enrichment analysis using a specified annotation.
 ##' 
 ##' Often, pooled screening libraries are constructed such that the gene targets of interest are associated 
 ##' with variable numbers of semi-independent screen signals (associated with, e.g., sets of alternative promoters 
@@ -78,9 +78,9 @@ ct.GREATdb <- function(annotation, gsdb = sparrow::getMSigGeneSetDb(collection =
     return(out_gdb)
 }
 
-##' Prepare one or more resultsDF objects for analysis via Sparrow. 
+##' @title Prepare one or more resultsDF objects for analysis via Sparrow. 
 ##' 
-##' Take in a list of results objects and return an equivalently-named list of input `data.frames` appropriate for `sparrow::seas()`. 
+##' @description Take in a list of results objects and return an equivalently-named list of input `data.frames` appropriate for `sparrow::seas()`. 
 ##' By construction, the relevant target unit is extracted from the `geneSymbol` column of the provided results objects, which may. Note that the 
 ##' genewise `@logFC` slot in the returned object will contain the appropriately-signed Z transformation of the P-value 
 ##' assigned to the target. In most applications this is arguably more interpretable than e.g., the median gRNA log2 fold change.  
@@ -94,15 +94,17 @@ ct.GREATdb <- function(annotation, gsdb = sparrow::getMSigGeneSetDb(collection =
 ##' @param gdb Optionally, a `GeneSetDb` object to enable proper registration of the output. If provided, the 
 ##' collapsing features in the provided `simpleDF`s must be present in the `gsd@db$feature_id` slot. Note that a GREAT-style `GeneSetDb` that 
 ##' has been conformed via `ct.GREATdb()` will use `geneID`s as the `feature_id`.
+##' @param active Optionally, the name of a logical column present in the provided result that will be used to define significant signals. 
+##' This is set to `replicated` by default to If a valid column name is provided, this overrides the specification of `cutoff` and `statistic`.
 ##' @return A list of `data.frames` formatted for evaluation with `sparrow::seas()`. 
 ##' @examples 
 ##' data(resultsDF)
 ##' ct.seasPrep(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), collapse.on = 'geneSymbol')
 ##' @export
-ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff = 0.1, statistic = c("best.q", "best.p"), regularize = FALSE, gdb = NULL) {
+ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff = 0.1, statistic = c("best.q", "best.p"), regularize = FALSE, gdb = NULL, active = 'replicated') {
     # Input check
     collapse.on <- match.arg(collapse.on)
-    stopifnot(is(cutoff, "numeric"), cutoff <= 1, cutoff >= 0, is(regularize, "logical"))
+    stopifnot(is(cutoff, "numeric"), cutoff <= 1, cutoff >= 0, is(regularize, "logical"), is.character(active))
 
     if (regularize) {
         dflist <- ct.regularizeContrasts(dflist, collapse = collapse.on)
@@ -118,7 +120,7 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
         })
         message("Removed genes absent from the provided GeneSetDb.")
     }
-
+    
     if (any(unlist(lapply(dflist, nrow)) == 0)) {
         stop("No valid `feature_id`s observed for one or more of the provided contrasts! check `collapse.on`?")
     }
@@ -126,8 +128,15 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
     out <- lapply(dflist, function(x) {
         z <- 10^-(ct.softLog(x$best.p))
         z <- qnorm(z/2) * ifelse(x$direction == "enrich", -1, 1)
-
-        df <- data.frame(feature_id = row.names(x), logFC = z, significant = (x[, statistic] <= cutoff), direction = x$direction, rank_by = z, stringsAsFactors = FALSE)
+        sig <- (x[, statistic] <= cutoff)
+ 
+        if(active %in% names(x)){
+            stopifnot(is(x[,active], 'logical'))
+            sig <- x[,active]
+            message(paste0("Using provided active set: ", active))
+        } 
+        
+        df <- data.frame(feature_id = row.names(x), logFC = z, significant = sig, direction = x$direction, rank_by = z, stringsAsFactors = FALSE)
         return(df)
     })
 
@@ -138,14 +147,19 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
 
 ##' @title Geneset Enrichment within a CRISPR screen using `sparrow`
 ##' 
-##' This function is a wrapper for the `sparrow::seas()` function, which identifies differentially enriched/depleted ontological 
+##' @description This function is a wrapper for the `sparrow::seas()` function, which identifies differentially enriched/depleted ontological 
 ##' categories within the hits identified by a pooled screening experiment, given a provided `GenseSetDb()` object and a list of 
 ##' results objects created by `ct.generateResults()`. By default testing is performed using `fgsea` and a hypergeometric test 
 ##' (`sparrow::ora()`), and results are returned as a `SparrowResult` object. 
 ##' 
 ##' This function will attempt to coerce them into inputs appropriate for the above analyses via `ct.seasPrep()`, after checking 
 ##' the relevant parameters within the provided `GeneSetDb`. This is generally easier than going through the individual steps yourself, 
-##' especially when 
+##' especially when the user is minimally postprocessing the contrast results in question. 
+##' 
+##' Sometimes, it can be useful to directly indicate the set of targets to be included in an enrichment analysis (e.g., if you wish to expand
+##' or contract the set of active targets based on signal validation or other secondary information about the experiment). To accomodate this 
+##' use case, users may include a logical column in the provided result object(s) indicating which elements should be included among the 
+##' positive signals exposed to the test. 
 ##' 
 ##' Note that many pooled libraries specifically target biased sets of genes, often focusing on genes involved
 ##' in a particular pathway or encoding proteins with a shared biological property. Consequently, the enrichment results
@@ -161,6 +175,7 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
 ##' `ct.seasPrep()` with the associated `...` arguments.
 ##' @param gdb A `GenseSetDb` object containing annotations for the targets specified in `result`.
 ##' @param as.dfs Logical indicating whether to return the various contrast statistics as in-register lists of data.frames to facilitate comparisons.
+##' @param active Name of a column in the supplied result(s) that should be used to indicate active/selected targets.  
 ##' @param ... Additional arguments to pass to `ct.seasPrep()` or `sparrow::seas()`. 
 ##' @return A named list of `SparrowResults` objects.
 ##' @examples 
@@ -168,7 +183,7 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
 ##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
 ##' @author Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.
 ##' @export
-ct.seas <- function(dflist, gdb, as.dfs = FALSE, ...) {
+ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {
 
     # Check GSDB and determine feature set
     stopifnot(is(gdb, "GeneSetDb"), is(as.dfs, "logical"))
@@ -196,7 +211,7 @@ ct.seas <- function(dflist, gdb, as.dfs = FALSE, ...) {
     }
 
     # Check that all provided objects are keyed to the proper values
-    ipts <- ct.seasPrep(dflist, collapse.on = identifier, gdb = gdb)
+    ipts <- ct.seasPrep(dflist, collapse.on = identifier, gdb = gdb, active = active)
 
     outs <- lapply(ipts, function(ipt) {
         sparrow::seas(x = ipt, gsd = gdb, methods = c("ora", "fgsea"), rank_by = "rank_by", selected = "selected", groups = "direction", ...)
@@ -208,9 +223,9 @@ ct.seas <- function(dflist, gdb, as.dfs = FALSE, ...) {
     return(outs)
 }
 
-##' Compile the values from a set of SparrowResult Objects
+##' @title Compile the values from a set of SparrowResult Objects
 ##' 
-##' This function takes in a named list of `SparrowResult` objects and breaks them into in0register data.frames for easy comprisons. 
+##' @description This function takes in a named list of `SparrowResult` objects and breaks them into in0register data.frames for easy comprisons. 
 ##' Specifically, the function assembles the values in each of the `@result` slots for each of the provided contrasts into standalone 
 ##' `data.frame`s with the rows named for the pathways, and returns these objects as a list-of-lists for each result type.
 ##' 
