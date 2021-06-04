@@ -238,11 +238,11 @@ ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {
 ##' @examples 
 ##' data('resultsDF')
 ##' sparrowres <- ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
-##' ct.compileSparrow(sparrowres)
+##' ct.gatherSparrow(sparrowres)
 ##' @export
-ct.compileSparrow <- function(resultList) {
+ct.gatherSparrow <- function(resultList) {
     stopifnot(is(resultList, "list"), all(sapply(resultList, is, "SparrowResult")), !is.null(names(resultList)))
-
+    
     sapply(sparrow::resultNames(resultList[[1]]), function(tests) {
         sapply(names(sparrow::result(resultList[[1]], tests))[3:length(names(sparrow::result(resultList[[1]], tests)))], function(testcols) {
             ret <- sapply(names(resultList), function(sparrowres) {
@@ -251,8 +251,7 @@ ct.compileSparrow <- function(resultList) {
             row.names(ret) <- sparrow::result(resultList[[1]], tests)[[2]]
             return(ret)
         }, simplify = FALSE)
-    }, simplify = FALSE)
-
+    }, simplify = FALSE)        
 }
 
 

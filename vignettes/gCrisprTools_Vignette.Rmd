@@ -12,7 +12,7 @@ vignette: >
 ---
 ### 1.0 Overview of gCrisprTools
 
-Competitive screening experiments, in which bulk cell cultures infected with a heterogeneous viral library are experimentally manipulated to identify guide RNAs or shRNAs that influence cell viability, are conceptually straightforward but often challenging to implement. Here, we present gCrisprTools, an R/Bioconductor analysis suite facilitating quality assessment, target prioritization, and interpretation of arbitrarily complex competitive screening experiments. gCrisprTools provides functionalities for detailed and principled analysis of diverse aspects of these experiments both as a standalone pipeline or as an extension to alternative analytical approaches.
+Competitive screening experiments, in which bulk cell cultures infected with a heterogeneous viral library are experimentally manipulated to identify guide RNAs or shRNAs that influence cell viability, are conceptually straightforward but often challenging to implement. Here, we present gCrisprTools, an R/Bioconductor analysis suite facilitating quality assessment, target prioritization, and interpretation of arbitrarily complex competitive screening experiments. gCrisprTools provides functionalities for detailed and principled ana lysis of diverse aspects of these experiments both as a standalone pipeline or as an extension to alternative analytical approaches.
 
 #### 1.1 Installation
 

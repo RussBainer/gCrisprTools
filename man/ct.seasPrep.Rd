@@ -31,7 +31,7 @@ collapsing features in the provided `simpleDF`s must be present in the `gsd@db$f
 has been conformed via `ct.GREATdb()` will use `geneID`s as the `feature_id`.}
 
 \item{active}{Optionally, the name of a logical column present in the provided result that will be used to define significant signals. 
-If a valid column name is provided, this overrides the specification of `cutoff` and `statistic`.}
+This is set to `replicated` by default to If a valid column name is provided, this overrides the specification of `cutoff` and `statistic`.}
 }
 \value{
 A list of `data.frames` formatted for evaluation with `sparrow::seas()`.
