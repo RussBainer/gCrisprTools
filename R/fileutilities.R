@@ -377,7 +377,7 @@ ct.softLog <- function(x) {
     stopifnot(is.numeric(x), all(!is.na(x)), !all(x == 0))
     out <- -log10((x + (min(x[x != 0])/2)))
     out[out <= 0] <- 0 #Sometimes correction can deflate below zero 
-    return()
+    return(out)
 }
 
 

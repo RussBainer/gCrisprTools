@@ -34,15 +34,16 @@ ct.scatter <- function(dflist, targets = c("geneSymbol", "geneID"), statistic = 
     cutoff <- -log10(cutoff)
 
     dfs <- ct.regularizeContrasts(dflist, collapse = targets)
-
-    # Form output & divide into quadrants:
-    out <- cbind(dfs[[1]][, seq_len(6)], dfs[[2]][, 3:6])
-    colnames(out) <- c("geneID", "geneSymbol", paste0(c("Rho.enrich.", "Rho.deplete.", "p.", "q."), names(dfs)[1]), paste0(c("Rho.enrich.", "Rho.deplete.", "p.", "q."), 
-        names(dfs)[2]))
     dfs <- lapply(dfs, function(x) {
         x[, c("Rho_enrich", "Rho_deplete", "best.p", "best.q")] <- apply(x[, c("Rho_enrich", "Rho_deplete", "best.p", "best.q")], 2, ct.softLog)
         return(x)
     })
+    
+    # Form output & divide into quadrants:
+    out <- cbind(dfs[[1]][, seq_len(6)], dfs[[2]][, 3:6])
+    colnames(out) <- c("geneID", "geneSymbol", paste0(c("Rho.enrich.", "Rho.deplete.", "p.", "q."), names(dfs)[1]), paste0(c("Rho.enrich.", "Rho.deplete.", "p.", "q."), 
+        names(dfs)[2]))
+
 
     c1.sig <- (dfs[[1]][, statistic] >= cutoff)  # & (dfs[[1]][,'direction'] == dfs[[2]][,'direction'])
     c2.sig <- (dfs[[2]][, statistic] >= cutoff)  # & (dfs[[1]][,'direction'] == dfs[[2]][,'direction'])
