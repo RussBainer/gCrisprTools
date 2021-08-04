@@ -4,9 +4,9 @@
 ##' results DF and returns a `simplifiedResult` dataframe derived from the first provided contrast with an appended logical column 
 ##' indicating whether there is evidence for signal replication in the other provided resultsDFs.
 ##' 
-##' Signals are considered replicated if they cross the specified stringent threshold (default: 10% FDR) in one or more of the provided 
+##' Signals are considered replicated if they cross the specified stringent threshold (default: Q = 0.1) in one or more of the provided 
 ##' contrasts, and are similarly enriched or depleted at the relaxed threshold (default: P = 0.1) in all of the remaining contrasts. If 
-##' a single contrast is provided, all signals crossing the stringent threshold are conisered replicated.
+##' a single contrast is provided, all signals crossing the stringent threshold are considered replicated.
 ##' 
 ##' Signals are compared across screens on the basis of \code{\link{ct.regularizeContrasts}}, so users must provide an identifier 
 ##' with which to standardize targets (`geneID` by default). 

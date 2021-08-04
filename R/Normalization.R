@@ -299,9 +299,12 @@ ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "control
     }
 
 
-    new.eset <- switch(method, scale = ct.normalizeMedians(eset, lib.size = lib.size), FQ = ct.normalizeFQ(eset, sets = sampleKey, lib.size = lib.size), slope = ct.normalizeBySlope(eset, 
-        lib.size = lib.size, ...), controlScale = ct.normalizeNTC(eset, annotation, lib.size = lib.size, ...), controlSpline = ct.normalizeSpline(eset, annotation, 
-        lib.size = lib.size, ...))
+    new.eset <- switch(method, 
+                       scale = ct.normalizeMedians(eset, lib.size = lib.size), 
+                       FQ = ct.normalizeFQ(eset, sets = sampleKey, lib.size = lib.size), 
+                       slope = ct.normalizeBySlope(eset, lib.size = lib.size, ...), 
+                       controlScale = ct.normalizeNTC(eset, annotation, lib.size = lib.size, ...), 
+                       controlSpline = ct.normalizeSpline(eset, annotation, lib.size = lib.size, ...))
     # set negative counts to 0's if they happen to be present after normalization
     exprs(new.eset) <- apply(X = exprs(new.eset), MARGIN = 2, FUN = function(col) {
         col[col < 0] <- 0
