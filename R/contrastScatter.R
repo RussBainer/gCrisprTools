@@ -79,6 +79,8 @@ ct.scatter <- function(dflist, targets = c("geneSymbol", "geneID"), statistic = 
         points(out$x[out$quadrant %in% c(1, 3, 7, 9)], out$y[out$quadrant %in% c(1, 3, 7, 9)], pch = 19, col = rgb(0.5, 0, 0, 0.4), cex = 0.7)
         points(out$x[out$quadrant %in% c(2, 4, 6, 8)], out$y[out$quadrant %in% c(2, 4, 6, 8)], pch = 19, col = rgb(0, 0, 0.6, 0.4), cex = 0.7)
 
+        maxval <- maxval * 1.05
+        
         text(-maxval, maxval, sum(out$quadrant == 1), cex = 0.5, col = rgb(0, 0, 0, 0.4))
         text(maxval, maxval, sum(out$quadrant == 3), cex = 0.5, col = rgb(0, 0, 0, 0.4))
         text(-maxval, -maxval, sum(out$quadrant == 7), cex = 0.5, col = rgb(0, 0, 0, 0.4))
