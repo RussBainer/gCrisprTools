@@ -239,7 +239,6 @@ ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {
 ##' data('resultsDF')
 ##' sparrowres <- ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
 ##' ct.gatherSparrow(sparrowres)
-##' @export
 ct.gatherSparrow <- function(resultList) {
     stopifnot(is(resultList, "list"), all(sapply(resultList, is, "SparrowResult")), !is.null(names(resultList)))
     
