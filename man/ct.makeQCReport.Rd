@@ -40,9 +40,9 @@ to be the first \code{level}.}
 \item{annotation}{An annotation object for the experiment. See the man page 
 for \code{ct.prepareAnnotation} for details and example format.}
 
-\item{aln}{A numeric alignment matrix, where rows correspond to "targets", 
-"nomatch", "rejections", and "double_match", and where columns correspond 
-to experimentasl samples.}
+\item{aln}{A numeric alignment matrix, where rows correspond to 'targets', 
+'nomatch', 'rejections', and 'double_match', and where columns correspond 
+to experimentasl samples. May be `NULL`, to suppress alignment evaluation.}
 
 \item{identifier}{A character string to name the report and corresponding 
 subdirectories. If provided, the final report will be called 
@@ -81,10 +81,10 @@ data('aln')
 
 ##' #Build the sample key
 library(Biobase)
-sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 names(sk) <- row.names(pData(es))
 
-path2report <- ct.makeQCReport(es, trim = 1000, log2.ratio = 0.0625, sk, ann, aln, identifier = NULL, lib.size = NULL, geneSymb = 'NoTarget', outdir = ".") 
+path2report <- ct.makeQCReport(es, trim = 1000, log2.ratio = 0.0625, sk, ann, aln, identifier = NULL, lib.size = NULL, geneSymb = 'NoTarget', outdir = '.') 
 }
 \author{
 Russell Bainer, Dariusz Ratman

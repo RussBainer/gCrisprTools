@@ -7,10 +7,10 @@
 ct.ROC(
   summaryDF,
   target.list,
-  stat = c("enrich.p", "deplete.p", "enrich.fc", "deplete.fc", "enrich.rho",
-    "deplete.rho"),
+  direction = c("enrich", "deplete"),
   condense = TRUE,
-  plot.it = TRUE
+  plot.it = TRUE,
+  ...
 )
 }
 \arguments{
@@ -19,21 +19,22 @@ ct.ROC(
 \item{target.list}{A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneSymbol}
 column of the provided \code{summaryDF} are considered.}
 
-\item{stat}{The statistic to use when ordering the genes. Must be one of \code{"enrich.p"}, \code{"deplete.p"}, \code{"enrich.fc"},
-\code{"deplete.fc"}, \code{"enrich.rho"}, or \code{"deplete.rho"}.}
+\item{direction}{Direction by which to order target signals (`enrich` or `deplete`).}
 
-\item{condense}{Logical indicating whether the returned x and y coordinates should be "condensed", returning only the points at which
+\item{condense}{Logical indicating whether the returned x and y coordinates should be 'condensed', returning only the points at which
 the detected proportion of \code{target.list} changes. If set to \code{FALSE}, the returned \code{x} and \code{y} vectors will explicitly
 indicate the curve value at every position (useful for performing curve arithmetic downstream).}
 
 \item{plot.it}{Logical value indicating whether to plot the curves.}
+
+\item{...}{Additional parameters for `ct.simpleResult()`}
 }
 \value{
 A list containing the the x and y coordinates of the curve, and the AUC statistic (invisibly).
 }
 \description{
 Given a set of targets of interest, this function generates a ROC curve and associated statistics from the results of
-a CRISPR screen. Specifically, it orders the elements targeted in the screen by the specified statistic, and then plots the cumulative
+a CRISPR screen. Specifically, it orders the elements targeted in the screen in the specified direction, and then plots the cumulative
 proportion of positive hits on the y-axis. The corresponding vectors and Area Under the Curve (AUC) statistic are returned as a list.
 
 Note that ranking statistics in CRISPR screens are (usually) permutation-based, and so some granularity is expected. This
@@ -44,7 +45,7 @@ somewhat anticonservative in cases where the gene ranks are not well differentia
 \examples{
 data('resultsDF')
 data('essential.genes') #Note that this is an artificial example.
-roc <- ct.ROC(resultsDF, essential.genes, 'deplete.p')
+roc <- ct.ROC(resultsDF, essential.genes, direction = 'deplete')
 str(roc)
 }
 \author{

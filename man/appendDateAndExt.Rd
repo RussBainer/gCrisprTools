@@ -9,7 +9,7 @@ appendDateAndExt(name, ext)
 \arguments{
 \item{name}{character}
 
-\item{ext}{character - extension including a ".".}
+\item{ext}{character - extension including a '.'.}
 }
 \value{
 character

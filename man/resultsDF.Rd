@@ -13,7 +13,7 @@ the provided example Crispr screen (using 8 cores, seed = 2).
 All sample, gRNA, and Gene information has been anonymized and randomized.
 }
 \examples{
-data("resultsDF")
+data('resultsDF')
 head(resultsDF)
 }
 \seealso{

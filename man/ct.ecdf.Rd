@@ -10,15 +10,11 @@ ct.ecdf(vector)
 \item{vector}{An input numeric vector to be aggregated.}
 }
 \value{
-A CDF plot displaying the appropriate CDF curves on the default device.
+A numeric vector of the cumulative sum
 }
 \description{
 This function returns a numeric vector of the same length as the input, where each element \code{n} contains the proportion
 the sum of the full vector that is captured by its first \code{1-n} elements (arranged in descending order).
-}
-\examples{
-v <- sort(sample(1:100, 30, replace = TRUE, 100:1))
-ct.ecdf(v)
 }
 \author{
 Russell Bainer

@@ -27,108 +27,105 @@
 ##' ct.topTargets(fit, resultsDF, ann) 
 ##' @export
 
-ct.topTargets <- function(fit, summaryDF, annotation, targets = 10, enrich = TRUE, contrast.term = NULL){
-  current.graphic.params <- par(no.readonly = TRUE)
-  on.exit(suppressWarnings(par(current.graphic.params)))
+ct.topTargets <- function(fit, summaryDF, annotation, targets = 10, enrich = TRUE, contrast.term = NULL) {
+    current.graphic.params <- par(no.readonly = TRUE)
+    on.exit(suppressWarnings(par(current.graphic.params)))
 
-  if(ncol(fit$coefficients) > 1){
-    if(is.null(contrast.term)){
-      stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
+    if (ncol(fit$coefficients) > 1) {
+        if (is.null(contrast.term)) {
+            stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
+        }
+        fit <- ct.preprocessFit(fit, contrast.term)
     }
-    fit <- ct.preprocessFit(fit, contrast.term)
-  }
-  
-  
-    #Test input: 
-    #testing
-    if(!methods::is(fit, "MArrayLM")){stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))}
-    
-    if(!setequal(row.names(annotation), row.names(fit))){
-      warning("row.names of the fit object and the annotation file are not identical. Using the intersection only.")
+
+
+    # Test input: testing
+    if (!methods::is(fit, "MArrayLM")) {
+        stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))
+    }
+
+    if (!setequal(row.names(annotation), row.names(fit))) {
+        warning("row.names of the fit object and the annotation file are not identical. Using the intersection only.")
         grnas <- intersect(row.names(fit), row.names(annotation))
-        fit <- fit[grnas,]
-        annotation <- annotation[grnas,]
+        fit <- fit[grnas, ]
+        annotation <- annotation[grnas, ]
     }
 
-  if(!(enrich %in% c(TRUE, FALSE))){
-    stop('enrich must be either TRUE or FALSE.')
-  }
-  
-    if(!ct.resultCheck(summaryDF)){
-      stop("Execution halted.")
+    if (!(enrich %in% c(TRUE, FALSE))) {
+        stop("enrich must be either TRUE or FALSE.")
     }
-  
 
-    #Identify the top targets from the summary DF; order and group gRNAs within a target, then rank targets
+    if (!ct.resultCheck(summaryDF)) {
+        stop("Execution halted.")
+    }
+
+
+    # Identify the top targets from the summary DF; order and group gRNAs within a target, then rank targets
     summaryDF$geneSymbol <- as.character(summaryDF$geneSymbol)
-    summaryDF <- summaryDF[with(summaryDF, 
-                               order(summaryDF[,"Target-level Enrichment P"], 
-                                      summaryDF[,"Rho_enrich"], 
-                                      summaryDF[,"geneSymbol"], 
-                                      -summaryDF[,"gRNA Log2 Fold Change"])),]   
+    summaryDF <- summaryDF[with(summaryDF, order(summaryDF[, "Target-level Enrichment P"], summaryDF[, "Rho_enrich"], summaryDF[, "geneSymbol"], -summaryDF[, "gRNA Log2 Fold Change"])), 
+        ]
     plottitle <- "Enriched Targets"
-    
-    if(enrich == FALSE){
-      summaryDF <- summaryDF[with(summaryDF, 
-                                  order(summaryDF[,"Target-level Depletion P"], 
-                                        summaryDF[,"Rho_deplete"], 
-                                        summaryDF[,"geneSymbol"], 
-                                        summaryDF[,"gRNA Log2 Fold Change"])),]   
-      plottitle <- "Depleted Targets"
+
+    if (enrich == FALSE) {
+        summaryDF <- summaryDF[with(summaryDF, order(summaryDF[, "Target-level Depletion P"], summaryDF[, "Rho_deplete"], summaryDF[, "geneSymbol"], summaryDF[, "gRNA Log2 Fold Change"])), 
+            ]
+        plottitle <- "Depleted Targets"
     }
 
-    if(is.character(targets)){
-      toptargets <- intersect(targets, annotation$geneSymbol)
-      ntargets <- length(toptargets)
-      plottitle <- ''
+    if (is.character(targets)) {
+        toptargets <- intersect(targets, annotation$geneSymbol)
+        ntargets <- length(toptargets)
+        plottitle <- ""
     } else {
-      if((length(targets) != 1) | !is.numeric(targets)){stop('"targets" must be specified as a single number or a vector of elements in the geneSymbol column of the annotation object.')}
-      ntargets <- targets
-      plottitle <- paste('Top', ntargets, plottitle)
-      toptargets <- unique(summaryDF$geneSymbol)[1:ntargets]
-    } 
-    if(ntargets <= 0){stop("No valid targets were specified.")}
-    
-    targetrows <- row.names(summaryDF)[(summaryDF$geneSymbol %in% toptargets)]
-    nguides <- unlist(lapply(toptargets, function(x){sum(summaryDF$geneSymbol %in% x, na.rm = TRUE)}))
+        if ((length(targets) != 1) | !is.numeric(targets)) {
+            stop("\"targets\" must be specified as a single number or a vector of elements in the geneSymbol column of the annotation object.")
+        }
+        ntargets <- targets
+        plottitle <- paste("Top", ntargets, plottitle)
+        toptargets <- unique(summaryDF$geneSymbol)[seq_len(ntargets)]
+    }
+    if (ntargets <= 0) {
+        stop("No valid targets were specified.")
+    }
 
-    lfc <- fit$coefficients[targetrows,1]
-    sdu <- fit$stdev.unscaled[targetrows,1] + fit$coefficients[targetrows,1]
-    sdl <- fit$coefficients[targetrows,1] - fit$stdev.unscaled[targetrows,1]
-    
+    targetrows <- row.names(summaryDF)[(summaryDF$geneSymbol %in% toptargets)]
+    nguides <- unlist(lapply(toptargets, function(x) {
+        sum(summaryDF$geneSymbol %in% x, na.rm = TRUE)
+    }))
+
+    lfc <- fit$coefficients[targetrows, 1]
+    sdu <- fit$stdev.unscaled[targetrows, 1] + fit$coefficients[targetrows, 1]
+    sdl <- fit$coefficients[targetrows, 1] - fit$stdev.unscaled[targetrows, 1]
+
     ylimit <- c(min(0, min(sdl)), max(0, max(sdu)))
-    
-    #Compose a vector of the x locations
-    xloc <- as.vector(unlist(mapply(function(start, numguides){if(numguides > 1){seq(start, start+1, length.out = numguides)} else{start + 0.5}}, 
-                   start = seq(1, by = 2, length.out = ntargets), 
-                   numguides = nguides, 
-                   SIMPLIFY = TRUE)))
-  
-    sddf <- cbind(xloc, sdu, sdl)  
-    
-    #make the plot
-    plot(xloc, lfc, xaxt='n', main = plottitle, ylim = ylimit, xlab = "", ylab = "Log2 gRNA Abundance Change", pch = 18, col = "darkred")
-    suppress <- apply(sddf, 1, function(x){lines(c(x[1], x[1]), c(x[2], x[3]), col = rgb(0,0,0,0.3), lwd = 4)})
+
+    # Compose a vector of the x locations
+    xloc <- as.vector(unlist(mapply(function(start, numguides) {
+        if (numguides > 1) {
+            seq(start, start + 1, length.out = numguides)
+        } else {
+            start + 0.5
+        }
+    }, start = seq(1, by = 2, length.out = ntargets), numguides = nguides, SIMPLIFY = TRUE)))
+
+    sddf <- cbind(xloc, sdu, sdl)
+
+    # make the plot
+    plot(xloc, lfc, xaxt = "n", main = plottitle, ylim = ylimit, xlab = "", ylab = "Log2 gRNA Abundance Change", pch = 18, col = "darkred")
+    suppress <- apply(sddf, 1, function(x) {
+        lines(c(x[1], x[1]), c(x[2], x[3]), col = rgb(0, 0, 0, 0.3), lwd = 4)
+    })
     points(xloc, lfc, pch = 18, col = "darkred")
-    suppress <- capture.output(lapply(seq(2.5, by = 2, length.out = (ntargets - 1)), function(x){abline(v = x, lty = "dotted", col= "gray")}))
+    suppress <- capture.output(lapply(seq(2.5, by = 2, length.out = (ntargets - 1)), function(x) {
+        abline(v = x, lty = "dotted", col = "gray")
+    }))
     abline(h = 0)
-    #Add the labels
+    # Add the labels
     axis(1, at = seq(1.5, by = 2, length.out = ntargets), labels = toptargets, las = 3)
     if (!is.null(contrast.term)) {
-        mtext(contrast.term, side=3, line=0)
+        mtext(contrast.term, side = 3, line = 0)
     }
-  }
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+}
 
 
 

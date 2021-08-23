@@ -7,19 +7,17 @@
 ct.PRC(
   summaryDF,
   target.list,
-  stat = c("enrich.p", "deplete.p", "enrich.fc", "deplete.fc", "enrich.rho",
-    "deplete.rho"),
+  direction = c("enrich", "deplete"),
   plot.it = TRUE
 )
 }
 \arguments{
 \item{summaryDF}{A dataframe summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.}
 
-\item{target.list}{A character vector containing the names of the targets to be tested. Only targets contained in the \code{geneID} 
-column of the provided \code{summaryDF} are considered.}
+\item{target.list}{A character vector containing the names of the targets to be tested; by default these are assumed to be `geneID`s, 
+but specifying `collapse=geneSymbol` enables setting on `geneSymbol` by passing that value through to `ct.simpleResult`.}
 
-\item{stat}{The statistic to use when ordering the genes. Must be one of \code{"enrich.p"}, \code{"deplete.p"}, \code{"enrich.fc"}, 
-or \code{"deplete.fc"}.}
+\item{direction}{Direction by which to order target signals (`enrich` or `deplete`).}
 
 \item{plot.it}{Logical value indicating whether to plot the curves.}
 }
@@ -28,7 +26,7 @@ A list containing the the x and y coordinates of the curve.
 }
 \description{
 Given a set of targets of interest, this function generates a Precision Recall curve from the results of 
-a CRISPR screen. Specifically, it orders the target elements in the screen by the specified statistic, and then plots the recall 
+a CRISPR screen. Specifically, it orders the target elements in the screen in the specified direction, and then plots the recall 
 rate (proportion of true targets identified) against the precision (proportion of identified targets that are true targets). 
 
 Note that ranking statistics in CRISPR screens are (usually) permutation-based, and so some granularity in the rankings is expected. This 
@@ -39,7 +37,7 @@ somewhat anticonservative in cases where the gene ranks are not well differentia
 \examples{
 data('resultsDF')
 data('essential.genes') #Note that this is an artificial example.
-pr <- ct.PRC(resultsDF, essential.genes, 'enrich.p')
+pr <- ct.PRC(resultsDF, essential.genes, 'enrich')
 str(pr)
 }
 \author{

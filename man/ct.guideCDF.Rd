@@ -13,8 +13,8 @@ ct.guideCDF(eset, sampleKey = NULL, plotType = "gRNA", annotation = NULL)
 variables. The \code{names} attribute should exactly match those present in \code{eset}, and the control set is assumed to be 
 the first \code{level}.}
 
-\item{plotType}{A string indicating whether the individual guides should be displayed ("\code{gRNA}"), or if they should be aggregated into target-level
-estimates ("\code{Target}") according to the \code{geneSymbol} column in the \code{annotation} object.}
+\item{plotType}{A string indicating whether the individual guides should be displayed ('\code{gRNA}'), or if they should be aggregated into target-level
+estimates ('\code{Target}') according to the \code{geneSymbol} column in the \code{annotation} object.}
 
 \item{annotation}{An optional data.frame containing an annotation object to be used to aggregate the guides into targets. gRNAs are annotated by row, 
 and must minimally contain a column \code{geneSymbol} indicating the target elements.}

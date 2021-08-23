@@ -10,13 +10,15 @@ NULL
 ##' @import limma
 ##' @import RobustRankAggreg
 ##' @import ggplot2
-##' @import PANTHER.db
 ##' @import parallel
+##' @import grid
 ##' @importFrom grDevices colorRampPalette rgb
-##' @importFrom graphics abline axis barplot layout legend lines mtext par plot points polygon segments hist
-##' @importFrom stats density lm median na.omit p.adjust pbeta phyper predict pt smooth.spline spline
-##' @importFrom utils capture.output getFromNamespace 
+##' @importFrom graphics abline axis barplot layout legend lines mtext par plot points polygon segments hist text
+##' @importFrom stats density lm median na.omit p.adjust pbeta phyper predict pt smooth.spline spline qnorm
+##' @importFrom utils capture.output getFromNamespace combn
 ##' @importFrom rmarkdown render draft 
+##' @importFrom ComplexHeatmap UpSet HeatmapAnnotation decorate_annotation %v% anno_barplot anno_points order.comb_mat
+##' @importFrom methods is
 NULL
 
 ##' @name es
@@ -27,7 +29,7 @@ NULL
 ##' Expressionset of raw counts from a screen in mouse cells performed at Genentech, Inc. 
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("es")
+##' data('es')
 ##' print(es)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
 ##' @source Genentech, Inc.
@@ -41,7 +43,7 @@ NULL
 ##' Example annotation file for the screen data provided in \code{es}. 
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("ann")
+##' data('ann')
 ##' head(ann)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
 ##' @source Genentech, Inc.
@@ -55,7 +57,7 @@ NULL
 ##' and control expansion arms of a crispr screen performed at Genentech, Inc. 
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("fit")
+##' data('fit')
 ##' show(fit)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for model details.
 ##' @source Genentech, Inc.
@@ -69,7 +71,7 @@ NULL
 ##' the provided example Crispr screen (using 8 cores, seed = 2). 
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("resultsDF")
+##' data('resultsDF')
 ##' head(resultsDF)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for model details.
 ##' @source Genentech, Inc.
@@ -82,7 +84,7 @@ NULL
 ##' @description Example alignment matrix file for the provided example Crispr screen.
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("aln")
+##' data('aln')
 ##' head(aln)
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
 ##' @source Genentech, Inc.
@@ -93,10 +95,10 @@ NULL
 ##' @docType data
 ##' @title Artificial list of 'essential' genes in the example Crispr screen 
 ##' included for plotting purposes 
-##' @description Example gene list, designed to demonstrate ROC and PRC functions
+##' @description Example gene list, designed to demonstrate functions using gene lists.
 ##' All sample, gRNA, and Gene information has been anonymized and randomized. 
 ##' @examples
-##' data("essential.genes")
+##' data('essential.genes')
 ##' essential.genes
 ##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
 ##' @source Russell Bainer

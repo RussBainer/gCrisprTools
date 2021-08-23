@@ -2,7 +2,7 @@
 % Please edit documentation in R/processFit.R
 \name{ct.preprocessFit}
 \alias{ct.preprocessFit}
-\title{Preprocess a "MArrayLM" model fit object to include only one contrast.}
+\title{Preprocess a 'MArrayLM' model fit object to include only one contrast.}
 \usage{
 ct.preprocessFit(fit, modelTerm)
 }

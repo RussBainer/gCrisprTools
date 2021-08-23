@@ -1,42 +1,51 @@
 ---
-title: "Contrast Comparisons with gCrisprTools"
-output:
-  html_document:
-    df_print: paged
+title: "Advanced Screen Analysis: Contrast Comparisons"
+author: "Russell Bainer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Contrast_Comparisons_gCrisprTools}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteEncoding{UTF-8}
 ---
 
-This is a brief description of the new capabilites for comparing and summarizing contrasts with gCrisprTools. 
+This is a companion vignette briefly describing the advanced capabilites available for comparing, summarizing, and integrating screening contrasts with gCrisprTools, introduced with version 2.0. 
+
+#### Simplified Results Objects
 
 Historically, gCrisprTools was focused on making results data.frames, which exhaustively summarize the results of a screen contrast. They look like this: 
 
 ```{r setup}
+library(Biobase)
 library(gCrisprTools)
+knitr::opts_chunk$set(message = FALSE, fig.width = 8, fig.height = 8)
+
 data(resultsDF)
 
 head(resultsDF)
+
 ```
 
 In many applications, there are limitations to these objects. For example: 
 
-- They are gRNA-focused, but many downstream applications are focused on Targets
+- They are reagent-focused, but many downstream applications are focused on Targets
 - The `colnames` are human-readable instead of machine readable
 - The distinction between `geneID` and `geneSymbol` is not clear
 - Many columns are not informative for the majority of modern applications/screens
 - Historically, they are sorted to put the strongest signals at the top (this is not the case now)
 
-To help with downstream analyses, I introduce the `simpleResult` object
+To help with downstream analyses, we introduce the `simpleResult` object
 
 ```{r}
 res <- ct.simpleResult(resultsDF, collapse = 'geneSymbol')
 head(res)
 ```
 
-These objects are simpler representations of target signals that are applicable for "most" situations (e.g., when the gRNAs associated with a target have similar effects). 
+These objects are simpler representations of target signals that are applicable for "most" situations (e.g., when the gRNAs associated with a target have similar effects). They are:
 
 - Target focused, but target signals are collapsed to single directional P/Q stats
-- User specifies the identifier to collapse on
+- Collapsed on a user-specified identifier to enable comparisons across screening technologies
 - Both human-readable and machine-readable
-- Targets are returned in the same order
+- Consistently ordered, and may be easily placed in register with one another
 
 This format enables better comparisons between screens, and we have some helper functions to support this: 
 
@@ -51,14 +60,18 @@ str(regularized)
 
 The above function takes in a (named) list of results objects and creates a list of `simpleResult`s with the same names that are "in register" with one another, using the shared elements specified by `collapse`. 
 
-The main utility of this function is that it enables comparison of results objects that are derived from screens executed with different technologies (e.g., CRISPRi and CRISPRn), by focusing on the targets and their directional significance measures. With this in place, we can also do more sophisticated comparisons between contrasts: 
+The main utility of this function is twofold. First, it enables comparison of lightweight results objects that are derived from screens that could have been executed with different libraries, systems, or technologies by focusing on the targets and their directional significance measures. Second, this "named list of standardized results" can become a standard structure for encoding grouped contrasts for comparison purposes, allowing us to do more sophisticated comparisons between and across contrasts. 
+
+### Testing Overlaps Between Two or More Screens
+
+The standardized format allows straightforward identification of signal overlaps observed within multiple screens via `ct.compareContrasts()`. By default, these comparisons are done conditionally, but users may specify more rigid criteria. 
 
 ```{r}
-comparison <- ct.compareContrasts(mainresult = resultsDF,
-                                  validationresult = resultsDF[20:1000, ],
+comparison <- ct.compareContrasts(dflist = regularized,
                                   statistics = c('best.q', 'best.p'), 
-                                  cutoffs = c(0.1,0.001), 
-                                  same.dir = TRUE)
+                                  cutoffs = c(0.5,0.05), 
+                                  same.dir = rep(TRUE, length(regularized)))
+
 head(comparison, 30)
 
 ```
@@ -68,42 +81,50 @@ This function returns a `simplifiedResult` version of the `mainresult` argument,
 For convenience, we can also return summary statistics characterizing the overlap between the screens: 
 
 ```{r}
-ct.compareContrasts(mainresult = resultsDF,
-                    validationresult = resultsDF[20:1000, ],
+ct.compareContrasts(dflist = regularized,
                     statistics = c('best.q', 'best.p'),
-                    cutoffs = c(0.1,0.001),
-                    same.dir = TRUE,
+                    cutoffs = c(0.5,0.05), 
+                    same.dir = rep(TRUE, length(regularized)),
                     return.stats = TRUE)
 ```
 
 This can be useful when exploring appropriate cutoff thresholds, or when asking broader questions about overall congruence. 
 
+### Visualization of Screen Enrichment and Depletion Dynamics
+
+We provide a number of methods for visualizing and contextualizing the overall signals present within sets of screens. One of the simplest is the cointrast barcharts, which represent the number of observed enrichment and depletion signals in each screen according to specified significance criteria: 
+
+```{r contrastbarchart, fig.width=6, fig.height = 5}
+ct.contrastBarchart(regularized, background = FALSE, statistic = 'best.p')
+```
+
+In the above figure, each contrast is represented as a horizontal bar, and targets enriched and depleted are represented as bars extending to the right and the left of the vertical dotted line, respectively. 
+
+We can also compare the signals observed in two screens directly in a scatterplot: 
 
 ```{r}
-scat <- ct.scatter(dflist = list('firstDF' = resultsDF[1:1000,], 
-                                 'secondDF' = resultsDF[200:1200,]), 
+scat <- ct.scatter(regularized, 
                    targets = 'geneSymbol', 
                    statistic = 'best.p', 
                    cutoff = 0.05)
-
-
 ```
 
-This provides a scatter plot of the indicated statistic, with quadrants defined according to the user-specified statistic cutoff. The number of targets in each of the quadrants is indicated in grey, and a more complete genewise picture can be achieved by examining the returned invisible object: 
+This provides a scatter plot of the indicated statistic, with quadrants defined according to the user-specified cutoff. The number of targets in each of the quadrants is indicated in grey, and quadrants are keyed like this: 
+
+1 2 3 
+4 5 6 
+7 8 9
+
+
+A more complete genewise picture can be achieved by examining the returned invisible object, which appends the relevant quadrants to assist in in focusing on particular targets of interest: 
 
 ```{r}
 head(scat)
 ```
 
-This object basically returns the information from the respective `simpleResult` annotations, but also appends the relevant quadrants to assist in in focusing on particular targets of interest: 
+As an aside, this simplified infrastructure allows straightforward dissection of interaction effects as well. Often, it is helpful to identify targets that are enriched or depleted with respect to one contrast but inactive with respect to another (e.g., to identify genes that impact a screening phenotype but do not deplete over time).  
 
-```{r}
-scat[scat$quadrant %in% '7',]
-```
-
-This simplified infrastructure allows dissection of interaction effects as well: 
-
-```{r contrast interaction, message = FALSE, warning=FALSE}
+```{r contrast interaction, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 12}
 library(Biobase)
 library(limma)
 library(gCrisprTools)
@@ -140,37 +161,66 @@ allResults <- sapply(colnames(fit$coefficients),
 allSimple <- ct.regularizeContrasts(allResults)
 ```
 
-Now, using the logical columns we can Idnetify relevant sets of targets. For example, the number of targets changing over time in both timecourses:
+Using the logical columns we can Identify relevant sets of targets. For example, the number of targets changing over time in both timecourses:
 
 ```{r}
 
-time.effect <- ct.compareContrasts(allSimple$ControlTime,
-                                   allSimple$DeathOverTime)
+time.effect <- ct.compareContrasts(list("con" = allSimple$ControlTime,
+                                        "tx" = allSimple$DeathOverTime))
 summary(time.effect$replicated)
 ```
 
 or targets with a toxicity modifying effect that compromise intrinsic viability:
 
 ```{r}
-mod.control <- ct.compareContrasts(allSimple$Interaction,
-                                 allSimple$ControlTime,
-                                 same.dir = FALSE)
+mod.control <- ct.compareContrasts(list("con" = allSimple$ControlTime,
+                                        "Interaction" = allSimple$Interaction),
+                                 same.dir = c(TRUE, FALSE))
 summary(mod.control$replicated)
 ```
 
-or targets with modifying effect that affect viability in the death condition:
+#### More Comparisons
 
-```{r}
-mod.death <- ct.compareContrasts(allSimple$Interaction, 
-                                   allSimple$ControlTime)
-summary(mod.death$replicated)
+Sometimes you might be curious about the relationship between many contrasts. You can accomplish this by making an UpSet plot: 
+
+```{r, fig.height= 6, fig.width = 8}
+upset <- ct.upSet(allSimple)
 ```
 
-or modifiers w/ no evidence of background viability effects:
+In addition to constructing the UpSet plot above, by default we include fold enrichment and p-value estimates to help interpret the various bars in the context of the nominal or conditional expected values. 
+
+Finally, the above function returns a combination matrix containing the overlap values and associated targets, which can be useful for interrogating intersection sets of interest.  
 
 ```{r}
-summary(mod.death$replicated & !mod.control$replicated)
-
+show(upset)
 ```
 
+See the documentation about combination matrices provided in the `ComplexHeatmap` package for accessor functions and additional information about the structure and use of this object. 
 
+
+#### Ontological Enrichment
+
+Though not subject to specific set-level analyses yet, the `ct.seas()` function can be likewise extended to use lists of results. The standardized objects can then be consolidated to ask broader questions about enrichment and depletion using standard methods:  
+
+```{r, fig.width=6, fig.height=6, warnings= FALSE}
+genesetdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
+
+sparrowList <- ct.seas(allSimple, gdb = genesetdb)
+
+#Can also be returned as a series of matrices to facilitate downstream comparisons: 
+sparrowDF <- ct.compileSparrow(sparrowList)
+
+plot(-log10(sparrowDF$ora$pval[,'ControlTime']), 
+     -log10(sparrowDF$ora$pval[,'DeathOverTime']), 
+     pch = 19, col = rgb(0,0,0.8,0.5), 
+     ylab = "Treatment Over Time Pathway -log10(P)",
+     xlab = "Control Over Time Pathway -log10(P)",
+     main = 'Evidence for Pathway Enrichment')
+abline(0,1,lty = 2)
+
+str(sparrowDF)
+```
+
+```{r}
+sessionInfo()
+```

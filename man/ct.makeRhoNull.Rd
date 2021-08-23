@@ -19,3 +19,6 @@ numeric vector of Rho values
 \description{
 Makes random distribution of Rho value by taking nperm random samples of n rank stats, p.
 }
+\examples{
+ct.makeRhoNull(3, 1:9, 5)
+}

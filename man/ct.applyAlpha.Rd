@@ -29,13 +29,17 @@ that the coefficents should be used as the ranking statistic but gRNAs are disca
 p-value in the fit object.}
 }
 \value{
-data.frame with guide-level pvals, fold change, and scores.deplete and scores.enrich which are the
-    input the RRAalpha
+data.frame with guide-level pvals, fold change, and scores.deplete and scores.enrich which are the input the RRAalpha
 }
 \description{
 The 'alpha' part of RRAalpha is used to consider only the top guide-level scores for gene-level
     statistics. Practically, all guides failing the cutoff get a pvalue of 1.  There are three ways of
     determining which guides fail. See 'scoring' below.
+}
+\examples{
+fakestats <- matrix(runif(300), ncol = 3)
+colnames(fakestats) = c('Depletion.P', 'Enrichment.P', 'lfc')
+ct.applyAlpha(fakestats)
 }
 \author{
 Russell Bainer

@@ -4,7 +4,7 @@
 \alias{ct.simpleResult}
 \title{Convert a verbose results DF object to a gene-level result object}
 \usage{
-ct.simpleResult(summaryDF, collapse = "geneSymbol")
+ct.simpleResult(summaryDF, collapse = c("geneSymbol", "geneID"))
 }
 \arguments{
 \item{summaryDF}{A \code{data.frame}, usually returned by \code{ct.generateResults}. 

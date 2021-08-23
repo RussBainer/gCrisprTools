@@ -26,13 +26,18 @@ A summary plot on the current device. Invisibly, the data.frame tallying signals
 }
 \description{
 Given a list of provided results `data.frame`s summarizing a series of contrasts from one or more pooled screens, 
-this function visualizes the signal associated with their shared targets as a series of stacked barcharts. Enriched signals 
-are represented in the positive direction, and depleted signals are represented in the negative direction.
+this function visualizes their respective signals as a series of stacked barcharts. Enriched signals 
+are represented in the positive direction, and depleted signals are represented in the negative direction.  Note that the 
+provided contrast results are not regularized by this function.
+
+This function may be used to compare signals across different screen contrasts, or to compare signals within interesting 
+subsets of targets ascertained within a single experiment.
 }
 \examples{
 data('resultsDF')
-# Not so interesting b/c of limited weak signal in example
-ct.contrastBarchart(list('First Result' = resultsDF, 'Second Result' = resultsDF))
+ct.contrastBarchart(list('FirstResult' = resultsDF, 'SecondResult' = resultsDF))
+ct.contrastBarchart(list('FirstResult' = resultsDF, 'SecondResult' = resultsDF), background = FALSE)
+ct.contrastBarchart(list('FirstResult' = resultsDF[1:1000,], 'SecondResult' = resultsDF))
 }
 \author{
 Russell Bainer

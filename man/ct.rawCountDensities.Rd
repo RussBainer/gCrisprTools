@@ -31,7 +31,7 @@ data('es')
 
 #Build the sample key
 library(Biobase)
-sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
+sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
 names(sk) <- row.names(pData(es))
 
 ct.rawCountDensities(es, sk)

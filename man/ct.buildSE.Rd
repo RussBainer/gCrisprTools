@@ -38,7 +38,6 @@ for downstream visualization and analysis. All arguments are optional except for
 \examples{
 data('ann', 'es', 'fit', 'resultsDF')
 ct.buildSE(es, ann = ann, fit = 'fit', summaryList = list('resA' = resultsDF, 'resB' = resultsDF))
-
 }
 \author{
 Russell Bainer

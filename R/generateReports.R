@@ -1,22 +1,19 @@
 
 # helper functions --------------------------------------------------------
 
-# These are internal functions to re-use for report generation so I am am not
-# sticking to the naming convention with a 'ct' prefix, which is used for API.
+# These are internal functions to re-use for report generation so I am am not sticking to the naming convention with a 'ct' prefix, which is used for API.
 
 
 #' Add formatted timestamp and extension to a file name
 #'
 #' @param name character
-#' @param ext character - extension including a ".".
+#' @param ext character - extension including a '.'.
 #'
 #' @keywords internal
 #' @return character
 #'
 appendDateAndExt <- function(name, ext) {
-  paste0(name,
-         format(Sys.time(), "_%b_%d_%Y_%H.%M.%S"),
-         ext)
+    paste0(name, format(Sys.time(), "_%b_%d_%Y_%H.%M.%S"), ext)
 }
 
 #' Internal wrapper to generate html markdown reports from existing templates
@@ -32,32 +29,20 @@ appendDateAndExt <- function(name, ext) {
 #'
 #' @keywords internal
 #' @return  character with a path to html report in the temporary directory.
-renderReport <- function(reportNameBase,
-                         templateName,
-                         rmdParamList, 
-                         outdir = NULL) {
-  
-  if(is.null(outdir)){
-      # use a temp directory to make a draft
-      dir.create(outdir <- tempfile())
+renderReport <- function(reportNameBase, templateName, rmdParamList, outdir = NULL) {
+
+    if (is.null(outdir)) {
+        # use a temp directory to make a draft
+        dir.create(outdir <- tempfile())
     } else {
         if (!is.character(outdir)) {
-          stop("`outdir` must be path to a directory used ot save results")
+            stop("`outdir` must be path to a directory used ot save results")
         }
-        outdir.created <- initOutDir(outdir)   #True/false indicating whether the directory was created
+        outdir.created <- initOutDir(outdir)  #True/false indicating whether the directory was created
         outdir <- normalizePath(outdir)
-      }
+    }
 
-  render(
-    draft(
-      file = file.path(outdir, reportNameBase),
-      create_dir = TRUE,
-      template = templateName,
-      package = "gCrisprTools",
-      edit = FALSE
-    ),
-    params = rmdParamList
-  )
+    render(draft(file = file.path(outdir, reportNameBase), create_dir = TRUE, template = templateName, package = "gCrisprTools", edit = FALSE), params = rmdParamList)
 }
 
 
@@ -79,8 +64,8 @@ renderReport <- function(reportNameBase,
 ##' the first \code{level}.
 ##' @param annotation An annotation object for the experiment. See the man page for \code{ct.prepareAnnotation()} for details and example format. 
 ##' @param results A data.frame summarizing the results of the screen, returned by the function \code{\link{ct.generateResults}}.
-##' @param aln A numeric alignment matrix, where rows correspond to "targets", "nomatch", "rejections", and "double_match", and where columns 
-##' correspond to experimentasl samples.
+##' @param aln A numeric alignment matrix, where rows correspond to 'targets', 'nomatch', 'rejections', and 'double_match', and where columns 
+##' correspond to experimentasl samples. Users may also pass `NULL` to suppress evaluation of alignment. 
 ##' @param outdir A directory in which to generate the report; if \code{NULL}, a temporary directory will be automatically generated. 
 ##' The report will be located in a subdirectory whose name is internally generated (see below). The path to the report itself is returned by the function.
 ##' @param contrast.term A parameter passed to \code{ct.preprocessFit} in the event that the fit object contains data from multiple contrasts. See
@@ -96,81 +81,79 @@ renderReport <- function(reportNameBase,
 ##' 
 ##' ##' #Build the sample key
 ##' library(Biobase)
-##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference")
+##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
 ##' names(sk) <- row.names(pData(es))
 ##' 
 ##' data('ann')
 ##' data('resultsDF')
 ##' data('aln')
-##' path2report <- ct.makeReport(fit, es, sk, ann, resultsDF, aln, outdir = ".") 
+##' path2report <- ct.makeReport(fit, es, sk, ann, resultsDF, aln, outdir = '.') 
 ##' @export
 
-ct.makeReport <- function(fit, eset, sampleKey, annotation, results, aln, outdir = NULL, contrast.term = NULL, identifier = NULL){
+ct.makeReport <- function(fit, eset, sampleKey, annotation, results, aln, outdir = NULL, contrast.term = NULL, identifier = NULL) {
 
-  if(!methods::is(fit, "MArrayLM")){
-    stop("the provided fit does not appear to be a MArrayLM object.")
+    if (!methods::is(fit, "MArrayLM")) {
+        stop("the provided fit does not appear to be a MArrayLM object.")
     }
 
-  if(ncol(fit$coefficients) > 1){
-    if(is.null(contrast.term)){
-      stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
-    }
-    fit <- ct.preprocessFit(fit, contrast.term)
-  }
-
-  #filter the annotation file as necessary for downstream processes
-  annotation <- ct.prepareAnnotation(annotation, fit, throw.error = FALSE)
-
-  if(!is.matrix(aln) | !setequal(row.names(aln), c("targets", "nomatch", "rejections", "double_match"))){
-    stop("I don't think that the provided alignment matrix is actually an alignment matrix.")
-  }
-  if(!ct.resultCheck(results)){
-    stop("Execution halted.")
-  }
-  
-  
-#Set up the path and folder for writing (heavily based on code from multiGSEA):
-if (is.null(outdir)) {
-  outdir.created <- FALSE
-  noutdir <- character()
-  } else {
-  if (!is.character(outdir)) {
-    stop("`outdir` must be path to a directory used ot save results")
-  }
-  outdir.created <- initOutDir(outdir)   #True/false indicating whether the directory was created
-  noutdir <- normalizePath(outdir)
-}
-
-#make the sample names and build the parameter list for the rmd.
-if(ct.inputCheck(sampleKey, eset)){
-  sampleKey <- sampleKey[order(sampleKey)]
-  }
-
-rmdParamList <- list(fit= fit,
-                    eset= eset,
-                    sampleKey= sampleKey,
-                    results = results,
-                    annotation = annotation,
-                    aln = aln)
-
-#make the name of the rmd & output, and render it in the location of interest.
-if(!is.null(identifier)){
-  if(!is.character(identifier) | length(identifier) != 1){
-    stop("identifier must be a character string of length 1.")
-    }
-  namebase <- identifier
-  }else{
-    namebase <- paste0("CrisprReport", format(Sys.time(), "_%b_%d_%Y_%H.%M.%S"))
+    if (ncol(fit$coefficients) > 1) {
+        if (is.null(contrast.term)) {
+            stop("The fit object contains multiple coefficients. Please specify a contrast.term.")
+        }
+        fit <- ct.preprocessFit(fit, contrast.term)
     }
 
-rmdname <- file.path(noutdir, paste0(namebase, '.Rmd'))
-outname <- file.path(noutdir, namebase, paste0(namebase, '.html'))
+    # filter the annotation file as necessary for downstream processes
+    annotation <- ct.prepareAnnotation(annotation, fit, throw.error = FALSE)
 
-print(names(rmdParamList))
+    if (!is.null(aln)) {
+        if (!is.matrix(aln) | !setequal(row.names(aln), c("targets", "nomatch", "rejections", "double_match"))) {
+            stop("I don't think that the provided alignment matrix is actually an alignment matrix.")
+        }
+    }
 
-render(draft(rmdname, template = 'CRISPR_report', package = "gCrisprTools", edit = FALSE), params = rmdParamList)
+    if (!ct.resultCheck(results)) {
+        stop("Execution halted.")
+    }
 
-return(outname)
+
+    # Set up the path and folder for writing (heavily based on code from multiGSEA):
+    if (is.null(outdir)) {
+        outdir.created <- FALSE
+        noutdir <- character()
+    } else {
+        if (!is.character(outdir)) {
+            stop("`outdir` must be path to a directory used ot save results")
+        }
+        outdir.created <- initOutDir(outdir)  #True/false indicating whether the directory was created
+        noutdir <- normalizePath(outdir)
+    }
+
+    # make the sample names and build the parameter list for the rmd.
+    if (ct.inputCheck(sampleKey, eset)) {
+        sampleKey <- sampleKey[order(sampleKey)]
+    }
+
+    rmdParamList <- list(fit = fit, eset = eset, sampleKey = sampleKey, results = results, annotation = annotation, aln = aln)
+
+    # make the name of the rmd & output, and render it in the location of interest.
+    if (!is.null(identifier)) {
+        if (!is.character(identifier) | length(identifier) != 1) {
+            stop("identifier must be a character string of length 1.")
+        }
+        namebase <- identifier
+    } else {
+        namebase <- paste0("CrisprReport", format(Sys.time(), "_%b_%d_%Y_%H.%M.%S"))
+    }
+
+    rmdname <- file.path(noutdir, paste0(namebase, ".Rmd"))
+    outname <- file.path(noutdir, namebase, paste0(namebase, ".html"))
+
+    print(names(rmdParamList))
+
+    render(draft(rmdname, template = "CRISPR_report", package = "gCrisprTools", edit = FALSE), params = rmdParamList)
+
+    return(outname)
 
 }
 
@@ -198,9 +181,9 @@ return(outname)
 ##'   to be the first \code{level}.
 ##' @param annotation An annotation object for the experiment. See the man page 
 ##'   for \code{ct.prepareAnnotation} for details and example format.
-##' @param aln A numeric alignment matrix, where rows correspond to "targets", 
-##'   "nomatch", "rejections", and "double_match", and where columns correspond 
-##'   to experimentasl samples.
+##' @param aln A numeric alignment matrix, where rows correspond to 'targets', 
+##'   'nomatch', 'rejections', and 'double_match', and where columns correspond 
+##'   to experimentasl samples. May be `NULL`, to suppress alignment evaluation. 
 ##' @param identifier A character string to name the report and corresponding 
 ##'   subdirectories. If provided, the final report will be called 
 ##'   '\code{identifier}.html' and will be located in a directory called 
@@ -226,64 +209,33 @@ return(outname)
 ##' 
 ##' ##' #Build the sample key
 ##' library(Biobase)
-##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' 
-##' path2report <- ct.makeQCReport(es, trim = 1000, log2.ratio = 0.0625, sk, ann, aln, identifier = NULL, lib.size = NULL, geneSymb = 'NoTarget', outdir = ".") 
+##' path2report <- ct.makeQCReport(es, trim = 1000, log2.ratio = 0.0625, sk, ann, aln, identifier = NULL, lib.size = NULL, geneSymb = 'NoTarget', outdir = '.') 
 ##' @export
-ct.makeQCReport <-
-  function(eset,
-           trim,
-           log2.ratio,
-           sampleKey,
-           annotation,
-           aln,
-           identifier = NULL,
-           lib.size,
-           geneSymb = NULL, 
-           outdir = NULL) {
+ct.makeQCReport <- function(eset, trim, log2.ratio, sampleKey, annotation, aln, identifier = NULL, lib.size, geneSymb = NULL, outdir = NULL) {
     # check and preprocess inputs
     if (!is.null(sampleKey)) {
-      ct.inputCheck(sampleKey, eset)
-      sampleKey <- sampleKey[order(sampleKey)]
+        ct.inputCheck(sampleKey, eset)
+        sampleKey <- sampleKey[order(sampleKey)]
     }
-    
-    annotation <- ct.prepareAnnotation(
-      ann = annotation,
-      object = eset,
-      controls = ifelse(is.null(geneSymb), TRUE, geneSymb),
-      throw.error = FALSE
-    )
+
+    annotation <- ct.prepareAnnotation(ann = annotation, object = eset, controls = ifelse(is.null(geneSymb), TRUE, geneSymb), throw.error = FALSE)
 
     # prepare params
     if (missing(identifier) | is.null(identifier)) {
-      reportNameBase <- appendDateAndExt(name = "CRISPR_QC_report",
-                                         ext = ".Rmd")
+        reportNameBase <- appendDateAndExt(name = "CRISPR_QC_report", ext = ".Rmd")
     } else {
-      (is.character(identifier) & length(identifier) == 1) ||
-        stop("Identifier must be a character string of length 1.")
-      reportNameBase <- identifier
+        (is.character(identifier) & length(identifier) == 1) || stop("Identifier must be a character string of length 1.")
+        reportNameBase <- identifier
     }
 
-    rmdParamList <- list(
-      eset = eset,
-      sampleKey = sampleKey,
-      trim = trim,
-      log2.ratio = log2.ratio,
-      annotation = annotation,
-      aln = aln,
-      lib.size = lib.size,
-      geneSymb = geneSymb
-    )
+    rmdParamList <- list(eset = eset, sampleKey = sampleKey, trim = trim, log2.ratio = log2.ratio, annotation = annotation, aln = aln, lib.size = lib.size, geneSymb = geneSymb)
 
     # render and return the path to report
-    renderReport(
-      reportNameBase = reportNameBase,
-      templateName = 'CRISPR_QC_report',
-      rmdParamList = rmdParamList, 
-      outdir = outdir
-    )
-  }
+    renderReport(reportNameBase = reportNameBase, templateName = "CRISPR_QC_report", rmdParamList = rmdParamList, outdir = outdir)
+}
 
 ##' @title Generate a Contrast report from a pooled CRISPR screen
 ##' @description This is a function to generate an html Contrast report for a 
@@ -327,59 +279,34 @@ ct.makeQCReport <-
 ##' 
 ##' ##' #Build the sample key
 ##' library(Biobase)
-##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), "ControlReference"))
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' 
-##' path2report <- ct.makeContrastReport(es, fit, sk, resultsDF, ann, comparison.id = NULL, outdir = ".") 
+##' path2report <- ct.makeContrastReport(es, fit, sk, resultsDF, ann, comparison.id = NULL, outdir = '.') 
 ##' @export
-ct.makeContrastReport <-
-  function(eset,
-           fit,
-           sampleKey,
-           results,
-           annotation,
-           comparison.id,
-           identifier,
-           contrast.subset = colnames(eset), 
-           outdir = NULL
-           ) {
+ct.makeContrastReport <- function(eset, fit, sampleKey, results, annotation, comparison.id, identifier, contrast.subset = colnames(eset), outdir = NULL) {
     # check and preprocess inputs
     annotation <- ct.prepareAnnotation(annotation, throw.error = FALSE)
     if (!is.null(sampleKey)) {
-      ct.inputCheck(sampleKey, eset)
-      sampleKey <- sampleKey[order(sampleKey)]
+        ct.inputCheck(sampleKey, eset)
+        sampleKey <- sampleKey[order(sampleKey)]
     }
-    
-    if(!ct.resultCheck(results)){
-      stop("Execution halted.")
+
+    if (!ct.resultCheck(results)) {
+        stop("Execution halted.")
     }
-    
+
     # prepare params
     if (missing(identifier)) {
-      reportNameBase <- appendDateAndExt(name = "CRISPR_contrast_report",
-                                         ext = ".Rmd")
+        reportNameBase <- appendDateAndExt(name = "CRISPR_contrast_report", ext = ".Rmd")
     } else {
-      (is.character(identifier) & length(identifier) == 1) ||
-        stop("Identifier must be a character string of length 1.")
-      reportNameBase <- identifier
+        (is.character(identifier) & length(identifier) == 1) || stop("Identifier must be a character string of length 1.")
+        reportNameBase <- identifier
     }
-    
-    rmdParamList <- list(
-      eset = eset,
-      fit = fit,
-      sampleKey = sampleKey,
-      results = results,
-      contrast.subset = contrast.subset,
-      comparison.id = comparison.id,
-      annotation = annotation
-    )
-    
+
+    rmdParamList <- list(eset = eset, fit = fit, sampleKey = sampleKey, results = results, contrast.subset = contrast.subset, comparison.id = comparison.id, annotation = annotation)
+
     # render and return the path to report
-    renderReport(
-      reportNameBase = reportNameBase,
-      templateName = 'CRISPR_contrast_report',
-      rmdParamList = rmdParamList, 
-      outdir = outdir
-    )
-  }
+    renderReport(reportNameBase = reportNameBase, templateName = "CRISPR_contrast_report", rmdParamList = rmdParamList, outdir = outdir)
+}
 

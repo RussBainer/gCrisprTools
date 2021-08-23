@@ -12,7 +12,7 @@ Example annotation file for the screen data provided in \code{es}.
 All sample, gRNA, and Gene information has been anonymized and randomized.
 }
 \examples{
-data("ann")
+data('ann')
 head(ann)
 }
 \seealso{
