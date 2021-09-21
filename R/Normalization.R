@@ -1,12 +1,12 @@
-##' @title Normalize sample abundance estimates by a spline fit to the nontargeting controls
-##' @description This function normalizes Crispr gRNA abundance estimates by fiting a smoothed spline to the nontargeting gRNAs within each sample
+##' @title Normalize sample abundance estimates by a spline fit to specific shared elements
+##' @description This function normalizes Crispr gRNA abundance estimates by fiting a smoothed spline to a subset of the gRNAs within each sample
 ##' and then equalizing these curves across the experiment. Specifically, the algorithm ranks the gRNA abundance estimates within each sample and 
-##' uses a smoothed spline to determine a relationship between the ranks of nontargeting guides and their abundance estimates. It then removes the
-##' spline trend from each sample, centering each experiment around the global median abundance; these values are returned as normalized counts in 
-##' the '\code{exprs}' slot of the input eset. 
+##' uses a smoothed spline to determine a relationship between the ranks of the "anchor" guides and their abundance estimates. It then adjusts the 
+##' spline trends from each sample to the mean of all of the sample spline fits in a manner analogous to quantile normalization, interpolating the
+##' gRNA abundance values between the anchor points; these values are returned as normalized counts in the '\code{exprs}' slot of the input eset. 
 ##' @param eset An ExpressionSet object containing, at minimum, count data accessible by \code{exprs}. 
 ##' @param annotation An annotation dataframe indicating the nontargeting controls in the geneID column. 
-##' @param geneSymb The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.gRNARankByReplicate} will
+##' @param geneSymb The \code{geneSymbol} identifier(s) in \code{annotation} that corresponds to the "anchor" gRNAs. If absent, the method will
 ##' attempt to infer nontargeting guides by searching for \code{'no_gid'} or \code{NA} in the appropriate columns.  
 ##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
 ##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
@@ -26,7 +26,6 @@
 ##' ct.gRNARankByReplicate(es, sk, lib.size = ls)
 ##' ct.gRNARankByReplicate(es.norm, sk, lib.size = ls)
 ##' @export
-
 ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NULL) {
 
     if (!methods::is(eset, "ExpressionSet")) {
@@ -40,18 +39,14 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
     annotation <- invisible(ct.prepareAnnotation(annotation, eset, throw.error = FALSE))
 
     if (!is.null(geneSymb)) {
-        if (geneSymb %in% annotation$geneSymbol) {
-            ntc <- row.names(annotation)[annotation$geneSymbol %in% geneSymb]
-        } else {
-            stop(paste(deparse(substitute(geneSymb)), "is not present in the geneSymbol column of the annotation file."))
-        }
+        stopifnot(all(geneSymb %in% annotation$geneSymbol))
+        ntc <- row.names(annotation)[annotation$geneSymbol %in% geneSymb]
     } else if ("NoTarget" %in% annotation$geneSymbol) {
         message("Using gRNAs targeting \"NoTarget\"")
         ntc <- row.names(annotation)[annotation$geneSymbol %in% "NoTarget"]
     } else {
         stop("I can't tell which guides are nontargeting. Please specify a geneSymbol that you would like for me to use.")
     }
-
 
     # log the data and fit curves to the NTCs.
     counts <- exprs(eset)
@@ -243,9 +238,10 @@ ct.normalizeBySlope <- function(ExpressionObject, trim = 0.25, lib.size = NULL, 
 ##' @description This function normalizes Crispr gRNA abundance estimates contained in an \code{ExpressionSet} object.
 ##' Currently four normalization methods are implemented: median scaling (via \code{normalizeMedianValues}), slope-based
 ##' normalization (via \code{ct.normalizeBySlope()}), scaling to the median of the nontargeting control values (via 
-##' \code{ct.normalizeNTC()}), factored quantile normalization (via \code{ct.normalizeFQ()}), and spline fitting to the distribution of the nontargeting gRNAs (via \code{ct.normalizeSpline()}). 
-##' Because of the peculiarities of pooled Crispr screening data, these implementations may be more stable than the endogenous methods 
-##' used downstream by \link[limma]{voom}. See the respective man pages for further details about specific normalization approaches.
+##' \code{ct.normalizeNTC()}), factored quantile normalization (via \code{ct.normalizeFQ()}), and spline fitting to the distribution of 
+##' selected gRNAs (via \code{ct.normalizeSpline()}). Because of the peculiarities of pooled Crispr screening data, these 
+##' implementations may be more stable than the endogenous methods used downstream by \link[limma]{voom}. See the respective 
+##' man pages for further details about specific normalization approaches.
 ##' @param eset An ExpressionSet object with integer count data extractable with \code{exprs()}.
 ##' @param method The normalization method to use.
 ##' @param annotation The annotation object for the library, required for the methods employing nontargeting controls.
