@@ -309,6 +309,11 @@ ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "control
 
     if (plot.it) {
         par(mfrow = c(2, 1))
+        
+        if(is.null(names(sampleKey))){
+            names(sampleKey) <- colnames(eset)  #Handle edge cases for normalizeFQ
+        }
+        
         ct.gRNARankByReplicate(eset, sampleKey, lib.size = lib.size)
         ct.gRNARankByReplicate(new.eset, sampleKey, lib.size = lib.size)
     }
@@ -386,7 +391,7 @@ ct.normalizeMedians <- function(eset, lib.size = NULL) {
 ##' 
 ##' #Build the sample key and library sizes for visualization
 ##' library(Biobase)
-##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
+##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
 ##' names(sk) <- row.names(pData(es))
 ##' ls <- colSums(exprs(es))
 ##' 

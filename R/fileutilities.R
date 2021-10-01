@@ -68,9 +68,12 @@ dir.writable <- function(path) {
 
 ##' @title Check compatibility of a sample key with a supplied object
 ##' @description For many gCrisprTools functions, a sample key must be provided that specifies 
-##' sample mapping to experimental groups and specifies which of these contains control samples. 
+##' sample mapping to experimental groups. The sample key should be provided as a single, named factor whose  
+##' names exactly correspond to the `colnames()` of the `ExpressionSet` containing the count data to be 
+##' processed (or coercible as such). By convention, the first level corresponds to the control sample group.
+##'  
 ##' This function checks whether the specified sample key is of the proper format and has 
-##' properties consistent matching the specified object. 
+##' properties consistent with the specified object. 
 ##' @param sampleKey A named factor, where the \code{levels} indicate the experimental replicate 
 ##' groups and the \code{names} match the \code{colnames} of the expression matrix contained in \code{object}. 
 ##' The first \code{level} should correspond to the control samples, but obviously there is no 
@@ -90,14 +93,16 @@ dir.writable <- function(path) {
 ##' @export
 ct.inputCheck <- function(sampleKey, object) {
 
+    if (!(is.factor(sampleKey))) {
+        sampleKey <- as.factor(sampleKey)
+        warning(paste("Coercing the provided sample key to a factor. Control croup set to:", levels(sampleKey)[1]))
+    }
+    
     # Check input formats
     if (!any(is(object, "ExpressionSet"), is(object, "EList"), is(object, "matrix"))) {
         stop(paste(deparse(substitute(object)), "is not an ExpressionSet, Elist, or matrix. Class is: ", class(object)))
     }
 
-    if (!(is.factor(sampleKey))) {
-        stop(paste(deparse(substitute(sampleKey)), "is not an ordered factor."))
-    }
     if (is.null(names(sampleKey))) {
         stop(paste(deparse(substitute(sampleKey)), "must have a names attribute, specifying the sample assignments in", deparse(substitute(object)), "."))
     }

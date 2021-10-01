@@ -24,7 +24,7 @@
 ##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 ##' names(sk) <- row.names(pData(es))
 ##' 
-##' ct.gRNARankByReplicate(es, sk, ann, 'Ripk3')
+##' ct.gRNARankByReplicate(es, sk, ann, 'Target1377')
 ##' @export
 ct.gRNARankByReplicate <- function(eset, sampleKey, annotation = NULL, geneSymb = NULL, lib.size = NULL) {
     # current.graphic.params <- par(no.readonly = TRUE) on.exit(suppressWarnings(par(current.graphic.params)))
