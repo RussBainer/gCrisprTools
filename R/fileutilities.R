@@ -82,14 +82,6 @@ dir.writable <- function(path) {
 ##' @return A logical indicating whether the objects are compatible.
 ##' @import limma
 ##' @author Russell Bainer
-##' @examples data('es')
-##' library(limma)
-##' library(Biobase)
-##' 
-##' #Build the sample key
-##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
-##' names(sk) <- row.names(pData(es))
-##' ct.inputCheck(sk, es)
 ct.inputCheck <- function(sampleKey, object) {
 
     .Deprecated('ct.keyCheck', package = 'gCrisprTools', msg = 'Please use ct.keyCheck() instead of ct.inputCheck().')

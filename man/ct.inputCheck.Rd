@@ -26,16 +26,6 @@ processed (or coercible as such). By convention, the first level corresponds to 
 This function checks whether the specified sample key is of the proper format and has 
 properties consistent with the specified object.
 }
-\examples{
-data('es')
-library(limma)
-library(Biobase)
-
-#Build the sample key
-sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
-names(sk) <- row.names(pData(es))
-ct.inputCheck(sk, es)
-}
 \author{
 Russell Bainer
 }
