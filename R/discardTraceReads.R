@@ -39,11 +39,11 @@ ct.filterReads <- function(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL, 
     e <- log2(exprs(eset) + 1)
     trim < nrow(e) || stop("'trim' must be less than the total number of features in the 'eset': ", "trim:", trim, ", total number of features: ", nrow(e), ".")
     if (!is.null(sampleKey)) {
-        if (ct.inputCheck(sampleKey, eset)) {
-            control.samples <- names(sampleKey)[sampleKey == levels(sampleKey)[1]]
-            e <- e[, control.samples]
-        }
+        sampleKey <- ct.keyCheck(sampleKey, eset)
+        control.samples <- names(sampleKey)[sampleKey == levels(sampleKey)[1]]
+        e <- e[, control.samples]
     }
+    
 
     # Trim and discard the elements that never cross the minimum threshold
     e.cuts <- apply(e, 2, sort, decreasing = TRUE)[trim, ] - log2.ratio

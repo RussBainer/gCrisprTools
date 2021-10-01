@@ -34,7 +34,7 @@ ct.viewControls <- function(eset, annotation, sampleKey, geneSymb = NULL, normal
     # current.graphic.params <- par(no.readonly = TRUE) on.exit(suppressWarnings(par(current.graphic.params)))
 
     annotation <- ct.prepareAnnotation(annotation, object = eset, throw.error = FALSE)
-    invisible(ct.inputCheck(sampleKey, eset))
+    sampleKey <- ct.keyCheck(sampleKey, eset)
 
     if (is.null(lib.size)) {
         lib.size <- colSums(exprs(eset))

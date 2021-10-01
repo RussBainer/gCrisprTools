@@ -295,7 +295,7 @@ ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "control
     }
 
     if(!is.null(sampleKey)){
-        ct.inputCheck(sampleKey, eset)
+        sampleKey <- ct.keyCheck(sampleKey, eset)
     }
     
     new.eset <- switch(method, 

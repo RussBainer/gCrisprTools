@@ -2,7 +2,7 @@
 % Please edit documentation in R/Normalization.R
 \name{ct.normalizeSpline}
 \alias{ct.normalizeSpline}
-\title{Normalize sample abundance estimates by a spline fit to the nontargeting controls}
+\title{Normalize sample abundance estimates by a spline fit to specific shared elements}
 \usage{
 ct.normalizeSpline(eset, annotation, geneSymb = NULL, lib.size = NULL)
 }
@@ -11,7 +11,7 @@ ct.normalizeSpline(eset, annotation, geneSymb = NULL, lib.size = NULL)
 
 \item{annotation}{An annotation dataframe indicating the nontargeting controls in the geneID column.}
 
-\item{geneSymb}{The \code{geneSymbol} identifier in \code{annotation} that corresponds to nontargeting gRNAs. If absent, \code{ct.gRNARankByReplicate} will
+\item{geneSymb}{The \code{geneSymbol} identifier(s) in \code{annotation} that corresponds to the "anchor" gRNAs. If absent, the method will
 attempt to infer nontargeting guides by searching for \code{'no_gid'} or \code{NA} in the appropriate columns.}
 
 \item{lib.size}{An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
@@ -22,11 +22,11 @@ and if absent will be extrapolated from the columnwise count sums of the \code{e
 A normalized \code{eset}.
 }
 \description{
-This function normalizes Crispr gRNA abundance estimates by fiting a smoothed spline to the nontargeting gRNAs within each sample
+This function normalizes Crispr gRNA abundance estimates by fiting a smoothed spline to a subset of the gRNAs within each sample
 and then equalizing these curves across the experiment. Specifically, the algorithm ranks the gRNA abundance estimates within each sample and 
-uses a smoothed spline to determine a relationship between the ranks of nontargeting guides and their abundance estimates. It then removes the
-spline trend from each sample, centering each experiment around the global median abundance; these values are returned as normalized counts in 
-the '\code{exprs}' slot of the input eset.
+uses a smoothed spline to determine a relationship between the ranks of the "anchor" guides and their abundance estimates. It then adjusts the 
+spline trends from each sample to the mean of all of the sample spline fits in a manner analogous to quantile normalization, interpolating the
+gRNA abundance values between the anchor points; these values are returned as normalized counts in the '\code{exprs}' slot of the input eset.
 }
 \examples{
 data('es')

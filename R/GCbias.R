@@ -49,7 +49,7 @@ ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL) {
             names(sampleKey) <- colnames(d)
         }
 
-        invisible(ct.inputCheck(sampleKey, data.obj))
+        sampleKey <- ct.keyCheck(sampleKey, data.obj)
         ann <- ct.prepareAnnotation(ann, object = data.obj, throw.error = FALSE)
 
     } else if (is(data.obj, "MArrayLM")) {

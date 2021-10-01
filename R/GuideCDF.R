@@ -48,14 +48,11 @@ ct.guideCDF <- function(eset, sampleKey = NULL, plotType = "gRNA", annotation = 
     legendnames <- colnames(d)
 
     if (!is.null(sampleKey)) {
-        if (ct.inputCheck(sampleKey, eset)) {
-            d <- d[, names(sampleKey)[order(sampleKey)]]
-            legendnames <- paste(sampleKey[colnames(d)], colnames(d), sep = "_")
-        } else {
-            warning("The supplied sampleKey is incompatible with the eset. Ignoring.")
-        }
+         sampleKey <- ct.keyCheck(sampleKey, eset)
+         d <- d[, names(sampleKey)[order(sampleKey)]]
+         legendnames <- paste(sampleKey[colnames(d)], colnames(d), sep = "_")
+        } 
 
-    }
     if (plotType == "Target") {
         if (is.null(annotation) | !("geneSymbol" %in% names(annotation))) {
             stop("An annotation object containing a \"geneSymbol\" column must be supplied 

@@ -130,9 +130,8 @@ ct.makeReport <- function(fit, eset, sampleKey, annotation, results, aln, outdir
     }
 
     # make the sample names and build the parameter list for the rmd.
-    if (ct.inputCheck(sampleKey, eset)) {
-        sampleKey <- sampleKey[order(sampleKey)]
-    }
+    sampleKey <- ct.keyCheck(sampleKey, eset)
+    sampleKey <- sampleKey[order(sampleKey)]
 
     rmdParamList <- list(fit = fit, eset = eset, sampleKey = sampleKey, results = results, annotation = annotation, aln = aln)
 
@@ -217,7 +216,7 @@ ct.makeReport <- function(fit, eset, sampleKey, annotation, results, aln, outdir
 ct.makeQCReport <- function(eset, trim, log2.ratio, sampleKey, annotation, aln, identifier = NULL, lib.size, geneSymb = NULL, outdir = NULL) {
     # check and preprocess inputs
     if (!is.null(sampleKey)) {
-        ct.inputCheck(sampleKey, eset)
+        sampleKey <- ct.keyCheck(sampleKey, eset)
         sampleKey <- sampleKey[order(sampleKey)]
     }
 
@@ -288,7 +287,7 @@ ct.makeContrastReport <- function(eset, fit, sampleKey, results, annotation, com
     # check and preprocess inputs
     annotation <- ct.prepareAnnotation(annotation, throw.error = FALSE)
     if (!is.null(sampleKey)) {
-        ct.inputCheck(sampleKey, eset)
+        sampleKey <- ct.keyCheck(sampleKey, eset)
         sampleKey <- sampleKey[order(sampleKey)]
     }
 

@@ -108,7 +108,11 @@ A suite of normalization tools are provided with the `ct.normalizeGuides()` wrap
 ```{r, fig.width=6, fig.height = 8}
 
 es <- ct.normalizeGuides(es, 'scale', annotation = ann, sampleKey = sk, plot.it = TRUE)
-es.norm <- ct.normalizeGuides(es, 'FQ', annotation = ann, sampleKey = rep(1:2, times = c(3, 6)), plot.it = TRUE)
+
+timepoints <- gsub('^(Control|Death)', '', pData(es)$TREATMENT_NAME)
+names(timepoints) <- colnames(es)
+es.norm <- ct.normalizeGuides(es, 'FQ', annotation = ann, sampleKey = timepoints, plot.it = TRUE)
+
 es.norm <- ct.normalizeGuides(es, 'slope', annotation = ann, sampleKey = sk, plot.it = TRUE)
 es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')

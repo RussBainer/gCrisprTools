@@ -21,10 +21,9 @@ ct.alignmentChart <- function(aln, sampleKey = NULL) {
     plotnames <- NULL
 
     if (!is.null(sampleKey)) {
-        if (ct.inputCheck(sampleKey, aln)) {
-            aln <- aln[, names(sampleKey)[order(sampleKey)]]
-            plotnames <- rep("", ncol(aln))
-        }
+        sampleKey <- ct.keyCheck(sampleKey, aln) 
+        aln <- aln[, names(sampleKey)[order(sampleKey)]]
+        plotnames <- rep("", ncol(aln))
     }
 
     current.graphic.params <- par(no.readonly = TRUE)

@@ -90,7 +90,6 @@ dir.writable <- function(path) {
 ##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
 ##' names(sk) <- row.names(pData(es))
 ##' ct.inputCheck(sk, es)
-##' @export
 ct.inputCheck <- function(sampleKey, object) {
 
     .Deprecated('ct.keyCheck', package = 'gCrisprTools', msg = 'Please use ct.keyCheck() instead of ct.inputCheck().')
@@ -148,7 +147,7 @@ ct.inputCheck <- function(sampleKey, object) {
 ##' #Build the sample key
 ##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
 ##' names(sk) <- row.names(pData(es))
-##' ct.inputCheck(sk, es)
+##' ct.keyCheck(sk, es)
 ##' @export
 ct.keyCheck <- function(sampleKey, object) {
     
@@ -160,11 +159,15 @@ ct.keyCheck <- function(sampleKey, object) {
         warning(paste("Coercing the provided sample key to a factor. Control group set to:", levels(sampleKey)[1]))
     }
     
-    #Check that names exist and are equal
+    #Check that names exist, are valid, and are equal
     stopifnot(!is.null(names(sampleKey)), !is.null(colnames(object)))
     stopifnot(setequal(names(sampleKey), colnames(object)))
     
-    return(invisible(sampleKey))
+    if(any(make.names(names(sampleKey)) != names(sampleKey))) {
+        stop('sampleKey names are not syntactically valid!')
+    }
+    
+    return(invisible(droplevels(sampleKey)))
 }
 
 

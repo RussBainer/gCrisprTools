@@ -46,7 +46,7 @@ library(Biobase)
 sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
 names(sk) <- row.names(pData(es))
 
-ct.gRNARankByReplicate(es, sk, ann, 'Ripk3')
+ct.gRNARankByReplicate(es, sk, ann, 'Target1377')
 }
 \author{
 Russell Bainer

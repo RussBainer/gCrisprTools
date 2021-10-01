@@ -207,18 +207,18 @@ genesetdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.t
 
 sparrowList <- ct.seas(allSimple, gdb = genesetdb)
 
-#Can also be returned as a series of matrices to facilitate downstream comparisons: 
-sparrowDF <- ct.compileSparrow(sparrowList)
+show(sparrowList)
 
-plot(-log10(sparrowDF$ora$pval[,'ControlTime']), 
-     -log10(sparrowDF$ora$pval[,'DeathOverTime']), 
+#Can use returned matrices to facilitate downstream comparisons: 
+
+plot(-log10(sparrow::results(sparrowList$DeathOverTime, 'fgsea')$padj), 
+     -log10(sparrow::results(sparrowList$Interaction, 'fgsea')$padj), 
      pch = 19, col = rgb(0,0,0.8,0.5), 
-     ylab = "Treatment Over Time Pathway -log10(P)",
-     xlab = "Control Over Time Pathway -log10(P)",
+     ylab = "Pathway -log10(P), Treatment Over Time",
+     xlab = "Pathway -log10(P), Marginal Time Effect, Treatment Arm",
      main = 'Evidence for Pathway Enrichment')
 abline(0,1,lty = 2)
 
-str(sparrowDF)
 ```
 
 ```{r}

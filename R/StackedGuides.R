@@ -73,11 +73,13 @@ ct.stackGuides <- function(eset, sampleKey = NULL, nguides = 20, plotType = "gRN
         d <- d[, subset]
         sampleKey <- sampleKey[subset]
     }
-
+    
+    sampleKey <- ct.keyCheck(sampleKey, d)
+    
     # idiosyncracies of ggplot forces rearrangement of factor labels for proper plotting.
     sampleKey <- sampleKey[order(sampleKey)]
 
-    invisible(ct.inputCheck(sampleKey, d))
+
 
     # Everything ok, moving on.
     plottitle <- paste0("Top ", nguides, " Most Variable ", plotType, "s Across Experimental Condition")

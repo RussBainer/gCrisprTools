@@ -29,12 +29,13 @@ ct.rawCountDensities <- function(eset, sampleKey = NULL, lib.size = NULL) {
     }
 
     if (is.null(sampleKey)) {
-        sampleKey <- as.factor(colnames(eset))
+        sampleKey <- colnames(eset)
         names(sampleKey) <- sampleKey
-    } else {
-        ct.inputCheck(sampleKey, eset)
-        sampleKey <- sampleKey[order(sampleKey)]
-    }
+    } 
+    
+    sampleKey <- ct.keyCheck(sampleKey, eset)
+    sampleKey <- sampleKey[order(sampleKey)]
+    
     counts <- exprs(eset)
     if (!is.null(lib.size)) {
         stopifnot(setequal(names(lib.size), colnames(counts)), all(is.numeric(lib.size)))
