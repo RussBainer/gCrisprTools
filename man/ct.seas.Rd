@@ -48,7 +48,8 @@ to histone modification within a screen employing a crispr library primarily tar
 }
 \examples{
 data('resultsDF')
-ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+gdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
+ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb)
 }
 \author{
 Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.

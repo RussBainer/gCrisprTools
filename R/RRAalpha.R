@@ -174,7 +174,6 @@ ct.makeRhoNull <- function(n, p, nperm) {
 ##' @return An integer vector indicating the number of iterations in which each gene's score was better than those indicated in \code{result.environment$obs}. 
 ##' @keywords internal
 ##' @author Russell Bainer
-##' @export
 ct.RRAalphaBatch <- function(p, g.key, result.environment, batch.size = 100, permutation.seed = NULL) {
 
     .Deprecated("ct.makeRhoNull", msg = "Constructing null distributions is now fast, so ct.RRAalphaBatch is unnecessary.")
