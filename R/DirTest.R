@@ -17,7 +17,7 @@ ct.DirectionalTests <- function(fit, contrast.term = NULL) {
     }
 
     if (!methods::is(fit, "MArrayLM")) {
-        stop(paste(deparse(substitute(fit)), "is not an MArrayLM object."))
+        stop(deparse(substitute(fit)), " is not an MArrayLM object.")
     }
     if (!("t" %in% names(fit))) {
         stop("No t statistics are present in the specified object.")

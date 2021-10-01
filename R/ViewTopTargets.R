@@ -41,7 +41,7 @@ ct.topTargets <- function(fit, summaryDF, annotation, targets = 10, enrich = TRU
 
     # Test input: testing
     if (!methods::is(fit, "MArrayLM")) {
-        stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))
+        stop(deparse(substitute(eset)), " is not an MArrayLM.")
     }
 
     if (!setequal(row.names(annotation), row.names(fit))) {

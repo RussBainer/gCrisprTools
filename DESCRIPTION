@@ -16,7 +16,10 @@ Description: Set of tools for evaluating pooled high-throughput screening experi
     typically employing CRISPR/Cas9 or shRNA expression cassettes. Contains methods for interrogating
     library and cassette behavior within an experiment, identifying differentially abundant
     cassettes, aggregating signals to identify candidate targets for empirical validation,
-    hypothesis testing, and comprehensive reporting.
+    hypothesis testing, and comprehensive reporting. Version 2.0 extends these applications to include 
+    a variety of tools for contextualizing and integrating signals across many experiments, incorporates 
+    extended signal enrichment methodologies via the "sparrow" package, and 
+    streamlines many formal requirements to aid in interpretablity. 
 License: Artistic-2.0
 Imports: Biobase, limma, RobustRankAggreg, ggplot2, SummarizedExperiment, grid,
         rmarkdown, grDevices, graphics, methods, ComplexHeatmap, stats, utils, parallel
@@ -31,4 +34,4 @@ biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
         MultipleComparison, Normalization, Preprocessing,
         QualityControl, RNASeq, Regression, Software, Visualization
 NeedsCompilation: no
-Depends: R (>= 4.0)
+Depends: R (>= 4.1)

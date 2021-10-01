@@ -88,16 +88,16 @@ ct.inputCheck <- function(sampleKey, object) {
     
     if (!(is.factor(sampleKey))) {
         sampleKey <- as.factor(sampleKey)
-        warning(paste("Coercing the provided sample key to a factor. Control group set to:", levels(sampleKey)[1]))
+        warning("Coercing the provided sample key to a factor. Control group set to: ", levels(sampleKey)[1])
     }
     
     # Check input formats
     if (!any(is(object, "ExpressionSet"), is(object, "EList"), is(object, "matrix"))) {
-        stop(paste(deparse(substitute(object)), "is not an ExpressionSet, Elist, or matrix. Class is: ", class(object)))
+        stop(deparse(substitute(object)), " is not an ExpressionSet, Elist, or matrix. Class is: ", class(object))
     }
 
     if (is.null(names(sampleKey))) {
-        stop(paste(deparse(substitute(sampleKey)), "must have a names attribute, specifying the sample assignments in", deparse(substitute(object)), "."))
+        stop(deparse(substitute(sampleKey)), " must have a names attribute, specifying the sample assignments in ", deparse(substitute(object)), ".")
     }
 
     # Check to see if the names match properly
@@ -110,7 +110,7 @@ ct.inputCheck <- function(sampleKey, object) {
     }
 
     if (!setequal(colnames(dat), names(sampleKey))) {
-        stop(paste("The names of", deparse(substitute(sampleKey)), "must exactly match the colnames of the data contained in", deparse(substitute(object)), "."))
+        stop("The names of ", deparse(substitute(sampleKey)), " must exactly match the colnames of the data contained in ", deparse(substitute(object)), ".")
     }
 
     return(TRUE)
@@ -148,7 +148,7 @@ ct.keyCheck <- function(sampleKey, object) {
     
     if (!(is.factor(sampleKey))) {
         sampleKey <- as.factor(sampleKey)
-        warning(paste("Coercing the provided sample key to a factor. Control group set to:", levels(sampleKey)[1]))
+        warning("Coercing the provided sample key to a factor. Control group set to: ", levels(sampleKey)[1])
     }
     
     #Check that names exist, are valid, and are equal
@@ -359,7 +359,7 @@ ct.regularizeContrasts <- function(dflist, collapse = c("geneSymbol", "geneID"))
     if (length(samerows) == 0) {
         stop("The supplied DFs have no targets in common! Consider specifying `collapse` argument for ct.simpleResult().")
     } else if (!all(rowcounts == length(dflist))) {
-        message(paste0(length(samerows), " targets in common. Omitting others."))
+        message(length(samerows), " targets in common. Omitting others.")
     }
 
     return(lapply(dflist, function(x) {

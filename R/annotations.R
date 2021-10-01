@@ -70,7 +70,7 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
 
             omit <- length(setdiff(row.names(ann), row.names(object)))
             if (omit > 0) {
-                message(paste(omit, "elements defined in the annotation file are not present in row names of the specified object. Omitting."))
+                message((omit, " elements defined in the annotation file are not present in row names of the specified object. Omitting."))
             }
 
             ann <- ann[row.names(object), ]
@@ -92,7 +92,7 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
         if (any(geneSymb %in% ann$geneSymbol)) {
             ntc <- row.names(ann)[ann$geneSymbol %in% geneSymb]
         } else {
-            message(paste(geneSymb, "is not present in the geneSymbol column of the specified annotation file; trying to find something nontargeting..."))
+            message((geneSymb, " is not present in the geneSymbol column of the specified annotation file; trying to find something nontargeting..."))
 
             if ((sum(is.na(ann$geneSymbol)) > 0) && (sum(ann$geneID %in% "no_gid") > 0)) {
                 message("NA and \"no_gid\" elements are both present in the supplied annotation, so I am using the \"no_gid\" elements. If you wish to select another set of gRNAs, please change geneSymb.")
@@ -100,7 +100,7 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
 
             if (sum(ann$geneID %in% "no_gid") > 0) {
                 ntc <- row.names(ann)[ann$geneID %in% "no_gid"]
-                message(paste("I found some gRNAs targeting \"no_gid\".", "Let's use that."))
+                message("I found some gRNAs targeting \"no_gid\". Let's use that.")
             } else if (sum(is.na(ann$geneSymbol)) > 0) {
                 ntc <- row.names(ann)[is.na(ann$geneSymbol)]
                 message("No \"no_gid\" geneIDs in the annotation file, Using gRNAs targeting geneSymbol NA.")
@@ -162,7 +162,7 @@ ct.expandAnnotation <- function(ann, alt.annotation) {
     aa.len <- lengths(alt.annotation)
 
     if (sum(aa.len == 0) > 0) {
-        message(paste0("Removing ", (sum(aa.len == 0) > 0), " reagents that were not assigned to a target."))
+        message(("Removing ", (sum(aa.len == 0) > 0), " reagents that were not assigned to a target."))
         alt.annotation <- alt.annotation[aa.len > 0]
     }
 

@@ -49,9 +49,9 @@ ct.ROC <- function(summaryDF, target.list, direction = c("enrich", "deplete"), c
 
     if (length(present) != length(target.list)) {
         if (length(present) < 1) {
-            stop(paste0("None of the genes in the input list are present in the ", collapse, " column of the input data.frame."))
+            stop("None of the genes in the input list are present in the ", collapse, " column of the input data.frame.")
         }
-        warning(paste(length(present), "of", length(target.list), "genes are present in the supplied results data.frame. Ignoring the remainder of the target.list."))
+        warning(length(present), " of ", length(target.list), " genes are present in the supplied results data.frame. Ignoring the remainder of the target.list.")
     }
 
     # Subset signals

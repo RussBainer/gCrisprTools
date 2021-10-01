@@ -204,8 +204,8 @@ ct.targetSetEnrichment <- function(summaryDF, targets, enrich = TRUE, ignore = '
   valid <- intersect(targets, row.names(summaryDF))
 
   if(length(setdiff(targets, valid)) != 0){
-    warning(paste('Not all of the supplied targets are present in the summary dataframe. Proceeding with',
-            length(valid), 'targets.'))
+    warning('Not all of the supplied targets are present in the summary dataframe. Proceeding with ',
+            length(valid), ' targets.')
   }
 
   #Condense the summary frame to gene-level estimates and isolate the ones that we are testing

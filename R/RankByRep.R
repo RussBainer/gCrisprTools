@@ -30,7 +30,7 @@ ct.gRNARankByReplicate <- function(eset, sampleKey, annotation = NULL, geneSymb 
     # current.graphic.params <- par(no.readonly = TRUE) on.exit(suppressWarnings(par(current.graphic.params)))
 
     if (!methods::is(eset, "ExpressionSet")) {
-        stop(paste(deparse(substitute(eset)), "must be an ExpressionSet."))
+        stop(deparse(substitute(eset)), "must be an ExpressionSet.")
     }
 
     if (is.null(sampleKey)) {

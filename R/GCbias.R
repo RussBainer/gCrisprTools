@@ -74,7 +74,7 @@ ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL) {
 
     if (any(seqlen == 0)) {
         gc[seqlen == 0] <- NA
-        warning(paste("Could not calculate GC% for", sum(seqlen == 0), "guides. Omitting."))
+        warning("Could not calculate GC% for ", sum(seqlen == 0), " guides. Omitting.")
     }
 
     # if a fit object, plot relationship between GC and P, coefficients, variance

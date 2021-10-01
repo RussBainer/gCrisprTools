@@ -107,7 +107,7 @@ ct.RRAaPvals <- function(p, g.key, permute, permutation.seed = NULL, multi.core 
     }
     if (ncol(p) > 1) {
         p = p[, 1, drop = FALSE]
-        warning(paste("Multiple columns are present in the p-value matrix. Using the first column:", colnames(p)))
+        warning("Multiple columns are present in the p-value matrix. Using the first column: ", colnames(p))
     }
     if (!is.data.frame(g.key)) {
         stop("The annotation provided must be a data frame.")
@@ -131,7 +131,7 @@ ct.RRAaPvals <- function(p, g.key, permute, permutation.seed = NULL, multi.core 
     ## Everything apparently ok, generate P-values.
     obs <- ct.RRAalpha(p, g.key)
 
-    message(paste("Permuting", permute, "times, this may take a minute ..."))
+    message("Permuting ", permute, " times, this may take a minute ...")
 
     n.guides = table(g.key$geneSymbol)
     n.guides.table = sort.int(unique(n.guides))
@@ -156,7 +156,7 @@ ct.RRAaPvals <- function(p, g.key, permute, permutation.seed = NULL, multi.core 
 ##' ct.makeRhoNull(3, 1:9, 5)
 ##' @export 
 ct.makeRhoNull <- function(n, p, nperm) {
-    message(paste("Making Rho null distribution for", n, "guides per gene."))
+    message("Making Rho null distribution for", n, "guides per gene.")
     vapply(seq_len(nperm), function(i) {
         p.in = sort.int(sample(p, n, replace = FALSE))
         ct.alphaBeta(p.in)

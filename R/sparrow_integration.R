@@ -40,7 +40,7 @@ ct.GREATdb <- function(annotation, gsdb = sparrow::getMSigGeneSetDb(collection =
 
     # Check to make sure that the geneID column values are present in the provided gsdb
     genes <- na.omit(unique(annotation$geneID))
-    message(paste0(length(intersect(sparrow::featureIds(gsdb), genes)), " valid genes found in the supplied gene database (of ", length(genes), ")"))
+    message(length(intersect(sparrow::featureIds(gsdb), genes)), " valid genes found in the supplied gene database (of ", length(genes), ")")
 
     # Tabulate targets per gene
     targetsPerGene <- lapply(genes, function(x) {
@@ -56,7 +56,7 @@ ct.GREATdb <- function(annotation, gsdb = sparrow::getMSigGeneSetDb(collection =
     new_gs <- lapply(gsdb_list, function(x) {
         return(as.character(unique(unlist(targetsPerGene[x]))))
     })
-    message(paste0(length(new_gs), " adjusted genesets created."))
+    message(length(new_gs), " adjusted genesets created.")
     if (length(new_gs) == 0) {
         stop("Exiting.")
     }
@@ -133,7 +133,7 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
         if(active %in% names(x)){
             stopifnot(is(x[,active], 'logical'))
             sig <- x[,active]
-            message(paste0("Using provided active set: ", active))
+            message("Using provided active set: ", active)
         } 
         
         df <- data.frame(feature_id = row.names(x), logFC = z, significant = sig, direction = x$direction, rank_by = z, stringsAsFactors = FALSE)
@@ -180,7 +180,8 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
 ##' @return A named list of `SparrowResults` objects.
 ##' @examples 
 ##' data('resultsDF')
-##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+##' gdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
+##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb)
 ##' @author Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.
 ##' @export
 ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {
@@ -205,7 +206,7 @@ ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {
     }
 
     identifier <- ifelse(gids > gsids, "geneID", "geneSymbol")
-    message(paste0("GeneSetDb feature_ids coded as ", identifier, "s."))
+    message("GeneSetDb feature_ids coded as ", identifier, "s.")
     if (identifier %in% "geneID") {
         message("Depending on the composition of your library, you might consider switching to a target-level analysis; see ?ct.GREATdb() for details.")
     }

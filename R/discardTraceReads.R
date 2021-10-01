@@ -24,7 +24,7 @@
 ct.filterReads <- function(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL, plot.it = TRUE, read.floor = NULL) {
 
     if (!methods::is(eset, "ExpressionSet")) {
-        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
+        stop(deparse(substitute(eset)), " is not an ExpressionSet.")
     }
     if (!is.numeric(trim)) {
         stop("trim is not a numeric value.")
@@ -48,7 +48,7 @@ ct.filterReads <- function(eset, trim = 1000, log2.ratio = 4, sampleKey = NULL, 
     # Trim and discard the elements that never cross the minimum threshold
     e.cuts <- apply(e, 2, sort, decreasing = TRUE)[trim, ] - log2.ratio
     if (!is.null(read.floor)) {
-        message(paste("Using the supplied minimum threshold of", read.floor, "reads for each guide."))
+        message("Using the supplied minimum threshold of ", read.floor, " reads for each guide.")
         read.floor <- log2(read.floor)
         newcuts <- vapply(e.cuts, function(x) {
             ifelse(x < read.floor, read.floor, x)

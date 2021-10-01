@@ -106,7 +106,7 @@ ct.generateResults <- function(fit, annotation, RRAalphaCutoff = 0.1, permutatio
 
     annotFields <- c("ID", "target", "geneID", "geneSymbol")
     if (!all(annotFields %in% names(key))) {
-        message(paste("Some expected columns are not present in the supplied annotation file.", call. = FALSE))
+        message("Some expected columns are not present in the supplied annotation file.", call. = FALSE)
         annotFields <- intersect(annotFields, names(key))
         message(paste("Only the following information will be included in the output:", paste(annotFields, collapse = ",")))
     }

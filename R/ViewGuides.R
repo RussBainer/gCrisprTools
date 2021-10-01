@@ -76,7 +76,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
 
     # testing
     if (!methods::is(fit, "MArrayLM")) {
-        stop(paste(deparse(substitute(eset)), "is not an MArrayLM."))
+        stop(deparse(substitute(eset)), " is not an MArrayLM.")
     }
 
     # Find the gRNAs targeting the gene from the annotation, and order them
@@ -85,7 +85,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
     options(warn = 0)
 
     if (!(sum(ann[, type] %in% gene))) {
-        stop(paste(gene, "is not present in the annotation file."))
+        stop(gene, " is not present in the annotation file.")
     }
 
     grna.inx <- row.names(ann)[(ann[, type] %in% gene)]

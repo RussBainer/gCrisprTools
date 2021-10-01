@@ -25,7 +25,7 @@
 ct.rawCountDensities <- function(eset, sampleKey = NULL, lib.size = NULL) {
 
     if (!methods::is(eset, "ExpressionSet")) {
-        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
+        stop(deparse(substitute(eset)), "is not an ExpressionSet.")
     }
 
     if (is.null(sampleKey)) {

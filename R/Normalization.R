@@ -29,7 +29,7 @@
 ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NULL) {
 
     if (!methods::is(eset, "ExpressionSet")) {
-        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
+        stop(deparse(substitute(eset)), " is not an ExpressionSet.")
     }
 
     # Check the annotation and find the NTC rows
@@ -114,7 +114,7 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
 ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL) {
 
     if (!methods::is(eset, "ExpressionSet")) {
-        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
+        stop(deparse(substitute(eset)), " is not an ExpressionSet.")
     }
 
     # Check the annotation and find the NTC rows
@@ -127,7 +127,7 @@ ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL) 
         if (geneSymb %in% annotation$geneSymbol) {
             ntc <- row.names(annotation)[annotation$geneSymbol %in% geneSymb]
         } else {
-            stop(paste(deparse(substitute(geneSymb)), "is not present in the geneSymbol column of the annotation file."))
+            stop(deparse(substitute(geneSymb)), " is not present in the geneSymbol column of the annotation file.")
         }
     } else if ("NoTarget" %in% annotation$geneSymbol) {
         message("Using gRNAs targeting \"NoTarget\"")
@@ -187,7 +187,7 @@ ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL) 
 ct.normalizeBySlope <- function(ExpressionObject, trim = 0.25, lib.size = NULL, ...) {
 
     if (!(class(ExpressionObject) %in% c("ExpressionSet", "EList"))) {
-        stop(paste(deparse(substitute(ExpressionObject)), "is not an ExpressionSet or Elist."))
+        stop(deparse(substitute(ExpressionObject)), "is not an ExpressionSet or Elist.")
     }
 
     # log them
@@ -275,7 +275,7 @@ ct.normalizeBySlope <- function(ExpressionObject, trim = 0.25, lib.size = NULL, 
 ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "controlScale", "controlSpline"), annotation = NULL, sampleKey = NULL, lib.size = NULL, plot.it = FALSE, 
     ...) {
     if (!methods::is(eset, "ExpressionSet")) {
-        stop(paste(deparse(substitute(eset)), "is not an ExpressionSet."))
+        stop(deparse(substitute(eset)), "is not an ExpressionSet.")
     }
 
     choices <- c("scale", "FQ", "slope", "controlScale", "controlSpline")
