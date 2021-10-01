@@ -294,7 +294,10 @@ ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "control
         stop("If specified, lib.size must be a numeric vector of length equal to the number of samples.")
     }
 
-
+    if(!is.null(sampleKey)){
+        ct.inputCheck(sampleKey, eset)
+    }
+    
     new.eset <- switch(method, 
                        scale = ct.normalizeMedians(eset, lib.size = lib.size), 
                        FQ = ct.normalizeFQ(eset, sets = sampleKey, lib.size = lib.size), 
@@ -308,14 +311,18 @@ ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "control
     })
 
     if (plot.it) {
-        par(mfrow = c(2, 1))
-        
-        if(is.null(names(sampleKey))){
-            names(sampleKey) <- colnames(eset)  #Handle edge cases for normalizeFQ
+        if(is.null(sampleKey)){
+            message('sampleKey must be supplied for plotting normalization effects.')
+        } else{
+            par(mfrow = c(2, 1))
+            
+            if(is.null(names(sampleKey))){
+                names(sampleKey) <- colnames(eset)  #Handle edge cases for normalizeFQ
+            }
+            
+            ct.gRNARankByReplicate(eset, sampleKey, lib.size = lib.size)
+            ct.gRNARankByReplicate(new.eset, sampleKey, lib.size = lib.size)
         }
-        
-        ct.gRNARankByReplicate(eset, sampleKey, lib.size = lib.size)
-        ct.gRNARankByReplicate(new.eset, sampleKey, lib.size = lib.size)
     }
     return(new.eset)
 }

@@ -140,7 +140,7 @@ contrasts <-makeContrasts(ControlTime = ControlExpansion - ControlReference,
                           Interaction = DeathExpansion - ControlExpansion, 
                           levels = design)
 
-es <- ct.normalizeGuides(es, method = "scale", plot.it = TRUE) #See man page for other options
+es <- ct.normalizeGuides(es, method = "scale") #See man page for other options
 vm <- voom(exprs(es), design)
 
 fit <- lmFit(vm, design)
