@@ -93,9 +93,11 @@ dir.writable <- function(path) {
 ##' @export
 ct.inputCheck <- function(sampleKey, object) {
 
+    .Deprecated('ct.keyCheck', package = 'gCrisprTools', msg = 'Please use ct.keyCheck() instead of ct.inputCheck().')
+    
     if (!(is.factor(sampleKey))) {
         sampleKey <- as.factor(sampleKey)
-        warning(paste("Coercing the provided sample key to a factor. Control croup set to:", levels(sampleKey)[1]))
+        warning(paste("Coercing the provided sample key to a factor. Control group set to:", levels(sampleKey)[1]))
     }
     
     # Check input formats
@@ -121,6 +123,48 @@ ct.inputCheck <- function(sampleKey, object) {
     }
 
     return(TRUE)
+}
+
+##' @title Check compatibility of a sample key with a supplied ExpressionSet or similar object
+##' @description For many gCrisprTools functions, a sample key must be provided that specifies 
+##' sample mapping to experimental groups. The sample key should be provided as a single, named factor whose  
+##' names exactly correspond to the `colnames()` of the `ExpressionSet` containing the count data to be 
+##' processed (or coercible as such). By convention, the first level corresponds to the control sample group.
+##'  
+##' This function checks whether the specified sample key is of the proper format and has 
+##' properties consistent with the specified object. 
+##' @param sampleKey A named factor, where the \code{levels} indicate the experimental replicate 
+##' groups and the \code{names} match the \code{colnames} of the expression matrix contained in \code{object}. 
+##' The first \code{level} should correspond to the control samples, but obviously there is no 
+##' way to algorithmically control this. 
+##' @param object An \code{ExpressionSet}, \code{EList}, or other matrix-like object with defined `colnames()`.  
+##' @return Invisibly, a properly formatted `sampleKey`.
+##' @import limma
+##' @author Russell Bainer
+##' @examples data('es')
+##' library(limma)
+##' library(Biobase)
+##' 
+##' #Build the sample key
+##' sk <- relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference')
+##' names(sk) <- row.names(pData(es))
+##' ct.inputCheck(sk, es)
+##' @export
+ct.keyCheck <- function(sampleKey, object) {
+    
+    #check dimensions
+    stopifnot(length(sampleKey) == ncol(object))
+    
+    if (!(is.factor(sampleKey))) {
+        sampleKey <- as.factor(sampleKey)
+        warning(paste("Coercing the provided sample key to a factor. Control group set to:", levels(sampleKey)[1]))
+    }
+    
+    #Check that names exist and are equal
+    stopifnot(!is.null(names(sampleKey)), !is.null(colnames(object)))
+    stopifnot(setequal(names(sampleKey), colnames(object)))
+    
+    return(invisible(sampleKey))
 }
 
 
