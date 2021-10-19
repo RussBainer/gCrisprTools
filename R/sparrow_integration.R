@@ -25,6 +25,9 @@
 ##' @export
 ct.GREATdb <- function(annotation, gsdb = sparrow::getMSigGeneSetDb(collection = c("h", "c2"), species = "human", id.type = "ensembl"), minsize = 10, ...) {
 
+    .Deprecated('convertIdentifiers', package = 'sparrow', 
+                msg = 'Consider using sparrow for collapsing targets to genes (see sparrow::convertIdentifiers()).')
+    
     # input check
     if (!is(gsdb, "GeneSetDb")) {
         if (is(gsdb, "GeneSetCollection") || is(gsdb, "GeneSet")) {

@@ -228,10 +228,12 @@ genesetdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.t
 ct.seas(resultsDF, gdb = genesetdb)
 
 # If you have a library that targets elements unevenly (e.g., variable numbers of 
-# elements/promoters per genes), you can conform it via GREAT
+# elements/promoters per genes), you can conform it via `sparrow::convertIdentifiers()`
 
-genesetdb.GREAT <- ct.GREATdb(ann, gsdb = genesetdb)
-
+genesetdb.GREAT <- sparrow::convertIdentifiers(genesetdb, 
+                                               from = 'geneID', 
+                                               to = 'geneSymbol', 
+                                               xref = ann)
 ct.seas(resultsDF, gdb = genesetdb.GREAT)
 ```
 
