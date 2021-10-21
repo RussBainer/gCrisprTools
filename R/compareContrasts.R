@@ -182,9 +182,11 @@ ct.upSet <- function(dflist, add.stats = TRUE, nperm = 10000, ...) {
     }
     rownames(comb_mat) <- names(dflist)
     comb_mat <- comb_mat + 0
-
+    colnames(comb_mat) <- apply(comb_mat, 2, paste, collapse = "")
+    
     attributes(overlapct) <- NULL
-    attr(comb_mat, "set_size") <- rep(nrow(dflist[[1]]), length(dflist))
+    attr(comb_mat, "set_size") <- vapply(dflist, nrow, numeric(1))  
+    #attr(comb_mat, "set_size") <- rep(nrow(dflist[[1]]), length(dflist))
     attr(comb_mat, "comb_size") <- overlapct
     attr(comb_mat, "data") <- lapply(overlaps, function(x) {
         x$geneID[x$replicated]

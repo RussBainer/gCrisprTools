@@ -50,8 +50,14 @@ These objects are simpler representations of target signals that are applicable 
 This format enables better comparisons between screens, and we have some helper functions to support this: 
 
 ```{r}
-regularized <- ct.regularizeContrasts(dflist = list('firstDF' = resultsDF[1:1000,], 
-                                                    'secondDF' = resultsDF[200:1200,]), 
+# Make "another" result
+res2 <- res
+res2$best.p <- res2$best.p * runif(nrow(res2)) 
+res2$direction[sample(1:nrow(res), 500)] <- res2$direction[sample(1:nrow(res), 500)]
+
+
+regularized <- ct.regularizeContrasts(dflist = list('Experiment1' = res[1:1500,], 
+                                                    'Experiment2' = res2[1:1900,]), 
                                       collapse = 'geneSymbol')
 
 str(regularized)
@@ -102,7 +108,7 @@ In the above figure, each contrast is represented as a horizontal bar, and targe
 
 We can also compare the signals observed in two screens directly in a scatterplot: 
 
-```{r}
+```{r, fig.width = 5, fig.height = 5}
 scat <- ct.scatter(regularized, 
                    targets = 'geneSymbol', 
                    statistic = 'best.p', 
