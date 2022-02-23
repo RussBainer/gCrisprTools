@@ -208,7 +208,7 @@ See the documentation about combination matrices provided in the `ComplexHeatmap
 
 Though not subject to specific set-level analyses yet, the `ct.seas()` function can be likewise extended to use lists of results. The standardized objects can then be consolidated to ask broader questions about enrichment and depletion using standard methods:  
 
-```{r, fig.width=6, fig.height=6, warnings= FALSE}
+```{r, fig.width=6, fig.height=6, warnings= FALSE, eval = FALSE}
 genesetdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
 
 sparrowList <- ct.seas(allSimple, gdb = genesetdb)
