@@ -221,23 +221,20 @@ show(ROC) # show(PRC) is equivalent for the PRC analysis
 
 Or alternatively you could test for ontological enrichment within the depleted/enriched targets via the `sparrow` package: 
 
-```{r, warning=FALSE, message = FALSE, eval = FALSE}
-
-#Not run:
-
+```{r, eval = TRUE, warning=FALSE, message = FALSE}
 #Create a geneset database using one of the many helper functions
-#genesetdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
+genesetdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
 
-#ct.seas(resultsDF, gdb = genesetdb)
+ct.seas(resultsDF, gdb = genesetdb)
 
 # If you have a library that targets elements unevenly (e.g., variable numbers of 
 # elements/promoters per genes), you can conform it via `sparrow::convertIdentifiers()`
 
-#genesetdb.GREAT <- sparrow::convertIdentifiers(genesetdb, 
-#                                               from = 'geneID', 
-#                                               to = 'geneSymbol', 
-#                                               xref = ann)
-#ct.seas(resultsDF, gdb = genesetdb.GREAT)
+genesetdb.GREAT <- sparrow::convertIdentifiers(genesetdb, 
+                                               from = 'geneID', 
+                                               to = 'geneSymbol', 
+                                               xref = ann)
+ct.seas(resultsDF, gdb = genesetdb.GREAT)
 ```
 
 See the `Contrast_Comparisons` vignette for more advanced use cases of gCrisprTools and extension to complex experiments and study designs. 

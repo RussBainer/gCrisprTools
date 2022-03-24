@@ -17,12 +17,11 @@
 ##' @param minsize Minimum number of targets required to consider a geneset valid for analysis.
 ##' @param ... Additional arguments to be passed to `ct.prepareAnnotation()`.
 ##' @return A new \code{GeneSetDb} object with the features annotated genewise to pathways.
-##' @examples
-##' # NOT RUN 
-##' # data(resultsDF)
-##' # data(ann)
-##' # gsdb <- ct.GREATdb(ann, gsdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
-##' # show(sparrow::featureIds(gsdb))
+##' @examples 
+##' data(resultsDF)
+##' data(ann)
+##' gsdb <- ct.GREATdb(ann, gsdb = sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez'))
+##' show(sparrow::featureIds(gsdb))
 ##' @export
 ct.GREATdb <- function(annotation, gsdb = sparrow::getMSigGeneSetDb(collection = c("h", "c2"), species = "human", id.type = "ensembl"), minsize = 10, ...) {
 
@@ -102,9 +101,8 @@ ct.GREATdb <- function(annotation, gsdb = sparrow::getMSigGeneSetDb(collection =
 ##' This is set to `replicated` by default to If a valid column name is provided, this overrides the specification of `cutoff` and `statistic`.
 ##' @return A list of `data.frames` formatted for evaluation with `sparrow::seas()`. 
 ##' @examples 
-##' # NOT RUN
-##' # data(resultsDF)
-##' # ct.seasPrep(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), collapse.on = 'geneSymbol')
+##' data(resultsDF)
+##' ct.seasPrep(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), collapse.on = 'geneSymbol')
 ##' @export
 ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff = 0.1, statistic = c("best.q", "best.p"), regularize = FALSE, gdb = NULL, active = 'replicated') {
     # Input check
@@ -184,10 +182,9 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
 ##' @param ... Additional arguments to pass to `ct.seasPrep()` or `sparrow::seas()`. 
 ##' @return A named list of `SparrowResults` objects.
 ##' @examples 
-##' # NOT RUN
-##' # data('resultsDF')
-##' # gdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
-##' # ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb)
+##' data('resultsDF')
+##' gdb <- sparrow::getMSigGeneSetDb(collection = 'h', species = 'human', id.type = 'entrez')
+##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb)
 ##' @author Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.
 ##' @export
 ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {

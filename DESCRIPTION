@@ -1,7 +1,7 @@
 Package: gCrisprTools
 Type: Package
 Title: Suite of Functions for Pooled Crispr Screen QC and Analysis
-Version: 2.1.3
+Version: 2.0.0
 Date: 2021-08-23
 Author: Russell Bainer, Dariusz Ratman, Steve Lianoglou, Peter Haverty
 Authors@R: c(
@@ -21,9 +21,11 @@ Description: Set of tools for evaluating pooled high-throughput screening experi
     extended signal enrichment methodologies via the "sparrow" package, and 
     streamlines many formal requirements to aid in interpretablity. 
 License: Artistic-2.0
-Imports: Biobase, limma, RobustRankAggreg, ggplot2, SummarizedExperiment, grid,
-        rmarkdown, grDevices, graphics, methods, ComplexHeatmap, stats, utils, parallel
-Suggests: edgeR, knitr, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db, BiocGenerics, markdown, RUnit, sparrow, msigdbr, fgsea
+Imports: Biobase, limma, RobustRankAggreg, ggplot2,
+        SummarizedExperiment, grid, rmarkdown, grDevices, graphics,
+        methods, ComplexHeatmap, stats, utils, parallel
+Suggests: edgeR, knitr, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db,
+        BiocGenerics, markdown, RUnit, sparrow, msigdbr, fgsea
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr
 Encoding: UTF-8
@@ -35,3 +37,9 @@ biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
         QualityControl, RNASeq, Regression, Software, Visualization
 NeedsCompilation: no
 Depends: R (>= 4.1)
+git_url: https://git.bioconductor.org/packages/gCrisprTools
+git_branch: RELEASE_3_14
+git_last_commit: 4783d8f
+git_last_commit_date: 2021-10-26
+Date/Publication: 2021-10-26
+Packaged: 2021-10-26 21:31:09 UTC; biocbuild
