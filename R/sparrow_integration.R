@@ -218,7 +218,7 @@ ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {
     ipts <- ct.seasPrep(dflist, collapse.on = identifier, gdb = gdb, active = active)
 
     outs <- lapply(ipts, function(ipt) {
-        sparrow::seas(x = ipt, gsd = gdb, methods = c("ora", "fgsea"), rank_by = "rank_by", selected = "selected", groups = "direction", ...)
+        sparrow::seas(x = ipt, gsd = gdb, methods = c("ora", "fgsea"), rank_by = "rank_by", selected = "significant", groups = "direction", ...)
     })
 
     if (as.dfs) {
