@@ -177,7 +177,6 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
 ##' @param dflist A result object created by `ct.generateResults()`, or a named list containing many of them; will be passed as a list to 
 ##' `ct.seasPrep()` with the associated `...` arguments.
 ##' @param gdb A `GenseSetDb` object containing annotations for the targets specified in `result`.
-##' @param as.dfs Logical indicating whether to return the various contrast statistics as in-register lists of data.frames to facilitate comparisons.
 ##' @param active Name of a column in the supplied result(s) that should be used to indicate active/selected targets.  
 ##' @param ... Additional arguments to pass to `ct.seasPrep()` or `sparrow::seas()`. 
 ##' @return A named list of `SparrowResults` objects.
@@ -187,7 +186,7 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
 ##' ct.seas(list('longer' = resultsDF, 'shorter' = resultsDF[1:10000,]), gdb)
 ##' @author Steve Lianoglou for seas; Russell Bainer for GeneSetDb processing and wrapping functions.
 ##' @export
-ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {
+ct.seas <- function(dflist, gdb, active = 'replicated', ...) {
 
     # Check GSDB and determine feature set
     stopifnot(is(gdb, "GeneSetDb"), is(as.dfs, "logical"))
@@ -220,10 +219,6 @@ ct.seas <- function(dflist, gdb, as.dfs = FALSE, active = 'replicated', ...) {
     outs <- lapply(ipts, function(ipt) {
         sparrow::seas(x = ipt, gsd = gdb, methods = c("ora", "fgsea"), rank_by = "rank_by", selected = "significant", groups = "direction", ...)
     })
-
-    if (as.dfs) {
-        outs <- ct.compileSparrow(outs)
-    }
     return(outs)
 }
 

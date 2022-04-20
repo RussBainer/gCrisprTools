@@ -4,15 +4,13 @@
 \alias{ct.seas}
 \title{Geneset Enrichment within a CRISPR screen using `sparrow`}
 \usage{
-ct.seas(dflist, gdb, as.dfs = FALSE, active = "replicated", ...)
+ct.seas(dflist, gdb, active = "replicated", ...)
 }
 \arguments{
 \item{dflist}{A result object created by `ct.generateResults()`, or a named list containing many of them; will be passed as a list to 
 `ct.seasPrep()` with the associated `...` arguments.}
 
 \item{gdb}{A `GenseSetDb` object containing annotations for the targets specified in `result`.}
-
-\item{as.dfs}{Logical indicating whether to return the various contrast statistics as in-register lists of data.frames to facilitate comparisons.}
 
 \item{active}{Name of a column in the supplied result(s) that should be used to indicate active/selected targets.}
 
