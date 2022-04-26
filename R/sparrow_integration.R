@@ -189,7 +189,7 @@ ct.seasPrep <- function(dflist, collapse.on = c("geneID", "geneSymbol"), cutoff 
 ct.seas <- function(dflist, gdb, active = 'replicated', ...) {
 
     # Check GSDB and determine feature set
-    stopifnot(is(gdb, "GeneSetDb"), is(as.dfs, "logical"))
+    stopifnot(is(gdb, "GeneSetDb"))
 
     # listify results as needed
     if (!is(dflist, "list")) {
