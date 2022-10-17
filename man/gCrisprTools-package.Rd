@@ -5,5 +5,5 @@
 \alias{gCrisprTools-package}
 \title{gCrisprTools}
 \description{
-Pipeline for using CRISPR data at Genentech
+Pipeline for using CRISPR screen data
 }

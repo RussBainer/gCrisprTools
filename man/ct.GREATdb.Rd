@@ -6,8 +6,8 @@
 \usage{
 ct.GREATdb(
   annotation,
-  gsdb = sparrow::getMSigGeneSetDb(collection = c("h", "c2"), species = "human",
-    id.type = "ensembl"),
+  gsdb = sparrow::getMSigGeneSetDb(collection = c("h", "c2"), species = "human", id.type
+    = "ensembl"),
   minsize = 10,
   ...
 )

@@ -18,7 +18,6 @@ Specifically, the ranks are ordered and p-values calculated at each position in 
 returned is the smallest p-value identified in this way across all scores. Should not be used by end users.
 }
 \examples{
-library(RobustRankAggreg)
 testp <- runif(20)
 
 min(betaScores(testp))

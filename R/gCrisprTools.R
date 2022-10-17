@@ -1,6 +1,6 @@
 ##' gCrisprTools
 ##'
-##' Pipeline for using CRISPR data at Genentech
+##' Pipeline for using CRISPR screen data
 ##'
 ##' @docType package
 ##' @name gCrisprTools-package
@@ -8,7 +8,6 @@ NULL
 
 ##' @import Biobase
 ##' @import limma
-##' @import RobustRankAggreg
 ##' @import ggplot2
 ##' @import parallel
 ##' @import grid
