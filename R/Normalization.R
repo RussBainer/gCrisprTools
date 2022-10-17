@@ -360,7 +360,7 @@ ct.normalizeMedians <- function(eset, lib.size = NULL) {
     counts <- exprs(eset)
 
     if (is.null(lib.size)) {
-        lib.size <- colSums(counts)
+      lib.size <- rep(1000, ncol(counts))
     } else if (!is.numeric(lib.size) | length(lib.size) != ncol(counts)) {
         stop("If specified, lib.size must be a numeric vector of the same length as the number of samples in the eset.")
     }
