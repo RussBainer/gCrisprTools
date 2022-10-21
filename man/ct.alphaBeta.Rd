@@ -20,7 +20,6 @@ returned is the smallest p-value identified in this way across all scores. Shoul
 \examples{
 testp <- runif(20)
 
-min(betaScores(testp))
 ct.alphaBeta(testp)  
 }
 \author{

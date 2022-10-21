@@ -35,7 +35,6 @@ ct.numcores <- function() {
 ##' @examples
 ##' testp <- runif(20)
 ##'
-##' min(betaScores(testp))
 ##' ct.alphaBeta(testp)  
 ##' @export
 ct.alphaBeta <- function(p.in) {
