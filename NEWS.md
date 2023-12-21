@@ -36,3 +36,8 @@ _*MAJOR UPDATE Adding the Following Functionality:*_
     - Concordance at the Top (CAT)
     - Probability Space scatter plots
     - UpSet plots with conditional overlap framework
+    
+### Version 2.3.3 
+Minor updates: 
+
+- Modified ct.viewGuides to suppress reordering of provided gRNA signals. 

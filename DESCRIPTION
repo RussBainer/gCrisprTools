@@ -9,7 +9,8 @@ Authors@R: c(
     person("Dariusz", "Ratman", , "ratmand@roche.com", "aut"),
     person("Peter", "Haverty", , "havertypm@gmail.com", "aut"),
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", "aut"),
-    person("Maze Therapeutics", role = c("fnd"), comment = "2019+"),
+    person("Light Horse Therapeutics", role = c("fnd"), comment = "2023+"),
+    person("Maze Therapeutics", role = c("fnd"), comment = "2019 - 2023"),
     person("Genentech, Inc.", role = c("fnd"), comment = "2014 - 2018"))
 Maintainer: Russell Bainer <russ.bainer@gmail.com>
 Description: Set of tools for evaluating pooled high-throughput screening experiments,
