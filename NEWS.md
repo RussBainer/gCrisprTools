@@ -41,3 +41,4 @@ _*MAJOR UPDATE Adding the Following Functionality:*_
 Minor updates: 
 
 - Modified ct.viewGuides to suppress reordering of provided gRNA signals. 
+- Enabled use of SummarizedExperiment objects across all functions. 

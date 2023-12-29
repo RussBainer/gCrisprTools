@@ -425,4 +425,33 @@ ct.softLog <- function(x) {
 }
 
 
+##' @title Extract gCrisprTools objects from a `SummarizedExperiment` 
+##' @description Utility function to enable gCrisprTools functions to take `SummarizedExperiment` class objects (or subclasses thereof) as input. 
+##' Throws errors when unexpected things happen. 
+##' @param what What gCrisprTools-friendly object to compile. options are: 
+##'   - `es`: an `ExpressionSet`, compiled from the `exprs` slot of the `assayData`, with `colData` and `rowData` saved as the `fData` and `pData`
+##'   - `ann` a gCrisprTools annotation from the `rowData`
+##' @param se The `SummarizedExperiment` object. 
+##' @return The specified gCrisprTools-friendly object
+##' @importClassesFrom SummarizedExperiment
+##' @author Russell Bainer
+##' @export
+ct.extractSE <- function(what, se){
+  
+  library('SummarizedExperiment', quietly = TRUE)
+  if(!is(se, 'SummarizedExperiment')){
+    stop('I tried to extract ', deparse(substitute(what)), ' from ', deparse(substitute(se)), " but it's not a SummarizedExperiment.")
+  }
+  
+  extractable <- c('ann', 'es')
+  if(!(what %in% extractable)){
+    stop("I don't know how to extract ", deparse(substitute(what)), ' from a SummarizedExperiment.')
+  }
+  
+  return(switch(what, 
+                ann = ct.prepareAnnotation(rowData(se)), 
+                es = as(se, 'ExpressionSet'))
+  )
+}
+  
 

@@ -31,6 +31,10 @@
 ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL) {
 
     # check inputs
+    if (methods::is(data.obj, "SummarizedExperiment")) {
+      data.obj <- ct.extractSE('es', data.obj)
+      ann <- ct.extractSE('ann', data.obj)
+    }
     if (methods::is(data.obj, "ExpressionSet")) {
         is.fit <- FALSE
         d <- exprs(data.obj)
