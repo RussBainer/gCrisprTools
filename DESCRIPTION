@@ -27,7 +27,7 @@ Imports: Biobase, limma, RobustRankAggreg, ggplot2,
         methods, ComplexHeatmap, stats, utils, parallel
 Suggests: edgeR, knitr, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db,
         BiocGenerics, markdown, RUnit, sparrow, msigdbr, fgsea
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Encoding: UTF-8
 biocViews: ImmunoOncology, CRISPR, PooledScreens, ExperimentalDesign,
