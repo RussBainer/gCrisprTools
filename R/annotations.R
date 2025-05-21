@@ -36,7 +36,7 @@
 
 ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.error = TRUE) {
     if (!(length(setdiff(c("geneSymbol", "geneID"), colnames(ann))) == 0)) {
-        stop("The annotation object must contain a geneSymbol column.")
+        stop("The annotation object must contain both a geneSymbol and geneID column.")
     }
 
 
@@ -105,8 +105,8 @@ ct.prepareAnnotation <- function(ann, object = NULL, controls = TRUE, throw.erro
                 ntc <- row.names(ann)[is.na(ann$geneSymbol)]
                 message("No \"no_gid\" geneIDs in the annotation file, Using gRNAs targeting geneSymbol NA.")
             } else {
-                exception("I cannot find any obvious control guides in the supplied annotation, so I am assuming that they are absent. Please specify a geneSymbol if you know something I do not.")
-                NULL
+                warning("I cannot find any obvious control guides in the supplied annotation, so I am assuming that they are absent. Please specify a geneSymbol if you know something I do not.")
+                ntc <- NULL
             }
         }
         # Compel the NTCs to the proper values

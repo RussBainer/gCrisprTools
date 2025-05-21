@@ -238,9 +238,9 @@ ct.buildSE <- function(es, sampleKey = NULL, ann = NULL, vm = NULL, fit = NULL, 
 
     if (!is.null(vm)) {
         stopifnot(setequal(colnames(vm), colnames(es)), is(vm, "EList"), setequal(row.names(vm), row.names(es)))
-        asy["voom"] <- vm$E
-        asy["weights"] <- vm$weights
-        met["design"] <- vm$design
+        asy[["voom"]] <- vm$E
+        asy[["weights"]] <- vm$weights
+        met[["design"]] <- vm$design
 
         newCols <- (ncol(cd) + 1):(ncol(cd) + ncol(vm$targets))
         cd <- cbind(cd, vm$targets[row.names(cd), ])
@@ -248,7 +248,7 @@ ct.buildSE <- function(es, sampleKey = NULL, ann = NULL, vm = NULL, fit = NULL, 
     }
 
     if (!is.null(fit)) {
-        met["fit"] <- fit
+        met[["fit"]] <- fit
     }
 
     if (!is.null(summaryList)) {
@@ -256,7 +256,7 @@ ct.buildSE <- function(es, sampleKey = NULL, ann = NULL, vm = NULL, fit = NULL, 
             stop("When supplied, results dataframes must be provided as a named list.")
         }
         invisible(lapply(summaryList, ct.resultCheck))
-        met$results <- summaryList
+        met[["results"]] <- summaryList
     }
 
     if (!is.null(ann)) {
@@ -425,4 +425,33 @@ ct.softLog <- function(x) {
 }
 
 
+##' @title Extract gCrisprTools objects from a `SummarizedExperiment` 
+##' @description Utility function to enable gCrisprTools functions to take `SummarizedExperiment` class objects (or subclasses thereof) as input. 
+##' Throws errors when unexpected things happen. 
+##' @param what What gCrisprTools-friendly object to compile. options are: 
+##'   - `es`: an `ExpressionSet`, compiled from the `exprs` slot of the `assayData`, with `colData` and `rowData` saved as the `fData` and `pData`
+##'   - `ann`: a gCrisprTools annotation from the `rowData`
+##' @param se The `SummarizedExperiment` object. 
+##' @return The specified gCrisprTools-friendly object
+##' @importClassesFrom SummarizedExperiment
+##' @author Russell Bainer
+##' @export
+ct.extractSE <- function(what, se){
+  
+  library('SummarizedExperiment', quietly = TRUE)
+  if(!is(se, 'SummarizedExperiment')){
+    stop('I tried to extract ', deparse(substitute(what)), ' from ', deparse(substitute(se)), " but it's not a SummarizedExperiment.")
+  }
+  
+  extractable <- c('ann', 'es')
+  if(!(what %in% extractable)){
+    stop("I don't know how to extract ", deparse(substitute(what)), ' from a SummarizedExperiment.')
+  }
+  
+  return(switch(what, 
+                ann = ct.prepareAnnotation(rowData(se)), 
+                es = as(se, 'ExpressionSet'))
+  )
+}
+  
 

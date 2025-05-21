@@ -89,7 +89,7 @@ ct.viewGuides <- function(gene, fit, ann, type = "geneSymbol", contrast.term = N
     }
 
     grna.inx <- row.names(ann)[(ann[, type] %in% gene)]
-    grna.inx <- sort(grna.inx)
+    #grna.inx <- sort(grna.inx)
 
     # Set up the color palette and the legend first:
     day3Density <- density(fit$coefficients)

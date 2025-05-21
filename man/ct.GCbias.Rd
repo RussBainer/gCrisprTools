@@ -7,12 +7,13 @@
 ct.GCbias(data.obj, ann, sampleKey = NULL, lib.size = NULL)
 }
 \arguments{
-\item{data.obj}{An \code{ExpressionSet} or fit (\code{MArrayLM}) object to be analyzed for the presence of GC 
-content bias.}
+\item{data.obj}{A \code{SummarizedExperiment}, \code{ExpressionSet}, or fit (\code{MArrayLM}) object to be 
+analyzed for the presence of GC content bias.}
 
 \item{ann}{An annotation \code{data.frame}, used to estimate GC content for each guide. Guides are annotated by 
 row, and the object must minimally contain a \code{target} column containing a character 
-vector that indicates the corresponding nucleotide sequences.}
+vector that indicates the corresponding nucleotide sequences. Ignored if `data.obj` is a `SummarizedExperiment`, 
+in which case annotation is extracted from the `rowData`.}
 
 \item{sampleKey}{An optional sample key, supplied as a factor linking the samples to experimental 
 variables. The \code{names} attribute should exactly match those present in \code{eset}, and the 

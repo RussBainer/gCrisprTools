@@ -1,11 +1,12 @@
 ##' @title Visualization of gRNA GC Content Trends
 ##' @description This function visualizes relationships between gRNA GC content and their measured abundance or 
 ##' various differential expression model estimates. 
-##' @param data.obj An \code{ExpressionSet} or fit (\code{MArrayLM}) object to be analyzed for the presence of GC 
-##' content bias. 
+##' @param data.obj A \code{SummarizedExperiment}, \code{ExpressionSet}, or fit (\code{MArrayLM}) object to be 
+##' analyzed for the presence of GC content bias. 
 ##' @param ann An annotation \code{data.frame}, used to estimate GC content for each guide. Guides are annotated by 
 ##' row, and the object must minimally contain a \code{target} column containing a character 
-##' vector that indicates the corresponding nucleotide sequences.
+##' vector that indicates the corresponding nucleotide sequences. Ignored if `data.obj` is a `SummarizedExperiment`, 
+##' in which case annotation is extracted from the `rowData`.  
 ##' @param sampleKey An optional sample key, supplied as a factor linking the samples to experimental 
 ##' variables. The \code{names} attribute should exactly match those present in \code{eset}, and the 
 ##' control set is assumed to be the first \code{level}. Ignored in the analysis of model fit objects. 
@@ -31,6 +32,10 @@
 ct.GCbias <- function(data.obj, ann, sampleKey = NULL, lib.size = NULL) {
 
     # check inputs
+    if (methods::is(data.obj, "SummarizedExperiment")) {
+      data.obj <- ct.extractSE('es', data.obj)
+      ann <- ct.extractSE('ann', data.obj)
+    }
     if (methods::is(data.obj, "ExpressionSet")) {
         is.fit <- FALSE
         d <- exprs(data.obj)
