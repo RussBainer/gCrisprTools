@@ -110,7 +110,6 @@ ct.normalizeSpline <- function(eset, annotation, geneSymb = NULL, lib.size = NUL
 ##' ct.gRNARankByReplicate(es, sk, lib.size = ls)
 ##' ct.gRNARankByReplicate(es.norm, sk, lib.size = ls)
 ##' @export
-
 ct.normalizeNTC <- function(eset, annotation, lib.size = NULL, geneSymb = NULL) {
 
     if (!methods::is(eset, "ExpressionSet")) {
@@ -238,10 +237,10 @@ ct.normalizeBySlope <- function(ExpressionObject, trim = 0.25, lib.size = NULL, 
 ##' @description This function normalizes Crispr gRNA abundance estimates contained in an \code{ExpressionSet} object.
 ##' Currently four normalization methods are implemented: median scaling (via \code{normalizeMedianValues}), slope-based
 ##' normalization (via \code{ct.normalizeBySlope()}), scaling to the median of the nontargeting control values (via 
-##' \code{ct.normalizeNTC()}), factored quantile normalization (via \code{ct.normalizeFQ()}), and spline fitting to the distribution of 
-##' selected gRNAs (via \code{ct.normalizeSpline()}). Because of the peculiarities of pooled Crispr screening data, these 
-##' implementations may be more stable than the endogenous methods used downstream by \link[limma]{voom}. See the respective 
-##' man pages for further details about specific normalization approaches.
+##' \code{ct.normalizeNTC()}), factored quantile normalization (via \code{ct.normalizeFQ()}), spline fitting to the distribution of 
+##' selected gRNAs (via \code{ct.normalizeSpline()}), and genewise normalization to a subset of specified guides (via \code{ct.normalizeGenewise()}). 
+##' Because of the peculiarities of pooled Crispr screening data, these implementations may be more stable than the endogenous 
+##' methods used downstream by \link[limma]{voom}. See the respective man pages for further details about specific normalization approaches.
 ##' @param eset An ExpressionSet object with integer count data extractable with \code{exprs()}.
 ##' @param method The normalization method to use.
 ##' @param annotation The annotation object for the library, required for the methods employing nontargeting controls.
@@ -272,16 +271,16 @@ ct.normalizeBySlope <- function(ExpressionObject, trim = 0.25, lib.size = NULL, 
 ##' es.norm <- ct.normalizeGuides(es, 'controlScale', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 ##' es.norm <- ct.normalizeGuides(es, 'controlSpline', annotation = ann, sampleKey = sk, plot.it = TRUE, geneSymb = 'NoTarget')
 ##' @export
-ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "controlScale", "controlSpline"), annotation = NULL, sampleKey = NULL, lib.size = NULL, plot.it = FALSE, 
+ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "controlScale", "controlSpline", "genewise"), annotation = NULL, sampleKey = NULL, lib.size = NULL, plot.it = FALSE, 
     ...) {
     if (!methods::is(eset, "ExpressionSet")) {
         stop(deparse(substitute(eset)), "is not an ExpressionSet.")
     }
 
-    choices <- c("scale", "FQ", "slope", "controlScale", "controlSpline")
+    choices <- c("scale", "FQ", "slope", "controlScale", "controlSpline", 'genewise')
     method <- match.arg(method, choices)
 
-    if (method %in% c("controlScale", "controlSpline")) {
+    if (method %in% c("controlScale", "controlSpline", 'genewise')) {
         if (is.null(annotation)) {
             stop("An annotation object must be provided to perform", deparse(substitute(method)), "normalization.")
         }
@@ -303,7 +302,8 @@ ct.normalizeGuides <- function(eset, method = c("scale", "FQ", "slope", "control
                        FQ = ct.normalizeFQ(eset, sets = sampleKey, lib.size = lib.size), 
                        slope = ct.normalizeBySlope(eset, lib.size = lib.size, ...), 
                        controlScale = ct.normalizeNTC(eset, annotation, lib.size = lib.size, ...), 
-                       controlSpline = ct.normalizeSpline(eset, annotation, lib.size = lib.size, ...))
+                       controlSpline = ct.normalizeSpline(eset, annotation, lib.size = lib.size, ...),
+                       controlSpline = ct.normalizeGenewise(eset, annotation, lib.size = lib.size, ...))
     # set negative counts to 0's if they happen to be present after normalization
     exprs(new.eset) <- apply(X = exprs(new.eset), MARGIN = 2, FUN = function(col) {
         col[col < 0] <- 0
@@ -439,6 +439,75 @@ ct.normalizeFQ <- function(eset, sets, lib.size = NULL) {
 }
 
 
+##' @title Normalize sample abundance estimates genewise by the median values of a subset of guides
+##' 
+##' @description This function normalizes subsets of Crispr gRNA abundance estimates by equalizing the median 
+##' abundances of a specified set of gRNAs annotated to the subset within each sample. The normalized values are returned as normalized counts in 
+##' the '\code{exprs}' slot of the input eset. This normalization strategy is best suited for tiling screening experiments where the overall impact 
+##' of a gRNA is imagined to be a combination of the gene-level and guide-level effects, which we take to be additive and independent. 
+##' 
+##' @param eset An ExpressionSet object containing, at minimum, count data accessible by \code{exprs}. 
+##' @param annotation An annotation dataframe indicating the gene-level assignments of gRNAs in the geneSymbol column. 
+##' @param toNorm a logical vector indicating which gRNAs should be included in the normalization step.
+##' @param lib.size An optional vector of voom-appropriate library size adjustment factors, usually calculated with \code{\link[edgeR]{calcNormFactors}} 
+##' and transformed to reflect the appropriate library size. These adjustment factors are interpreted as the total library sizes for each sample, 
+##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
+##' @return A normalized \code{eset}. 
+##' @author Russell Bainer
+##' @examples data('es')
+##' data('ann')
+##' 
+##' #Build the sample key and library sizes for visualization
+##' library(Biobase)
+##' sk <- ordered(relevel(as.factor(pData(es)$TREATMENT_NAME), 'ControlReference'))
+##' names(sk) <- row.names(pData(es))
+##' ls <- colSums(exprs(es))
+##' 
+##' es.norm <- ct.normalizeGenewise(es, ann, toNorm = ifelse(rnorm(nrow(ann)) > 0, TRUE, FALSE), lib.size = ls)
+##' 
+##' ct.gRNARankByReplicate(es, sk, lib.size = ls)
+##' ct.gRNARankByReplicate(es.norm, sk, lib.size = ls)
+##' @export
+ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
+  
+  if (!methods::is(eset, "ExpressionSet")) {
+    stop(deparse(substitute(eset)), " is not an ExpressionSet.")
+  }
+  
+  # Check the annotation and find the NTC rows
+  if (!is.data.frame(annotation)) {
+    stop("An annotation dataframe must be supplied to normalize to nontargeting controls.")
+  }
+  annotation <- invisible(ct.prepareAnnotation(annotation, eset))
+  
+  stopifnot(is(toNorm, 'logical'), length(toNorm) == nrow(ann))
+  
+  # Select the geneSymbols to be adjusted
+  to.adj <- unique(ann$geneSymbol[toNorm])
+  
+  # Update the eset and return it.
+  counts <- exprs(eset)
+  
+  if (is.null(lib.size)) {
+    lib.size <- colSums(counts)
+  }
+  
+  y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
+  
+  for(symb in to.adj){
+    inGene <- (ann$geneSymbol %in% symb)
+    ntcVals <- y[toNorm & inGene, ]
+    cmed <- colMedians(ntcVals, na.rm = TRUE)
+    cmed <- (cmed - mean(cmed))
+    
+    y[inGene,] <- t(t(y[inGene,]) - cmed)
+    
+  }
+  y <- 2^y
+  y <- round(t(t(y) * ((lib.size + 1)/1e+06)) - 0.5)
+  exprs(eset) <- y
+  return(eset)
+}
 
 
 
