@@ -23,7 +23,7 @@ Description: Set of tools for evaluating pooled high-throughput screening experi
     extended signal enrichment methodologies via the "sparrow" package, and 
     streamlines many formal requirements to aid in interpretablity. 
 License: Artistic-2.0
-Imports: Biobase, limma, RobustRankAggreg, ggplot2,
+Imports: Biobase, limma, ggplot2,
         SummarizedExperiment, grid, rmarkdown, grDevices, graphics,
         methods, ComplexHeatmap, stats, utils, parallel, MatrixGenerics, methods
 Suggests: edgeR, knitr, AnnotationDbi, org.Mm.eg.db, org.Hs.eg.db,
