@@ -434,12 +434,13 @@ ct.softLog <- function(x) {
 ##' @param se The `SummarizedExperiment` object. 
 ##' @return The specified gCrisprTools-friendly object
 ##' @importClassesFrom SummarizedExperiment SummarizedExperiment
+##' @importFrom methods is
+##' @importFrom methods as
 ##' @author Russell Bainer
 ##' @export
 ct.extractSE <- function(what, se){
   
-  library('SummarizedExperiment', quietly = TRUE)
-  if(!is(se, 'SummarizedExperiment')){
+  if(!methods::is(se, 'SummarizedExperiment')){
     stop('I tried to extract ', deparse(substitute(what)), ' from ', deparse(substitute(se)), " but it's not a SummarizedExperiment.")
   }
   
