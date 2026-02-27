@@ -2,8 +2,27 @@
 % Please edit documentation in R/gCrisprTools.R
 \docType{package}
 \name{gCrisprTools-package}
+\alias{gCrisprTools}
 \alias{gCrisprTools-package}
 \title{gCrisprTools}
 \description{
 Pipeline for using CRISPR screen data
+}
+\author{
+\strong{Maintainer}: Russell Bainer \email{russ.bainer@gmail.com}
+
+Authors:
+\itemize{
+  \item Dariusz Ratman \email{ratmand@roche.com}
+  \item Peter Haverty \email{havertypm@gmail.com}
+  \item Steve Lianoglou \email{slianoglou@gmail.com}
+}
+
+Other contributors:
+\itemize{
+  \item Light Horse Therapeutics (2023+) [funder]
+  \item Maze Therapeutics (2019 - 2023) [funder]
+  \item Genentech, Inc. (2014 - 2018) [funder]
+}
+
 }
