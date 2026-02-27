@@ -449,8 +449,8 @@ ct.extractSE <- function(what, se){
   }
   
   return(switch(what, 
-                ann = ct.prepareAnnotation(rowData(se)), 
-                es = as(se, 'ExpressionSet'))
+                ann = ct.prepareAnnotation(SummarizedExperiment::rowData(se)), 
+                es = methods::as(se, 'ExpressionSet'))
   )
 }
   

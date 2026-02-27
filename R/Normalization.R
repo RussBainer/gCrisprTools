@@ -480,10 +480,10 @@ ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
   }
   annotation <- invisible(ct.prepareAnnotation(annotation, eset))
   
-  stopifnot(is(toNorm, 'logical'), length(toNorm) == nrow(ann))
+  stopifnot(is(toNorm, 'logical'), length(toNorm) == nrow(annotation))
   
   # Select the geneSymbols to be adjusted
-  to.adj <- unique(ann$geneSymbol[toNorm])
+  to.adj <- unique(annotation$geneSymbol[toNorm])
   
   # Update the eset and return it.
   counts <- exprs(eset)
@@ -495,7 +495,7 @@ ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
   y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
   
   for(symb in to.adj){
-    inGene <- (ann$geneSymbol %in% symb)
+    inGene <- (annotation$geneSymbol %in% symb)
     ntcVals <- y[toNorm & inGene, ]
     cmed <- colMedians(ntcVals, na.rm = TRUE)
     cmed <- (cmed - mean(cmed))
