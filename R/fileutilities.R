@@ -433,7 +433,7 @@ ct.softLog <- function(x) {
 ##'   - `ann`: a gCrisprTools annotation from the `rowData`
 ##' @param se The `SummarizedExperiment` object. 
 ##' @return The specified gCrisprTools-friendly object
-##' @importClassesFrom SummarizedExperiment
+##' @importClassesFrom SummarizedExperiment SummarizedExperiment
 ##' @author Russell Bainer
 ##' @export
 ct.extractSE <- function(what, se){

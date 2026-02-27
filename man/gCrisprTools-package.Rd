@@ -20,9 +20,11 @@ Authors:
 
 Other contributors:
 \itemize{
-  \item Light Horse Therapeutics (2023+) [funder]
+  \item Eikon Therapeutics (2026+) [funder]
+  \item Light Horse Therapeutics (2023-2025) [funder]
   \item Maze Therapeutics (2019 - 2023) [funder]
   \item Genentech, Inc. (2014 - 2018) [funder]
 }
 
 }
+\keyword{internal}

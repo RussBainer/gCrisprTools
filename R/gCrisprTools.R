@@ -2,8 +2,8 @@
 ##'
 ##' Pipeline for using CRISPR screen data
 ##'
-##' @docType package
-##' @name gCrisprTools-package
+##' @keywords internal
+"_PACKAGE"
 NULL
 
 ##' @import Biobase
