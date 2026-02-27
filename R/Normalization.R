@@ -497,7 +497,7 @@ ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
   for(symb in to.adj){
     inGene <- (annotation$geneSymbol %in% symb)
     ntcVals <- y[toNorm & inGene, ]
-    cmed <- colMedians(ntcVals, na.rm = TRUE)
+    cmed <- MatrixGenerics::colMedians(ntcVals, na.rm = TRUE)
     cmed <- (cmed - mean(cmed))
     
     y[inGene,] <- t(t(y[inGene,]) - cmed)
