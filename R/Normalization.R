@@ -464,9 +464,6 @@ ct.normalizeFQ <- function(eset, sets, lib.size = NULL) {
 ##' ls <- colSums(exprs(es))
 ##' 
 ##' es.norm <- ct.normalizeGenewise(es, ann, toNorm = ifelse(rnorm(nrow(ann)) > 0, TRUE, FALSE), lib.size = ls)
-##' 
-##' ct.gRNARankByReplicate(es, sk, lib.size = ls)
-##' ct.gRNARankByReplicate(es.norm, sk, lib.size = ls)
 ##' @export
 ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
   
@@ -496,7 +493,7 @@ ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
   
   for(symb in to.adj){
     inGene <- (annotation$geneSymbol %in% symb)
-    ntcVals <- y[toNorm & inGene, ]
+    ntcVals <- y[toNorm & inGene, , drop = FALSE]
     cmed <- MatrixGenerics::colMedians(ntcVals, na.rm = TRUE)
     cmed <- (cmed - mean(cmed))
     

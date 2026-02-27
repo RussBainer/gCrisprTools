@@ -37,9 +37,6 @@ names(sk) <- row.names(pData(es))
 ls <- colSums(exprs(es))
 
 es.norm <- ct.normalizeGenewise(es, ann, toNorm = ifelse(rnorm(nrow(ann)) > 0, TRUE, FALSE), lib.size = ls)
-
-ct.gRNARankByReplicate(es, sk, lib.size = ls)
-ct.gRNARankByReplicate(es.norm, sk, lib.size = ls)
 }
 \author{
 Russell Bainer
