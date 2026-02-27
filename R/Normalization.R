@@ -454,6 +454,8 @@ ct.normalizeFQ <- function(eset, sets, lib.size = NULL) {
 ##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
 ##' @return A normalized \code{eset}. 
 ##' @author Russell Bainer
+##' @importFrom MatrixGenerics colMedians
+##' @importFrom methods as is
 ##' @examples data('es')
 ##' data('ann')
 ##' 
