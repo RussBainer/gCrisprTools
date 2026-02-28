@@ -133,12 +133,12 @@ ct.stackGuides <- function(eset, sampleKey = NULL, nguides = 20, plotType = "gRN
         if (!is.numeric(ylimit) | (length(ylimit) != 2)) {
             stop("The ylimit variable must be NULL, or a numeric vector of length 2.")
         }
-        ggplot(plotframe, aes_string(x = "Condition", y = "ReadProportion", fill = "gRNA")) + geom_bar(stat = "identity", position = "stack") + theme(axis.text.x = element_text(angle = 90, 
+        ggplot(plotframe, aes(x = .data[["Condition"]], y = .data[["ReadProportion"]], fill = .data[["gRNA"]])) + geom_bar(stat = "identity", position = "stack") + theme(axis.text.x = element_text(angle = 90, 
             hjust = 1)) + scale_fill_manual(values = colorScale) + ggtitle(plottitle) + coord_cartesian(ylim = c(ylimit[1], ylimit[2])) + ylab("Proportion of Total Reads") + 
             theme(legend.key.size = unit(legend.scale.factor, "cm"), legend.title = element_blank())
 
     } else {
-        ggplot(plotframe, aes_string(x = "Condition", y = "ReadProportion", fill = "gRNA")) + geom_bar(stat = "identity", position = "stack") + theme(axis.text.x = element_text(angle = 90, 
+        ggplot(plotframe, aes(x = .data[["Condition"]], y = .data[["ReadProportion"]], fill = .data[['gRNA']])) + geom_bar(stat = "identity", position = "stack") + theme(axis.text.x = element_text(angle = 90, 
             hjust = 1)) + scale_fill_manual(values = colorScale) + ggtitle(plottitle) + ylab("Proportion of Total Reads") + theme(legend.key.size = unit(legend.scale.factor, 
             "cm"), legend.title = element_blank())
     }

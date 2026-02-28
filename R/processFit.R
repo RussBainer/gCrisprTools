@@ -3,9 +3,13 @@
 ##' \code{modelTerm} specified.  
 ##' @param fit An object of class MArrayLM to be processed. 
 ##' @param modelTerm The model coefficient to be isolated for downstream analyses. 
+##' @param fill.missing Logical indicating whether missing elements of `fit` (usually due to incomplete or unreplicated data)
+##' should be created with all elements set to zero. This is not recommended, but sometimes is necessary to use specific 
+##' `gCrisprTools` QC or visualization tooling.  
 ##' @return A \code{MArrayLM} object for downstream processing. 
 ##' @author Russell Bainer
 ##' @import limma
+##' @importFrom methods is
 ##' @keywords internal
 ##' @examples 
 ##' 
@@ -32,16 +36,33 @@
 ##' ncol(fit2)
 ##' @export 
 
-ct.preprocessFit <- function(fit, modelTerm) {
+ct.preprocessFit <- function(fit, modelTerm, fill.missing = FALSE) {
+    stopifnot(methods::is(fill.missing, 'logical'), length(fill.missing) == 1)
+  
     if (!methods::is(fit, "MArrayLM")) {
         stop(deparse(substitute(fit)), " is not an MArrayLM object.")
     }
     if (!(modelTerm %in% colnames(fit$coefficients))) {
         stop("Specified coefficient is not present in the fit object.")
     }
-    if (!("p.value" %in% names(fit))) {
-        warning(deparse(substitute(fit)), " does not contain p-values quantifying the evidence for differential gRNA abundance. Eventually, you will need to process it with eBayes(), treat(), or a similar function.")
+  
+    missingCols <- setdiff(c('p.value', 't', 'stdev.unscaled', 'lods'), names(fit))
+    if (!("p.value" %in% missingCols)) {
+      warning(deparse(substitute(fit)), " does not contain p-values quantifying the evidence for differential gRNA abundance. Eventually, you will need to process it with eBayes(), treat(), or a similar function.")
     }
+    
+    if(length(missingCols) > 0){
+      if(!fill.missing){
+        stop("Columns missing from ", deparse(substitute(fit)), "!\nIf you want me to make something up set fill.missing=TRUE.")
+      } else {
+        newset <- fit$coefficients
+        newset[,] <- 0
+        for(missingCol in missingCols){
+          fit[[missingCol]] <- newset
+          }
+        }
+      warning(deparse(substitute(fit)), " is missing the following expected columns: ", paste0(missingCols, collapse = ', '))
+      }
 
     fit$coefficients <- as.matrix(fit$coefficients[, modelTerm])
     colnames(fit$coefficients) <- modelTerm
