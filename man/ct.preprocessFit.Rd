@@ -4,12 +4,16 @@
 \alias{ct.preprocessFit}
 \title{Preprocess a 'MArrayLM' model fit object to include only one contrast.}
 \usage{
-ct.preprocessFit(fit, modelTerm)
+ct.preprocessFit(fit, modelTerm, fill.missing = FALSE)
 }
 \arguments{
 \item{fit}{An object of class MArrayLM to be processed.}
 
 \item{modelTerm}{The model coefficient to be isolated for downstream analyses.}
+
+\item{fill.missing}{Logical indicating whether missing elements of `fit` (usually due to incomplete or unreplicated data)
+should be created with all elements set to zero. This is not recommended, but sometimes is necessary to use specific 
+`gCrisprTools` QC or visualization tooling.}
 }
 \value{
 A \code{MArrayLM} object for downstream processing.

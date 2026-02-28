@@ -454,6 +454,8 @@ ct.normalizeFQ <- function(eset, sets, lib.size = NULL) {
 ##' and if absent will be extrapolated from the columnwise count sums of the \code{exprs} slot of the \code{eset}.
 ##' @return A normalized \code{eset}. 
 ##' @author Russell Bainer
+##' @importFrom MatrixGenerics colMedians
+##' @importFrom methods as is
 ##' @examples data('es')
 ##' data('ann')
 ##' 
@@ -464,9 +466,6 @@ ct.normalizeFQ <- function(eset, sets, lib.size = NULL) {
 ##' ls <- colSums(exprs(es))
 ##' 
 ##' es.norm <- ct.normalizeGenewise(es, ann, toNorm = ifelse(rnorm(nrow(ann)) > 0, TRUE, FALSE), lib.size = ls)
-##' 
-##' ct.gRNARankByReplicate(es, sk, lib.size = ls)
-##' ct.gRNARankByReplicate(es.norm, sk, lib.size = ls)
 ##' @export
 ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
   
@@ -480,10 +479,10 @@ ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
   }
   annotation <- invisible(ct.prepareAnnotation(annotation, eset))
   
-  stopifnot(is(toNorm, 'logical'), length(toNorm) == nrow(ann))
+  stopifnot(is(toNorm, 'logical'), length(toNorm) == nrow(annotation))
   
   # Select the geneSymbols to be adjusted
-  to.adj <- unique(ann$geneSymbol[toNorm])
+  to.adj <- unique(annotation$geneSymbol[toNorm])
   
   # Update the eset and return it.
   counts <- exprs(eset)
@@ -495,9 +494,9 @@ ct.normalizeGenewise <- function(eset, annotation, toNorm, lib.size = NULL) {
   y <- t(log2(t(counts + 0.5)/(lib.size + 1) * 1e+06))
   
   for(symb in to.adj){
-    inGene <- (ann$geneSymbol %in% symb)
-    ntcVals <- y[toNorm & inGene, ]
-    cmed <- colMedians(ntcVals, na.rm = TRUE)
+    inGene <- (annotation$geneSymbol %in% symb)
+    ntcVals <- y[toNorm & inGene, , drop = FALSE]
+    cmed <- MatrixGenerics::colMedians(ntcVals, na.rm = TRUE)
     cmed <- (cmed - mean(cmed))
     
     y[inGene,] <- t(t(y[inGene,]) - cmed)

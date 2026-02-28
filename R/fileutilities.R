@@ -433,13 +433,14 @@ ct.softLog <- function(x) {
 ##'   - `ann`: a gCrisprTools annotation from the `rowData`
 ##' @param se The `SummarizedExperiment` object. 
 ##' @return The specified gCrisprTools-friendly object
-##' @importClassesFrom SummarizedExperiment
+##' @importClassesFrom SummarizedExperiment SummarizedExperiment
+##' @importFrom methods is
+##' @importFrom methods as
 ##' @author Russell Bainer
 ##' @export
 ct.extractSE <- function(what, se){
   
-  library('SummarizedExperiment', quietly = TRUE)
-  if(!is(se, 'SummarizedExperiment')){
+  if(!methods::is(se, 'SummarizedExperiment')){
     stop('I tried to extract ', deparse(substitute(what)), ' from ', deparse(substitute(se)), " but it's not a SummarizedExperiment.")
   }
   
@@ -449,8 +450,8 @@ ct.extractSE <- function(what, se){
   }
   
   return(switch(what, 
-                ann = ct.prepareAnnotation(rowData(se)), 
-                es = as(se, 'ExpressionSet'))
+                ann = ct.prepareAnnotation(SummarizedExperiment::rowData(se)), 
+                es = methods::as(se, 'ExpressionSet'))
   )
 }
   

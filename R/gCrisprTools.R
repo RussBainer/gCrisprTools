@@ -2,8 +2,8 @@
 ##'
 ##' Pipeline for using CRISPR screen data
 ##'
-##' @docType package
-##' @name gCrisprTools-package
+##' @keywords internal
+"_PACKAGE"
 NULL
 
 ##' @import Biobase
@@ -103,4 +103,16 @@ NULL
 ##' @source Russell Bainer
 NULL
 
-
+##' @name se
+##' @aliases se
+##' @docType data
+##' @title SummarizedExperiment of count data from a Crispr screen with strong selection
+##' @description
+##' SummarizedExperiment of raw counts from a screen in mouse cells performed at Genentech, Inc. 
+##' All sample, gRNA, and Gene information has been anonymized and randomized. 
+##' @examples
+##' data('se')
+##' print(se)
+##' @seealso Please see \file{vignettes/Crispr_example_workflow.R} for details.
+##' @source Genentech, Inc.
+NULL
